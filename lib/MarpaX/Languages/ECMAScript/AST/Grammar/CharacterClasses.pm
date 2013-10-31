@@ -171,8 +171,7 @@ sub IsZWNJ { return <<END;
 END
 }
 
-=head2 sub IsZWJ { return <<END;
-()
+=head2 sub IsZWJ()
 
 =cut
 
