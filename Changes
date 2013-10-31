@@ -1,7 +1,8 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.002 2013-10-31T20:58:58
+0.002 2013-10-31T21:00:30
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Cache via CHI and optimizations
  - Fix POD
  - Fixed usage
  - Rebless explicitely NumericLiteral lexemes
