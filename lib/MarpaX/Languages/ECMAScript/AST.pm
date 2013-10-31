@@ -38,7 +38,7 @@ This module translates ECMAScript source into an AST tree. To assist further pro
     #
     # Parse ECMAScript
     #
-    my $ecmaSourceCode = 'select * from myTable;';
+    my $ecmaSourceCode = 'var i = 0;';
     my $ecmaAstObject = MarpaX::Languages::ECMAScript::AST->new();
     $log->infof('%s', $ecmaAstObject->parse(\$ecmaSourceCode));
 
