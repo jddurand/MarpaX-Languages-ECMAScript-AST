@@ -7,6 +7,8 @@ package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::
 
 # VERSION
 
+use constant AST => 'MarpaX::Languages::ECMAScript::AST';
+
 =head1 DESCRIPTION
 
 This modules give the actions associated to ECMAScript_262_5 lexical expressions grammar.
@@ -24,6 +26,39 @@ sub new {
     my $self = {};
     bless($self, $class);
     return $self;
+}
+
+=head2 DecimalLiteral($self, $lexeme)
+
+Bless lexeme to a DecimalLiteral.
+
+=cut
+
+sub DecimalLiteral {
+    my $self = shift;
+    return bless(shift, AST . '::DecimalLiteral');
+}
+
+=head2 HexIntegerLiteral($self, $lexeme)
+
+Bless lexeme to a HexIntegerLiteral.
+
+=cut
+
+sub HexIntegerLiteral {
+    my $self = shift;
+    return bless(shift, AST . '::HexIntegerLiteral');
+}
+
+=head2 OctalIntegerLiteral($self, $lexeme)
+
+Bless lexeme to a OctalIntegerLiteral.
+
+=cut
+
+sub OctalIntegerLiteral {
+    my $self = shift;
+    return bless(shift, AST . '::OctalIntegerLiteral');
 }
 
 =head2 concat($self)

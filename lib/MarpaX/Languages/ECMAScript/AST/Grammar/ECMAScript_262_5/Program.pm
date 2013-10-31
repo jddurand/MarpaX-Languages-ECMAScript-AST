@@ -504,9 +504,9 @@ Literal ::=
 #
 event 'NumericLiteral$' = completed <NumericLiteral>
 NumericLiteral ::=
-    DECIMALLITERAL
-  | HEXINTEGERLITERAL
-  | OCTALINTEGERLITERAL
+    DECIMALLITERAL           action => DecimalLiteral
+  | HEXINTEGERLITERAL        action => HexIntegerLiteral
+  | OCTALINTEGERLITERAL      action => OctalIntegerLiteral
 
 PrimaryExpression ::=
     THIS
