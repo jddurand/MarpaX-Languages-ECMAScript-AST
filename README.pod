@@ -8,7 +8,7 @@ MarpaX::Languages::ECMAScript::AST - Translate a ECMAScript source to an AST
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 SYNOPSIS
 
@@ -18,7 +18,6 @@ version 0.001
     use Log::Log4perl qw/:easy/;
     use Log::Any::Adapter;
     use Log::Any qw/$log/;
-    use Data::Dumper;
     #
     # Init log
     #
@@ -34,7 +33,7 @@ version 0.001
     #
     # Parse ECMAScript
     #
-    my $ecmaSourceCode = 'select * from myTable;';
+    my $ecmaSourceCode = 'var i = 0;';
     my $ecmaAstObject = MarpaX::Languages::ECMAScript::AST->new();
     $log->infof('%s', $ecmaAstObject->parse(\$ecmaSourceCode));
 
@@ -54,15 +53,19 @@ Instantiate a new object. Takes as parameter an optional hash of options that ca
 
 Name of a grammar. Default is 'ECMAScript-262-5'.
 
+=item cache
+
+Produced AST can be cached: very often the same ECMAScript is used again and again, so there is no need to always compute it at each call. The cache is based on a key that the buffer MD4 checksum, eventual collisions being handled. The cache location is the default CHI::Driver::File location. Default is a true value.
+
 =back
 
-=head2 parse($self, $sourcep)
+=head2 parse($self, $source)
 
-Get and AST from the ECMAScript source, pointed by $sourcep. This method will call all the intermediary steps (lexical, transformation, evaluation) necessary to produce the AST.
+Get and AST from the ECMAScript source, pointed by $source. This method will call all the intermediary steps (lexical, transformation, evaluation) necessary to produce the AST.
 
 =head1 SEE ALSO
 
-L<Log::Any>, L<Marpa::R2>
+L<Log::Any>, L<Marpa::R2>, L<Digest::MD4>, L<CHI::Driver::File>
 
 =for :stopwords cpan testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto metadata placeholders metacpan
 

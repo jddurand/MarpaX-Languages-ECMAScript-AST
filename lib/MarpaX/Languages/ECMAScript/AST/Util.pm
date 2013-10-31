@@ -125,38 +125,38 @@ sub logCroak {
     }
 }
 
-=head2 showLineAndCol($line, $col, $sourcep)
+=head2 showLineAndCol($line, $col, $source)
 
 Returns a string showing the request line, followed by another string that shows what is the column of interest, in the form "------^".
 
 =cut
 
 sub showLineAndCol {
-    my ($line, $col, $sourcep) = @_;
+    my ($line, $col, $source) = @_;
 
     my $pointer = ($col > 0 ? '-' x ($col-1) : '') . '^';
     my $content = '';
 
-    my $prevpos = pos(${$sourcep});
-    pos(${$sourcep}) = undef;
+    my $prevpos = pos($source);
+    pos($source) = undef;
     my $thisline = 0;
     my $nbnewlines = 0;
     my $eos = 0;
-    while (${$sourcep} =~ m/\G(.*?)($NEWLINE_REGEXP|\Z)/scmg) {
+    while ($source =~ m/\G(.*?)($NEWLINE_REGEXP|\Z)/scmg) {
       if (++$thisline == $line) {
-        $content = substr(${$sourcep}, $-[1], $+[1] - $-[1]);
+        $content = substr($source, $-[1], $+[1] - $-[1]);
         $eos = (($+[2] - $-[2]) > 0) ? 0 : 1;
         last;
       }
     }
     $content =~ s/\t/ /g;
     if ($content) {
-      $nbnewlines = (substr(${$sourcep}, 0, pos(${$sourcep})) =~ tr/\n//);
+      $nbnewlines = (substr($source, 0, pos($source)) =~ tr/\n//);
       if ($eos) {
         ++$nbnewlines; # End of string instead of $NEWLINE_REGEXP
       }
     }
-    pos(${$sourcep}) = $prevpos;
+    pos($source) = $prevpos;
 
     return "line:column $line:$col (Unicode newline count) $nbnewlines:$col (\\n count)\n\n$content\n$pointer";
 }

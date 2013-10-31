@@ -8,10 +8,10 @@ BEGIN {
 }
 
 my $ecmaSourceCode = do {local $/; <DATA>};
-my $ecmaAst = MarpaX::Languages::ECMAScript::AST->new();
-my $valuep;
-eval {$valuep = $ecmaAst->parse(\$ecmaSourceCode)};
-ok(defined($valuep));
+my $ecmaAst = MarpaX::Languages::ECMAScript::AST->new(cache => 0);
+my $value;
+eval {$value = $ecmaAst->parse($ecmaSourceCode)};
+ok(defined($value));
 __DATA__
 //     Underscore.js 1.5.2
 //     http://underscorejs.org

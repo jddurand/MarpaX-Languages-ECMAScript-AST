@@ -76,15 +76,15 @@ sub new {
     return $self;
 }
 
-=head2 parse($self, $sourcep)
+=head2 parse($self, $source)
 
-Parse the source given as reference to a scalar.
+Parse the source given as $source.
 
 =cut
 
 sub parse {
-    my ($self, $sourcep, $impl) = @_;
-    return $self->SUPER($sourcep, $impl,
+    my ($self, $source, $impl) = @_;
+    return $self->SUPER($source, $impl,
 	{
 	    '_DecimalLiteral$'     => \&_DecimalLiteral,
 	    '_HexIntegerLiteral$'  => \&_HexIntegerLiteral,
@@ -94,7 +94,7 @@ sub parse {
 }
 
 sub _IdentifierName {
-    my ($self, $lexemeHashp, $sourcep, $impl) = @_;
+    my ($self, $lexemeHashp, $source, $impl) = @_;
 
     if ($self->strict) {
 	if (grep {$lexemeHashp->{value} eq $_} @FutureReservedWordStrict) {
@@ -105,13 +105,13 @@ sub _IdentifierName {
 }
 
 sub _DecimalLiteral {
-    my ($self, $lexemeHashp, $sourcep, $impl) = @_;
+    my ($self, $lexemeHashp, $source, $impl) = @_;
 
-    $self->_NumericLiteralLookhead($lexemeHashp, $sourcep, $impl);
+    $self->_NumericLiteralLookhead($lexemeHashp, $source, $impl);
 }
 
 sub _OctalIntegerLiteral {
-    my ($self, $lexemeHashp, $sourcep, $impl) = @_;
+    my ($self, $lexemeHashp, $source, $impl) = @_;
 
     if ($self->strict) {
 	croak "OctalIntegerLiteral $lexemeHashp->{value} is forbidden in strict mode";
@@ -120,21 +120,21 @@ sub _OctalIntegerLiteral {
 }
 
 sub _HexIntegerLiteral {
-    my ($self, $lexemeHashp, $sourcep, $impl) = @_;
+    my ($self, $lexemeHashp, $source, $impl) = @_;
 
-    $self->_NumericLiteralLookhead($lexemeHashp, $sourcep, $impl);
+    $self->_NumericLiteralLookhead($lexemeHashp, $source, $impl);
 }
 
 sub _NumericLiteralLookhead {
-    my ($self, $lexemeHashp, $sourcep, $impl) = @_;
+    my ($self, $lexemeHashp, $source, $impl) = @_;
     #
     #
     # The source character immediately following a NumericLiteral must not be an IdentifierStart or DecimalDigit.
     #
-    my $prevpos = pos(${$sourcep});
-    pos(${$sourcep}) = $lexemeHashp->{start} + $lexemeHashp->{length};
+    my $prevpos = pos($source);
+    pos($source) = $lexemeHashp->{start} + $lexemeHashp->{length};
     # __DecimalDigit      ~ [\p{IsDecimalDigit}]
-    if (${$sourcep} =~ /\G
+    if ($source =~ /\G
                         (
                          (?:                                                                                               # __IdentifierStart ~
                            [\p{MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::IsUnicodeLetter}\$_]   #                     __UnicodeLetter
@@ -151,10 +151,10 @@ sub _NumericLiteralLookhead {
                          )
                         )
                        /x) {
-	my $match = substr(${$sourcep}, $-[1], $+[1] - $-[1]);
+	my $match = substr($source, $-[1], $+[1] - $-[1]);
 	croak "NumericLiteral $lexemeHashp->{value} is followed by an IdentifierStart or a DecimalDigit '$match'";
     }
-    pos(${$sourcep}) = $prevpos;
+    pos($source) = $prevpos;
 }
 
 =head1 SEE ALSO

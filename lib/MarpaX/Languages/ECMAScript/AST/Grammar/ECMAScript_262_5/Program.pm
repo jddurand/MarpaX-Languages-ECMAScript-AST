@@ -132,16 +132,16 @@ sub new {
     return $self;
 }
 
-=head2 parse($self, $sourcep)
+=head2 parse($self, $source)
 
-Parse the source given as reference to a scalar.
+Parse the source given as $source.
 
 =cut
 
 sub parse {
-    my ($self, $sourcep, $impl) = @_;
+    my ($self, $source, $impl) = @_;
     $self->{programCompleted} = 0;
-    return $self->SUPER($sourcep, $impl,
+    return $self->SUPER($source, $impl,
                         {
                          callback => \&_eventCallback,
                          callbackargs => [ $self ],
@@ -153,7 +153,7 @@ sub parse {
 }
 
 sub _eventCallback {
-  my ($self, $sourcep, $pos, $max, $impl) = @_;
+  my ($self, $source, $pos, $max, $impl) = @_;
 
   #
   # $pos is the exact position where SLIF stopped because of an event
@@ -171,15 +171,15 @@ sub _eventCallback {
 	#
 	# Program$ will happen rarely, so even it does cost it is ok to do so
 	#
-	$self->{programCompleted} = $self->_isEnd($sourcep, $pos, $impl);
+	$self->{programCompleted} = $self->_isEnd($source, $pos, $impl);
     }
     elsif ($name eq 'NumericLiteral$') {
       #
       # The source character immediately following a NumericLiteral must not be
       # an IdentifierStart or DecimalDigit
       #
-      if ($self->_isIdentifierStart($sourcep, $pos, $impl) ||
-          $self->_isDecimalDigit($sourcep, $pos, $impl)) {
+      if ($self->_isIdentifierStart($source, $pos, $impl) ||
+          $self->_isDecimalDigit($source, $pos, $impl)) {
         my ($start, $end) = $impl->last_completed_range('NumericLiteral');
         my $lastNumericLiteral = $impl->range_to_string($start, $end);
         croak "[_eventCallback] NumericLiteral $lastNumericLiteral must not be immediately followed by an IdentifierStart or DecimalDigit";
@@ -189,23 +189,11 @@ sub _eventCallback {
     # 3. Then prediction events (^XXX or ^^XXX)
     #
     elsif ($name eq 'IDENTIFIER$') {
-	my %lexeme = ();
-	$self->getLexeme(\%lexeme, $impl);
-	if (exists($ReservedWord{$lexeme{value}})) {
-	    croak "[_eventCallback] Identifier $lexeme{value} is a reserved word";
+	my %lastLexeme = ();
+	$self->getLastLexeme(\%lastLexeme, $impl);
+	if (exists($ReservedWord{$lastLexeme{value}})) {
+	    croak "[_eventCallback] Identifier $lastLexeme{value} is a reserved word";
 	}
-    }
-    elsif ($name eq '^INVISIBLE_SEMICOLON') {
-      #
-      # By definition (c.f. the grammar) when INVISIBLE_SEMICOLON is predicted, SEMICOLON is also
-      # predicted: we replace INVISIBLE_SEMICOLON with a SEMICOLON spanning on INVISIBLE_SEMICOLON's length
-      #
-      my %lexeme = ();
-      $self->getLexeme(\%lexeme, $impl);
-      #$log->infof('[_eventCallback] Automatic Semicolon Insertion at position %d, span %d', $lexeme{start}, $lexeme{length});
-      #$log->tracef('[_eventCallback] Event %s: lexeme_read(\'SEMICOLON\', %d, %d, \';\')', $name, $lexeme{start}, $lexeme{length});
-      $impl->lexeme_read('SEMICOLON', $lexeme{start}, $lexeme{length}, ';');
-      $rc += $lexeme{length};
     }
     #
     # ^PLUSPLUS_POSTFIX, ^MINUSMINUS_POSTFIX
@@ -214,7 +202,7 @@ sub _eventCallback {
       my %lastLexeme = ();
       $self->getLastLexeme(\%lastLexeme, $impl);
       my $postLineTerminatorPos = $lastLexeme{start} + $lastLexeme{length};
-      my $postLineTerminatorLength = $self->_postLineTerminatorLength($sourcep, $postLineTerminatorPos, $impl);
+      my $postLineTerminatorLength = $self->_postLineTerminatorLength($source, $postLineTerminatorPos, $impl);
       if ($postLineTerminatorLength > 0) {
 	  #$log->infof('[_eventCallback] Automatic Semicolon Insertion at position %d, span %d', $postLineTerminatorPos, $postLineTerminatorLength);
 	  #$log->tracef('[_eventCallback] Event %s: lexeme_read(\'SEMICOLON\', %d, %d, \';\')', $name, $postLineTerminatorPos, $postLineTerminatorLength);
@@ -231,11 +219,11 @@ sub _eventCallback {
     # ^^DIV (because of REGULAREXPRESSIONLITERAL that can eat it)
     # -----------------------------------------------------------
     elsif ($name eq '^^DIV') {
-	my $realpos = $rc + $self->_preSLength($sourcep, $rc, $impl);
-      if (index(${$sourcep}, '/',  $realpos) == $realpos &&
-          index(${$sourcep}, '/=', $realpos) != $realpos &&
-          index(${$sourcep}, '//', $realpos) != $realpos &&
-          index(${$sourcep}, '/*', $realpos) != $realpos) {
+	my $realpos = $rc + $self->_preSLength($source, $rc, $impl);
+      if (index($source, '/',  $realpos) == $realpos &&
+          index($source, '/=', $realpos) != $realpos &&
+          index($source, '//', $realpos) != $realpos &&
+          index($source, '/*', $realpos) != $realpos) {
         #$log->tracef('[_eventCallback] Event %s: lexeme_read(\'DIV\', %d, 1, \'/\')', $name, $realpos);
         $impl->lexeme_read('DIV', $realpos, 1, '/');
         $rc = $realpos + 1;
@@ -245,10 +233,10 @@ sub _eventCallback {
     # ^^DIVASSIGN  (because of REGULAREXPRESSIONLITERAL that can eat it)
     # ------------------------------------------------------------------
     elsif ($name eq '^^DIVASSIGN') {
-	my $realpos = $rc + $self->_preSLength($sourcep, $rc, $impl);
-      if (index(${$sourcep}, '/=', $realpos) == $realpos &&
-          index(${$sourcep}, '//', $realpos) != $realpos &&
-          index(${$sourcep}, '/*', $realpos) != $realpos) {
+	my $realpos = $rc + $self->_preSLength($source, $rc, $impl);
+      if (index($source, '/=', $realpos) == $realpos &&
+          index($source, '//', $realpos) != $realpos &&
+          index($source, '/*', $realpos) != $realpos) {
         #$log->tracef('[_eventCallback] Event %s: lexeme_read(\'DIVASSIGN\', %d, 2, \'/=\')', $name, $realpos);
         $impl->lexeme_read('DIVASSIGN', $realpos, 2, '/=');
         $rc = $realpos + 2;
@@ -264,12 +252,12 @@ sub _eventCallback {
 }
 
 sub _postLineTerminatorLength {
-  my ($self, $sourcep, $pos, $impl) = @_;
+    # my ($self, $source, $pos, $impl) = @_;
 
   my $rc = 0;
 
-  my $prevpos = pos(${$sourcep});
-  pos(${$sourcep}) = $pos;
+  my $prevpos = pos($_[1]);
+  pos($_[1]) = $_[2];
 
   #
   # Take care: the separator is:  _WhiteSpace | _LineTerminator | _SingleLineComment | _MultiLineComment
@@ -277,9 +265,9 @@ sub _postLineTerminatorLength {
   #
   # This is why if we find a separator just before $pos, we check again the presence of _LineTerminator in the match
   #
-  if (${$sourcep} =~ $isPostLineTerminatorLength) {
+  if ($_[1] =~ $isPostLineTerminatorLength) {
     my $length = $+[0] - $-[0];
-    if (substr(${$sourcep}, $-[0], $length) =~ /$LineTerminator/) {
+    if (substr($_[1], $-[0], $length) =~ /$LineTerminator/) {
       $rc = $length;
     }
   }
@@ -288,20 +276,20 @@ sub _postLineTerminatorLength {
   #  $log->tracef('[_postLineTerminatorLength] Found postLineTerminator of length %d', $rc);
   #}
 
-  pos(${$sourcep}) = $prevpos;
+  pos($_[1]) = $prevpos;
 
   return $rc;
 }
 
 sub _preSLength {
-  my ($self, $sourcep, $pos, $impl) = @_;
+    # my ($self, $source, $pos, $impl) = @_;
 
   my $rc = 0;
 
-  my $prevpos = pos(${$sourcep});
-  pos(${$sourcep}) = $pos;
+  my $prevpos = pos($_[1]);
+  pos($_[1]) = $_[2];
 
-  if (${$sourcep} =~ $isPreSLength) {
+  if ($_[1] =~ $isPreSLength) {
     my $length = $+[0] - $-[0];
     $rc = $length;
   }
@@ -310,20 +298,20 @@ sub _preSLength {
   #  $log->tracef('[_preSLength] Found S of length %d', $rc);
   #}
 
-  pos(${$sourcep}) = $prevpos;
+  pos($_[1]) = $prevpos;
 
   return $rc;
 }
 
 sub _isRcurly {
-  my ($self, $sourcep, $pos, $impl) = @_;
+    # my ($self, $source, $pos, $impl) = @_;
 
   my $rc = 0;
 
-  my $prevpos = pos(${$sourcep});
-  pos(${$sourcep}) = $pos;
+  my $prevpos = pos($_[1]);
+  pos($_[1]) = $_[2];
 
-  if (${$sourcep} =~ $isRcurly) {
+  if ($_[1] =~ $isRcurly) {
     $rc = 1;
   }
 
@@ -331,20 +319,20 @@ sub _isRcurly {
   #  $log->tracef('[_isRcurly] Found \'}\'');
   #}
 
-  pos(${$sourcep}) = $prevpos;
+  pos($_[1]) = $prevpos;
 
   return $rc;
 }
 
 sub _isIdentifierStart {
-  my ($self, $sourcep, $pos, $impl) = @_;
+    # my ($self, $source, $pos, $impl) = @_;
 
   my $rc = 0;
 
-  my $prevpos = pos(${$sourcep});
-  pos(${$sourcep}) = $pos;
+  my $prevpos = pos($_[1]);
+  pos($_[1]) = $_[2];
 
-  if (${$sourcep} =~ $isIdentifierStart) {
+  if ($_[1] =~ $isIdentifierStart) {
     $rc = 1;
   }
 
@@ -352,20 +340,20 @@ sub _isIdentifierStart {
   #  $log->tracef('[_isIdentifierStart] Found \'%s\'', $&);
   #}
 
-  pos(${$sourcep}) = $prevpos;
+  pos($_[1]) = $prevpos;
 
   return $rc;
 }
 
 sub _isDecimalDigit {
-  my ($self, $sourcep, $pos, $impl) = @_;
+    # my ($self, $source, $pos, $impl) = @_;
 
   my $rc = 0;
 
-  my $prevpos = pos(${$sourcep});
-  pos(${$sourcep}) = $pos;
+  my $prevpos = pos($_[1]);
+  pos($_[1]) = $_[2];
 
-  if (${$sourcep} =~ $isDecimalDigit) {
+  if ($_[1] =~ $isDecimalDigit) {
     $rc = 1;
   }
 
@@ -373,20 +361,20 @@ sub _isDecimalDigit {
   #  $log->tracef('[_isDecimalDigit] Found \'%s\'', $&);
   #}
 
-  pos(${$sourcep}) = $prevpos;
+  pos($_[1]) = $prevpos;
 
   return $rc;
 }
 
 sub _isEnd {
-  my ($self, $sourcep, $pos, $impl) = @_;
+    # my ($self, $source, $pos, $impl) = @_;
 
   my $rc = 0;
 
-  my $prevpos = pos(${$sourcep});
-  pos(${$sourcep}) = $pos;
+  my $prevpos = pos($_[1]);
+  pos($_[1]) = $_[2];
 
-  if (${$sourcep} =~ $isEnd) {
+  if ($_[1] =~ $isEnd) {
     $rc = 1;
   }
 
@@ -394,7 +382,7 @@ sub _isEnd {
   #  $log->tracef('[_isEnd] Only spaces up to the end');
   #}
 
-  pos(${$sourcep}) = $prevpos;
+  pos($_[1]) = $prevpos;
 
   return $rc;
 }
@@ -410,7 +398,7 @@ sub _insertSemiColon {
 }
 
 sub _failureCallback {
-  my ($self, $sourcep, $pos, $max, $impl) = @_;
+  my ($self, $source, $pos, $max, $impl) = @_;
 
   #
   # The position of failure is exactly the end of the very last lexeme
@@ -430,13 +418,13 @@ sub _failureCallback {
   # - The offending token is }.
   #
   my $length = 0;
-  if (($length = $self->_postLineTerminatorLength($sourcep, $rc, $impl)) > 0) {
+  if (($length = $self->_postLineTerminatorLength($source, $rc, $impl)) > 0) {
     $self->_insertSemiColon($impl, $rc, $length);
     $rc += $length;
-  } elsif ($self->_isRcurly($sourcep, $rc, $impl)) {
+  } elsif ($self->_isRcurly($source, $rc, $impl)) {
     $self->_insertSemiColon($impl, $rc, 1);
   } else {
-    croak "[_failureCallback] Failure at position $rc: '" . substr(${$sourcep}, $rc, 10) . "'";
+    croak "[_failureCallback] Failure at position $rc: '" . substr($source, $rc, 10) . "'";
   }
 
   #$log->tracef('[_failureCallback] Resuming at position %d', $rc);
@@ -445,7 +433,7 @@ sub _failureCallback {
 }
 
 sub _endCallback {
-  my ($self, $sourcep, $pos, $max, $impl) = @_;
+  my ($self, $source, $pos, $max, $impl) = @_;
 
   if ($self->{programCompleted}) {
       return;
@@ -1057,7 +1045,6 @@ SEMICOLON ~ ';'
 VISIBLE_SEMICOLON ~ ';'
 #
 # This event is NOT needed. I let its processing in _eventCallback for archiving purpose
-#:lexeme ~ <INVISIBLE_SEMICOLON>  pause => before event => '^INVISIBLE_SEMICOLON'
 LCURLY ~ '{'
 RCURLY ~ '}'
 COLON ~ ':'

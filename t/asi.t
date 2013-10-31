@@ -29,10 +29,10 @@ else c = d" => undef,
 
 foreach (keys %asi) {
     my $ecmaSourceCode = $_;
-    my $ecmaAst = MarpaX::Languages::ECMAScript::AST->new();
-    my $valuep;
-    eval {$valuep = $ecmaAst->parse(\$ecmaSourceCode)};
-    ok(defined($asi{$_}) ? defined($valuep) : ! defined($valuep), (defined($valuep) ? 'defined' : "<undef>"));
+    my $ecmaAst = MarpaX::Languages::ECMAScript::AST->new(cache => 0);
+    my $value;
+    eval {$value = $ecmaAst->parse($ecmaSourceCode)};
+    ok(defined($asi{$_}) ? defined($value) : ! defined($value), (defined($value) ? 'defined' : "<undef>"));
 }
 
 done_testing(1 + scalar(keys %asi));
