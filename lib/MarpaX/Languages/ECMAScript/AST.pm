@@ -9,8 +9,13 @@ use Carp qw/croak/;
 use MarpaX::Languages::ECMAScript::AST::Grammar qw//;
 use Digest::MD4 qw/md4_hex/;
 use CHI;
+use File::HomeDir;
+
+our $distname = __PACKAGE__;
+$distname =~ s/::/-/g;
 
 our $cache = CHI->new(driver => 'File',
+                      root_dir => File::HomeDir->my_dist_data($distname, { create => 1 } ),
                       label => __PACKAGE__,
                       namespace => __PACKAGE__,
 		      max_key_length => 32);
