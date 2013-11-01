@@ -67,7 +67,7 @@ Name of a grammar. Default is 'ECMAScript-262-5'.
 
 =item cache
 
-Produced AST can be cached: very often the same ECMAScript is used again and again, so there is no need to always compute it at each call. The cache is based on a key that the buffer MD4 checksum, eventual collisions being handled. The cache location is the default CHI::Driver::File location. Default is a true value.
+Produced AST can be cached: very often the same ECMAScript is used again and again, so there is no need to always compute it at each call. The cache key is the buffer MD4 checksum, eventual collisions being handled. The cache location is the my_dist_data directory provided by File::HomeDir package. Default is a true value.
 
 =back
 
