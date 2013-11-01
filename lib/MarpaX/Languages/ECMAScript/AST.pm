@@ -11,6 +11,8 @@ use Digest::MD4 qw/md4_hex/;
 use CHI;
 
 our $cache = CHI->new(driver => 'File',
+                      label => __PACKAGE__,
+                      namespace => __PACKAGE__,
 		      max_key_length => 32);
 
 # VERSION
@@ -44,7 +46,7 @@ This module translates ECMAScript source into an AST tree. To assist further pro
     #
     my $ecmaSourceCode = 'var i = 0;';
     my $ecmaAstObject = MarpaX::Languages::ECMAScript::AST->new();
-    $log->infof('%s', $ecmaAstObject->parse(\$ecmaSourceCode));
+    $log->infof('%s', $ecmaAstObject->parse($ecmaSourceCode));
 
 =head1 SUBROUTINES/METHODS
 
