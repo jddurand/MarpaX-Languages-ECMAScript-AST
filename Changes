@@ -1,7 +1,20 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.002 2013-10-31T21:00:30
+0.003 2013-11-03T21:46:47
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Program: Insert a true semicolon in the AST where there is an invisible
+   semicolon
+ - AST: Fix usage of cache
+ - Program: Put special lexeme in dedicated LHSs
+ - Program/Actions: remove non-needed actions
+ - Fix filename cache
+ - AST: Fix POD about cache
+ - AST: use my_dist_data for cache root storage
+ - AST: Fix synopsis, use CHI label and namespace
+
+0.002 2013-10-31T21:01:47
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Release of version 0.002
  - Cache via CHI and optimizations
  - Fix POD
  - Fixed usage
