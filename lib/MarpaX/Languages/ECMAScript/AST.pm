@@ -17,7 +17,7 @@ $distname =~ s/::/-/g;
 our $cache = CHI->new(driver => 'File',
                       root_dir => File::HomeDir->my_dist_data($distname, { create => 1 } ),
                       label => __PACKAGE__,
-                      namespace => __PACKAGE__,
+                      namespace => 'cache',
 		      max_key_length => 32);
 
 # VERSION
@@ -114,7 +114,7 @@ sub parse {
   #
   # If cache is enabled, compute the MD4 and check availability
   #
-  if ($self->{_cache}) {
+  if (defined($self->{_cache})) {
       my $md4 = md4_hex($source);
       my $hashp = $cache->get($md4) || {};
       my $ast = $hashp->{$source} || undef;
