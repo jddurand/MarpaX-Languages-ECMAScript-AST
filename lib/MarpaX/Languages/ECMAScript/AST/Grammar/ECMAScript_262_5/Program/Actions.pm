@@ -28,49 +28,4 @@ sub new {
     return $self;
 }
 
-=head2 DecimalLiteral($self, $lexeme)
-
-Bless lexeme to a DecimalLiteral.
-
-=cut
-
-sub DecimalLiteral {
-    my $self = shift;
-    return bless(shift, AST . '::DecimalLiteral');
-}
-
-=head2 HexIntegerLiteral($self, $lexeme)
-
-Bless lexeme to a HexIntegerLiteral.
-
-=cut
-
-sub HexIntegerLiteral {
-    my $self = shift;
-    return bless(shift, AST . '::HexIntegerLiteral');
-}
-
-=head2 OctalIntegerLiteral($self, $lexeme)
-
-Bless lexeme to a OctalIntegerLiteral.
-
-=cut
-
-sub OctalIntegerLiteral {
-    my $self = shift;
-    return bless(shift, AST . '::OctalIntegerLiteral');
-}
-
-=head2 concat($self)
-
-Concatenate arguments. Use for tests.
-
-=cut
-
-sub concat {
-    my $self = shift;
-
-    return join ('', grep {defined($_)} @_);
-}
-
 1;
