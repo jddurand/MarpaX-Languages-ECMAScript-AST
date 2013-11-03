@@ -185,6 +185,12 @@ sub _eventCallback {
         croak "[_eventCallback] NumericLiteral $lastNumericLiteral must not be immediately followed by an IdentifierStart or DecimalDigit";
       }
     }
+    elsif ($name eq 'INVISIBLE_SEMICOLON$') {
+      #
+      # In the AST, we explicitely insert the semicolon
+      #
+	$self->_insertSemiColon($impl, $pos, 1);
+    }
     # 2. Then nulled events (XXX[])
     # 3. Then prediction events (^XXX or ^^XXX)
     #
@@ -492,13 +498,18 @@ Literal ::=
 #
 event 'NumericLiteral$' = completed <NumericLiteral>
 NumericLiteral ::=
-    DECIMALLITERAL           action => DecimalLiteral
-  | HEXINTEGERLITERAL        action => HexIntegerLiteral
-  | OCTALINTEGERLITERAL      action => OctalIntegerLiteral
+    DecimalLiteral
+  | HexIntegerLiteral
+  | OctalIntegerLiteral
+
+DecimalLiteral      ::= DECIMALLITERAL
+HexIntegerLiteral   ::= HEXINTEGERLITERAL
+OctalIntegerLiteral ::= OCTALINTEGERLITERAL
+Identifier          ::= IDENTIFIER
 
 PrimaryExpression ::=
     THIS
-  | IDENTIFIER
+  | Identifier
   | Literal
   | ArrayLiteral
   | ObjectLiteral
@@ -808,19 +819,16 @@ ContinueStatement ::=
     CONTINUE           SEMICOLON
   | CONTINUE INVISIBLE_SEMICOLON
   | CONTINUE IDENTIFIER           SEMICOLON
-#  | CONTINUE IDENTIFIER INVISIBLE_SEMICOLON
 
 BreakStatement ::=
     BREAK           SEMICOLON
   | BREAK INVISIBLE_SEMICOLON
   | BREAK IDENTIFIER           SEMICOLON
-#  | BREAK IDENTIFIER INVISIBLE_SEMICOLON
 
 ReturnStatement ::=
     RETURN           SEMICOLON
   | RETURN INVISIBLE_SEMICOLON
   | RETURN Expression           SEMICOLON
-#  | RETURN Expression INVISIBLE_SEMICOLON
 
 WithStatement ::=
     WITH  LPAREN  Expression  RPAREN  Statement
@@ -853,7 +861,6 @@ LabelledStatement ::=
 
 ThrowStatement ::=
       THROW Expression SEMICOLON
-#    | THROW Expression INVISIBLE_SEMICOLON
 
 TryStatement ::=
     TRY  Block  Catch
@@ -935,6 +942,7 @@ _S_ANY ~ _S*
 #   The subtility is that when INVISIBLE_SEMICOLON matches, we know per-def this is an automatic
 #   semicolon insertion: grammar expected a semicolon, and found it hidden.
 #
+:lexeme ~ <INVISIBLE_SEMICOLON> pause => after event => 'INVISIBLE_SEMICOLON$'
 INVISIBLE_SEMICOLON ~ _S_ANY _SLT _S_ANY
 
 NullLiteral                           ::= NULL
