@@ -185,12 +185,6 @@ sub _eventCallback {
         croak "[_eventCallback] NumericLiteral $lastNumericLiteral must not be immediately followed by an IdentifierStart or DecimalDigit";
       }
     }
-    elsif ($name eq 'INVISIBLE_SEMICOLON$') {
-      #
-      # In the AST, we explicitely insert the semicolon
-      #
-	$self->_insertSemiColon($impl, $pos, 1);
-    }
     # 2. Then nulled events (XXX[])
     # 3. Then prediction events (^XXX or ^^XXX)
     #
@@ -200,6 +194,16 @@ sub _eventCallback {
 	if (exists($ReservedWord{$lastLexeme{value}})) {
 	    croak "[_eventCallback] Identifier $lastLexeme{value} is a reserved word";
 	}
+    }
+    elsif ($name eq '^INVISIBLE_SEMICOLON') {
+      #
+      # In the AST, we explicitely associate the ';' to the missing semicolon
+      #
+	my %lastLexeme = ();
+	$self->getLastLexeme(\%lastLexeme, $impl);
+	my $Slength = $self->_preSLength($source, $rc, $impl);
+	$self->_insertInvisibleSemiColon($impl, $rc, $Slength);
+	$rc += $Slength;
     }
     #
     # ^PLUSPLUS_POSTFIX, ^MINUSMINUS_POSTFIX
@@ -400,6 +404,16 @@ sub _insertSemiColon {
   #$log->tracef('[_insertSemiColon] lexeme_read(\'SEMICOLON\', %d, %d, \';\')', $pos, $length);
   if (! $impl->lexeme_read('SEMICOLON', $pos, $length, ';')) {
     croak "[_insertSemiColon] Automatic Semicolon Insertion not allowed at position $pos";
+  }
+}
+
+sub _insertInvisibleSemiColon {
+  my ($self, $impl, $pos, $length) = @_;
+
+  #$log->tracef('[_insertInvisibleSemiColon] Automatic Invisible Semicolon Insertion at position %d, length %d', $pos, $length);
+  #$log->tracef('[_insertInvisibleSemiColon] lexeme_read(\'INVISIBLE_SEMICOLON\', %d, %d, \';\')', $pos, $length);
+  if (! $impl->lexeme_read('INVISIBLE_SEMICOLON', $pos, $length, ';')) {
+    croak "[_insertInvisibleSemiColon] Automatic Invisible Semicolon Insertion not allowed at position $pos";
   }
 }
 
@@ -942,7 +956,7 @@ _S_ANY ~ _S*
 #   The subtility is that when INVISIBLE_SEMICOLON matches, we know per-def this is an automatic
 #   semicolon insertion: grammar expected a semicolon, and found it hidden.
 #
-:lexeme ~ <INVISIBLE_SEMICOLON> pause => after event => 'INVISIBLE_SEMICOLON$'
+:lexeme ~ <INVISIBLE_SEMICOLON> pause => before event => '^INVISIBLE_SEMICOLON'
 INVISIBLE_SEMICOLON ~ _S_ANY _SLT _S_ANY
 
 NullLiteral                           ::= NULL
