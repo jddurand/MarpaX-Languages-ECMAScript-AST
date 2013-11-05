@@ -8,7 +8,7 @@ BEGIN {
 }
 
 my $ecmaSourceCode = do {local $/; <DATA>};
-my $ecmaAst = MarpaX::Languages::ECMAScript::AST->new(cache => 0);
+my $ecmaAst = MarpaX::Languages::ECMAScript::AST->new();
 my $value;
 eval {$value = $ecmaAst->parse($ecmaSourceCode)};
 ok(defined($value));

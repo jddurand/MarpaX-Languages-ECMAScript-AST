@@ -67,7 +67,7 @@ Name of a grammar. Default is 'ECMAScript-262-5'.
 
 =item cache
 
-Produced AST can be cached: very often the same ECMAScript is used again and again, so there is no need to always compute it at each call. The cache key is the buffer MD4 checksum, eventual collisions being handled. The cache location is the my_dist_data directory provided by File::HomeDir package. Default is a true value.
+Produced AST can be cached: very often the same ECMAScript is used again and again, so there is no need to always compute it at each call. The cache key is the buffer MD4 checksum, eventual collisions being handled. The cache location is the my_dist_data directory provided by File::HomeDir package. Default is a false value.
 
 =back
 
@@ -78,7 +78,7 @@ sub new {
   my ($class, %opts) = @_;
 
   my $grammarName = $opts{grammarName} || 'ECMAScript-262-5';
-  my $cache       = $opts{cache} // 1;
+  my $cache       = $opts{cache} // 0;
 
   my $self  = {
       _grammarName => $grammarName,
