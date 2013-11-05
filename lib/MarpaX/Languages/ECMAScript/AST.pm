@@ -87,7 +87,52 @@ sub new {
 
   bless($self, $class);
 
+  $self->_init();
+
   return $self;
+}
+
+sub _init {
+    my ($self) = @_;
+
+    $self->{_grammar} = MarpaX::Languages::ECMAScript::AST::Grammar->new($self->{_grammarName});
+}
+
+# ----------------------------------------------------------------------------------------
+
+=head2 describe($self)
+
+Get a description of the G1 grammar. Returns a reference to hash, that has this structure: key => value, where
+
+=over
+
+=item key
+
+G1 rule
+
+=value
+
+Reference to an array, where each element is the list of RHS.
+
+=back
+
+=cut
+
+sub describe {
+    my ($self) = @_;
+
+    my $impl = $self->{_grammar}->program->{impl};
+    my %g1 = ();
+    foreach ($impl->g1_rule_ids()) {
+	my @rules = $impl->rule($_);
+	my $g1 = shift(@rules);
+	if (! defined($g1{$g1})) {
+	    $g1{$g1} = [];
+	}
+	push(@{$g1{$g1}}, [ @rules ]);
+    }
+
+    return \%g1;
 }
 
 # ----------------------------------------------------------------------------------------
@@ -102,9 +147,6 @@ sub parse {
   my ($self, $source) = @_;
 
   my $parse = sub {
-      if (! defined($self->{_grammar})) {
-	  $self->{_grammar} = MarpaX::Languages::ECMAScript::AST::Grammar->new($self->{_grammarName});
-      }
       my $grammar     = $self->{_grammar}->program->{grammar};
       my $impl        = $self->{_grammar}->program->{impl};
 
