@@ -284,6 +284,26 @@ sub recce {
   return $_[0]->{grammar};
 }
 
+=head2 g1_rule_ids($self)
+
+Returns Marpa's grammar's g1_rule_ids.
+
+=cut
+
+sub g1_rule_ids {
+  return $_[0]->{grammar}->g1_rule_ids();
+}
+
+=head2 rule($self)
+
+Returns Marpa's grammar's rule.
+
+=cut
+
+sub rule {
+  return $_[0]->{grammar}->rule(@_[1..$#_]);
+}
+
 =head1 SEE ALSO
 
 L<Marpa::R2::Scanless::G>
