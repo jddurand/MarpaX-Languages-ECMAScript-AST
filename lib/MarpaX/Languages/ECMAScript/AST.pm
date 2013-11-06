@@ -171,7 +171,7 @@ sub _getAndCheckHashFromCache {
           # Trying to get from cache using the dev files will always clear the cache -;
           #
           if (defined($storeVersion) && defined($CURRENTVERSION)) {
-            if (version->is_lax($storeVersion) && version->is_lax($CURRENTVERSION)) {
+            if (version::is_lax($storeVersion) && version::is_lax($CURRENTVERSION)) {
               if (version->parse($storeVersion) == version->parse($CURRENTVERSION)) {
                 my $ast = $store->{ast};
                 if (defined($ast)) {
@@ -187,7 +187,10 @@ sub _getAndCheckHashFromCache {
                 $log->tracef('cache ko, storeVersion %s != %s (current version)', $storeVersion, $CURRENTVERSION);
               }
             } else {
-              $log->tracef('cache ko, storeVersion %s, current version %s', $storeVersion, $CURRENTVERSION);
+              #
+              # In case versions are really garbled, use %s instead of %d
+              #
+              $log->tracef('cache ko, storeVersion %s (is_lax=%s), current version %s (is_lax=%s)', $storeVersion, version::is_lax($storeVersion) || '', $CURRENTVERSION, version::is_lax($CURRENTVERSION) || '');
             }
           } else {
             $log->tracef('cache ko, storeVersion %s, current version %s', $storeVersion || 'undefined', $CURRENTVERSION || 'undefined');
