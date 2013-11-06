@@ -71,9 +71,10 @@ DESC
       push(@tx, sprintf('$ast[%d][2]', $i - 1));
     }
   }
+  my $tx = join(' ~ ', @tx);
   print FILE <<BLOCK;
 :block G$ruleId -> {
-: @tx
+: $tx
 :}
 BLOCK
   if (! close(FILE)) {
