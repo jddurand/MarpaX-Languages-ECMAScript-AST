@@ -35,7 +35,7 @@ sub valuesAndRuleId {
   # Note: we do not include Marpa explicitely: this is done in one unique
   # place, i.e. Impl.pm.
   #
-  return {values => \@_, ruleId => $Marpa::R2::Context::rule};
+  return {values => [ @_ ], ruleId => $Marpa::R2::Context::rule};
 }
 
 1;
