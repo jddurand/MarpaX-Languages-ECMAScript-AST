@@ -122,7 +122,7 @@ G1 rule
 
 =value
 
-Reference to an array, where each element is the list of RHS.
+Reference to a hash with G1 rule Id as key, reference to an array containing the rules as value.
 
 =back
 
@@ -134,12 +134,7 @@ sub describe {
     my $impl = $self->{_grammar}->program->{impl};
     my %g1 = ();
     foreach ($impl->g1_rule_ids()) {
-	my @rules = $impl->rule($_);
-	my $g1 = shift(@rules);
-	if (! defined($g1{$g1})) {
-	    $g1{$g1} = [];
-	}
-	push(@{$g1{$g1}}, [ @rules ]);
+      $g1{$_} = [ $impl->rule($_) ];
     }
 
     return \%g1;
