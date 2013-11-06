@@ -85,13 +85,13 @@ sub program {
     return $self->{_grammar}->program();
 }
 
-=head2 alias($self)
+=head2 grammarAlias($self)
 
 Returns the grammar alias, i.e. the one really used in this distribution.
 
 =cut
 
-sub alias {
+sub grammarAlias {
     my ($self) = @_;
     return $self->{_grammarAlias};
 }
