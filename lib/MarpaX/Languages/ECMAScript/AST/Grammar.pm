@@ -52,6 +52,7 @@ sub new {
   if (! defined($grammarName)) {
     croak 'Usage: new($grammar_Name)';
   } elsif ($grammarName eq 'ECMAScript-262-5') {
+    $self->{_grammarAlias} = 'ECMAScript_262_5';
     $self->{_grammar} = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5->new(@_);
   } else {
     croak "Unsupported grammar name $grammarName";
@@ -82,6 +83,17 @@ A MarpaX::Languages::ECMAScript::AST::Impl object
 sub program {
     my ($self) = @_;
     return $self->{_grammar}->program();
+}
+
+=head2 alias($self)
+
+Returns the grammar alias, i.e. the one really used in this distribution.
+
+=cut
+
+sub alias {
+    my ($self) = @_;
+    return $self->{_grammarAlias};
 }
 
 =head1 SEE ALSO
