@@ -512,18 +512,13 @@ Literal ::=
 #
 event 'NumericLiteral$' = completed <NumericLiteral>
 NumericLiteral ::=
-    DecimalLiteral
-  | HexIntegerLiteral
-  | OctalIntegerLiteral
-
-DecimalLiteral      ::= DECIMALLITERAL
-HexIntegerLiteral   ::= HEXINTEGERLITERAL
-OctalIntegerLiteral ::= OCTALINTEGERLITERAL
-Identifier          ::= IDENTIFIER
+    DECIMALLITERAL
+  | HEXINTEGERLITERAL
+  | OCTALINTEGERLITERAL
 
 PrimaryExpression ::=
     THIS
-  | Identifier
+  | IDENTIFIER
   | Literal
   | ArrayLiteral
   | ObjectLiteral
