@@ -122,7 +122,17 @@ G1 rule
 
 =value
 
-Reference to a hash with G1 rule Id as key, reference to an array containing the rules as value.
+Reference to a with the following structure:
+
+=over
+
+=item G0
+
+hash with rule Id as key, reference to an array containing the rhs's as value.
+
+=item G1
+
+hash with rule Id as key, reference to an array containing the rhs's as value.
 
 =back
 
@@ -132,12 +142,16 @@ sub describe {
     my ($self) = @_;
 
     my $impl = $self->{_grammar}->program->{impl};
+    my %g0 = ();
+    foreach ($impl->g1_rule_ids('G0')) {
+      $g0{$_} = [ $impl->rule($_) ];
+    }
     my %g1 = ();
-    foreach ($impl->g1_rule_ids()) {
+    foreach ($impl->g1_rule_ids('G1')) {
       $g1{$_} = [ $impl->rule($_) ];
     }
 
-    return \%g1;
+    return { G0 => \%g0, G1 => \%g1 };
 }
 
 # ----------------------------------------------------------------------------------------
