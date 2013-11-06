@@ -64,10 +64,10 @@ DESC
     my $rhs = $_;
     ++$i;
     if (exists($lhs2RuleId{$rhs})) {
-      printf FILE ":# RHS No %2d is a G1 rule %-4d: %s\n", $i, $lhs2RuleId{$rhs}, $rhs;
+      printf FILE ":# RHS No %2d is G1 rule %-4d: %s\n", $i, $lhs2RuleId{$rhs}, $rhs;
       push(@tx, sprintf('$tx.render("%d.tx", $ast[%d])', $lhs2RuleId{$rhs}, $i - 1));
     } else {
-      printf FILE ":# RHS No %2d is a lexeme      : %s\n", $i, $rhs;
+      printf FILE ":# RHS No %2d is a lexeme    : %s\n", $i, $rhs;
       push(@tx, sprintf('$ast[%d][2]', $i - 1));
     }
   }
