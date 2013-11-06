@@ -156,6 +156,21 @@ sub describe {
 
 # ----------------------------------------------------------------------------------------
 
+=head2 grammarAlias($self)
+
+Returns the grammar alias, i.e. the one that is used within this distribution, corresponding to a true directory on the filesystem.
+
+=cut
+
+sub grammarAlias {
+  my ($self) = @_;
+
+  return $self->{_grammar}->grammarAlias;
+
+}
+
+# ----------------------------------------------------------------------------------------
+
 =head2 parse($self, $source)
 
 Get and AST from the ECMAScript source, pointed by $source. This method will call all the intermediary steps (lexical, transformation, evaluation) necessary to produce the AST.
