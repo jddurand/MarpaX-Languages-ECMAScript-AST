@@ -12,6 +12,9 @@ use CHI;
 use File::HomeDir;
 use version 0.77;
 use Log::Any qw/$log/;
+use Module::Util qw/find_installed/;
+use File::Basename qw/dirname/;
+use File::Spec;
 
 our $distname = __PACKAGE__;
 $distname =~ s/::/-/g;
@@ -167,6 +170,20 @@ sub grammarAlias {
 
   return $self->{_grammar}->grammarAlias;
 
+}
+
+# ----------------------------------------------------------------------------------------
+
+=head2 templatePath($self)
+
+Returns the templates absolute path.
+
+=cut
+
+sub templatePath {
+  my ($self) = @_;
+
+  return File::Spec->catdir(dirname(find_installed(__PACKAGE__)), 'AST', 'Grammar',  $self->{_grammar}->grammarAlias, 'Template');
 }
 
 # ----------------------------------------------------------------------------------------
