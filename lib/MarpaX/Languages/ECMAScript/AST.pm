@@ -121,21 +121,21 @@ Get a description of the G1 grammar. Returns a reference to hash, that has this 
 
 =item key
 
-G1 rule
+G1 or G0
 
 =value
 
-Reference to a with the following structure:
+Reference to a hash with the following structure:
 
 =over
 
-=item G0
+=item ruleId
 
-hash with rule Id as key, reference to an array containing the rhs's as value.
+Rule Id
 
-=item G1
+=item rhsp
 
-hash with rule Id as key, reference to an array containing the rhs's as value.
+Reference to an array containing the name of the LHS, followed by the name of all RHSs
 
 =back
 
@@ -155,6 +155,32 @@ sub describe {
     }
 
     return { G0 => \%g0, G1 => \%g1 };
+}
+
+# ----------------------------------------------------------------------------------------
+
+=head2 startRuleId($self)
+
+Returns the start rule Id.
+
+=cut
+
+sub startRuleId {
+    my ($self) = @_;
+
+    my $impl = $self->{_grammar}->program->{impl};
+    #
+    # We are looking for a rule with LHS '[:start]'
+    #
+    foreach ($impl->g1_rule_ids('G1')) {
+	my $ruleId = $_;
+	my @rules = $impl->rule($ruleId);
+	if ($rules[0] eq '[:start]') {
+	    return $ruleId;
+	}
+    }
+
+    croak 'Could not find [:start] rule';
 }
 
 # ----------------------------------------------------------------------------------------
