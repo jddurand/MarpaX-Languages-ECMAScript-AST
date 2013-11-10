@@ -159,32 +159,6 @@ sub describe {
 
 # ----------------------------------------------------------------------------------------
 
-=head2 startRuleId($self)
-
-Returns the start rule Id.
-
-=cut
-
-sub startRuleId {
-    my ($self) = @_;
-
-    my $impl = $self->{_grammar}->program->{impl};
-    #
-    # We are looking for a rule with LHS '[:start]'
-    #
-    foreach ($impl->g1_rule_ids('G1')) {
-	my $ruleId = $_;
-	my @rules = $impl->rule($ruleId);
-	if ($rules[0] eq '[:start]') {
-	    return $ruleId;
-	}
-    }
-
-    croak 'Could not find [:start] rule';
-}
-
-# ----------------------------------------------------------------------------------------
-
 =head2 grammarAlias($self)
 
 Returns the grammar alias, i.e. the one that is used within this distribution, corresponding to a true directory on the filesystem.
@@ -325,6 +299,20 @@ sub parse {
   }
 
   return $ast;
+}
+
+# ----------------------------------------------------------------------------------------
+
+=head2 template($self)
+
+Return the generic template for this grammar. This template is doing nothing else but reproduce an ECMAScript source that, if parsed, would have an AST similar to the original source.
+
+=cut
+
+sub template {
+  my ($self) = @_;
+
+  return $self->{_grammar}->template;
 }
 
 =head1 SEE ALSO
