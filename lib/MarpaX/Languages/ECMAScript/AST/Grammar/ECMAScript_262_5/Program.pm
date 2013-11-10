@@ -494,7 +494,7 @@ __DATA__
 # tokens, line terminators, comments, or white space.
 #
 :start ::= Program
-:default ::= action => valuesAndRuleId bless => ::lhs
+:default ::= action => valuesAndRuleId # bless => ::lhs
 lexeme default = action => [start,length,value]
 
 #
