@@ -1,7 +1,55 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.003 2013-11-03T21:46:47
+0.004 2013-11-10T17:14:49
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - perl critic
+ - perlcritic.rc
+ - Remove Template.pm from allow_dirty
+ - Try to not be fooled by git commit of ECMAScript_262_5/Template at
+   BeforeBuild exit code
+ - Add git commit of ECMAScript_262_5/Template at BeforeBuild
+ - ECMAScript_262_5 Generic Template for version 0.004
+ - script/generateTemplate.pl: better indentation
+ - ECMAScript_262_5/Template: Putted by hand until I understand how to tell
+   dzil to do it for me...
+ - script/generateTemplate.pl: Generate POD
+ - Template.pm fix t+
+ - BeforeBuild of
+   lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5/Template.pm
+ - Supressed script/generateTemplateXslate.pl
+ - generateTemplateXslate.pl -> generateTemplate.pl
+ - AST/Grammar/ECMAScript_262_5/Template: Generated template for
+   ECMAScript_262_5
+ - script/generateTemplateXslate: PP version
+ - AST/Grammar/ECMAScript_262_5/Program: no more need ot automatic blessing
+ - AST/Grammar/ECMAScript_262_5: This grammar's generic template
+ - AST/Grammar: template() stub
+ - AST: Removed startRuleId
+ - AST: startRuleId method
+ - AST: sub templatePath
+ - generateTemplateXslate: use ~ between calls
+ - generateTemplateXslate: typo fix
+ - generateTemplateXslate.pl: automatic generation of template's template -
+   prototype
+ - generateTemplateXslate: prototype
+ - AST: get the underlying grammarAlias
+ - AST/Grammar: rename alias() method to grammarAlias()
+ - AST/Grammar: return the grammar alias as found in this distribution
+ - Program: no need anymore of "proxy" G1 rules since the parse tree value
+   will contain the G1 rules Id
+ - Program/Actions: shall I return reference to @_ directly or not
+ - AST: describe contains both G0 and G1
+ - AST: new format for describe
+ - Program: AST is a hash with values and ruleId
+ - AST: Fix usage of is_lax
+ - AST: Add version of this package in cache
+ - AST: default cache is off
+ - AST: describe() method, factorized _init()
+ - Impl: g1_rule_ids() and rule()
+
+0.003 2013-11-03T21:48:28
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Release of version 0.003
  - Program: Insert a true semicolon in the AST where there is an invisible
    semicolon
  - AST: Fix usage of cache
