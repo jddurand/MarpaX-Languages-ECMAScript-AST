@@ -96,6 +96,17 @@ sub grammarAlias {
     return $self->{_grammarAlias};
 }
 
+=head2 template($self)
+
+Returns the generic template associated to grammarName.
+
+=cut
+
+sub template {
+    my ($self) = @_;
+    return $self->{_grammar}->template();
+}
+
 =head1 SEE ALSO
 
 L<Marpa::R2>
