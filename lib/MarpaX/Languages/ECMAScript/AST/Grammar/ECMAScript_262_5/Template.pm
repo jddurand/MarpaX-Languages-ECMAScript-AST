@@ -43,11 +43,13 @@ sub lexeme {
     my ($self, $value) = @_;
 
     my $lexeme = $value->[2];
-    if    ($lexeme eq ';') { $lexeme .= "\n" . $self->indent();  }
-    elsif ($lexeme eq '{') { $lexeme .= "\n" . $self->indent(1); }
-    elsif ($lexeme eq '}') { $lexeme = "\n" . $self->indent(-1) . ' ' . $lexeme;}
+    my $rc = '';
+    if    ($lexeme eq ';') { $rc = " ;\n" . $self->indent();  }
+    elsif ($lexeme eq '{') { $rc = " {\n" . $self->indent(1); }
+    elsif ($lexeme eq '}') { $rc = "\n"  . $self->indent(-1) . " }\n" . $self->indent();}
+    else                   { $rc = " $lexeme"; }
 
-    return ' ' . $lexeme;
+    return $rc;
 }
 
 =head2 indent($self, $inc)
