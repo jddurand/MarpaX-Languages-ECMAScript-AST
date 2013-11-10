@@ -121,21 +121,7 @@ Get a description of the G1 grammar. Returns a reference to hash, that has this 
 
 =item key
 
-G1 or G0
-
-=value
-
-Reference to a hash with the following structure:
-
-=over
-
-=item ruleId
-
-Rule Id
-
-=item rhsp
-
-Reference to an array containing the name of the LHS, followed by the name of all RHSs
+'G1' or 'G0', with value being a reference to all rules, LHS being the first.
 
 =back
 

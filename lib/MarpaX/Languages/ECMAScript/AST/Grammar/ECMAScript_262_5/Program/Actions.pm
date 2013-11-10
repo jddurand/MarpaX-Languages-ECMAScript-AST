@@ -13,7 +13,7 @@ use constant AST => 'MarpaX::Languages::ECMAScript::AST';
 
 This modules give the actions associated to ECMAScript_262_5 lexical expressions grammar.
 
-=cut
+=head1 SUBROUTINES/METHODS
 
 =head2 new($class)
 
@@ -27,6 +27,24 @@ sub new {
     bless($self, $class);
     return $self;
 }
+
+=head2 valuesAndRuleId($self, @values)
+
+Default G1 action: a hash with the following keys:
+
+=over
+
+=item ruleId
+
+G1 rule Id
+
+=item values
+
+Reference to an array containing the values
+
+=back
+
+=cut
 
 sub valuesAndRuleId {
   my $self = shift;

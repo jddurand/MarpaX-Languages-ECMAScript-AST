@@ -337,7 +337,7 @@ Line number as per Marpa
 
 Column number as per Marpa
 
-=value
+=item value
 
 Lexeme value
 
@@ -384,7 +384,7 @@ Start position
 
 Length
 
-=value
+=item value
 
 Lexeme value
 
