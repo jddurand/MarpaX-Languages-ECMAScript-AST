@@ -76,6 +76,9 @@ use warnings FATAL => 'all';
 no warnings 'recursion';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::${grammarAlias}::Template;
+
+# ABSTRACT: Template for ${grammarAlias} transpilation using an AST
+
 HEADER
 #
 # The fixed stuff: new(), lexeme(), indent(), transpile()
@@ -86,10 +89,15 @@ foreach (sort {$a <=> $b} keys %{$g1p}) {
     my $rulesp = $g1p->{$ruleId};
     my ($lhs, @rhs) = @{$rulesp};
     print FILE "
-#
-# ---------------------------------------------------
-# $lhs ::= @rhs
-# ---------------------------------------------------
+
+=head2 G1_$ruleId(\$self, \$value, \$index)
+
+Transpilation of G1 rule No $ruleId, i.e. $lhs ::= @rhs
+
+\$value is the value of RHS No \$index (starting at 0).
+
+=cut
+
 sub G1_$ruleId {
     my (\$self, \$value, \$index) = \@_;
 
@@ -120,9 +128,19 @@ exit(EXIT_SUCCESS);
 
 __DATA__
 
-# ABSTRACT: Template for ${grammarAlias} transpilation using an AST
-
 # VERSION
+
+=head1 DESCRIPTION
+
+Generated generic template.
+
+=head1 SUBROUTINES/METHODS
+
+=head2 new($class, %options)
+
+Instantiate a new object.
+
+=cut
 
 sub new {
     my ($class, %options) = @_;
@@ -131,6 +149,12 @@ sub new {
     bless($self, $class);
     return $self;
 }
+
+=head2 lexeme($self, $value)
+
+Returns the characters of lexeme inside $value, that is an array reference. C.f. grammar default lexeme action.
+
+=cut
 
 sub lexeme {
     my ($self, $value) = @_;
@@ -143,6 +167,12 @@ sub lexeme {
     return ' ' . $lexeme;
 }
 
+=head2 indent($self, $inc)
+
+Returns indentation, i.e. two spaces times current number of indentations. Optional $inc is used to change the number of indentations.
+
+=cut
+
 sub indent {
     my ($self, $inc) = @_;
 
@@ -152,6 +182,12 @@ sub indent {
 
     return '  ' x $self->{_nindent};
 }
+
+=head2 transpile($self, $ast)
+
+Tranpiles the $ast AST, that is the parse tree value from Marpa.
+
+=cut
 
 sub transpile {
     my ($self, $ast) = @_;
