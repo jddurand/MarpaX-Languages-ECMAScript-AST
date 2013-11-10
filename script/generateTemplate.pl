@@ -73,7 +73,6 @@ print FILE <<HEADER;
 #
 use strict;
 use warnings FATAL => 'all';
-no warnings 'recursion';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::${grammarAlias}::Template;
 

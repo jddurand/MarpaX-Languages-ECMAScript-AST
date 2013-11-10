@@ -4,7 +4,6 @@
 #
 use strict;
 use warnings FATAL => 'all';
-no warnings 'recursion';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Template;
 
