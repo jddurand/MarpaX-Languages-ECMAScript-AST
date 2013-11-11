@@ -132,12 +132,12 @@ sub describe {
 
     my $impl = $self->{_grammar}->program->{impl};
     my %g0 = ();
-    foreach ($impl->g1_rule_ids('G0')) {
-      $g0{$_} = [ $impl->rule($_) ];
+    foreach ($impl->rule_ids('G0')) {
+      $g0{$_} = [ map {$impl->symbol_name($_, 'G0')} $impl->rule_expand($_, 'G0') ];
     }
     my %g1 = ();
-    foreach ($impl->g1_rule_ids('G1')) {
-      $g1{$_} = [ $impl->rule($_) ];
+    foreach ($impl->rule_ids('G1')) {
+      $g1{$_} = [ map {$impl->symbol_name($_, 'G1')} $impl->rule_expand($_, 'G1') ];
     }
 
     return { G0 => \%g0, G1 => \%g1 };
