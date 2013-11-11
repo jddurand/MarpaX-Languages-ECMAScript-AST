@@ -6,7 +6,7 @@ use File::Spec;
 use File::Basename qw/dirname/;
 use Cwd qw/abs_path cwd/;
 use Carp qw/croak/;
-use POSIX qw/EXIT_SUCCESS/;
+use POSIX qw/EXIT_SUCCESS EXIT_FAILURE/;
 
 # -------------------------------
 # Generation of grammar templates
@@ -14,7 +14,12 @@ use POSIX qw/EXIT_SUCCESS/;
 my @COPYARGV = @ARGV;
 my $grammarName = shift || '';
 if (! $grammarName) {
-  die "Usage: $^X $0 grammarName";
+  print STDERR <<USAGE;
+Usage  : $^X $0 grammarName
+
+Example: $^X $0 ECMA-262-5
+USAGE
+  exit(EXIT_FAILURE);
 }
 
 #
@@ -87,6 +92,9 @@ foreach (sort {$a <=> $b} keys %{$g1p}) {
     my $ruleId = $_;
     my $rulesp = $g1p->{$ruleId};
     my ($lhs, @rhs) = @{$rulesp};
+    my $rhsJoined = join(', ', map {"'$_'"} @rhs);
+    my $g1Callback = '$self->{_g1Callback}';
+    my $g1CallbackArgs = '$self->{_g1CallbackArgs}';
     print FILE "
 
 =head2 G1_$ruleId(\$self, \$value, \$index)
@@ -102,18 +110,22 @@ sub G1_$ruleId {
 
     my \$rc = '';
 
+    if (! &($g1Callback)(\@{$g1CallbackArgs}, \$rc, $ruleId, \$value, \$index, '$lhs', $rhsJoined)) {
 ";
     foreach (0..$#rhs) {
-        printf FILE "    %sif (\$index == $_) {\n", $_ > 0 ? 'els' : '';
+        printf FILE "        %sif (\$index == $_) {\n", $_ > 0 ? 'els' : '';
 	if (exists($lhs{$rhs[$_]})) {
-            #print FILE "    my \$method$_ = defined(\$value->[$_]) ? \"G1_\$value->[$_]->{ruleId}\" : undef;\n";
-            #print FILE "    my \$value$_ = (defined(\$method$_) ? (\$indent . \$self->\$method$_(\$value->[$_]->{values})) : '');\n";
+            #print FILE "        my \$method$_ = defined(\$value->[$_]) ? \"G1_\$value->[$_]->{ruleId}\" : undef;\n";
+            #print FILE "        my \$value$_ = (defined(\$method$_) ? (\$indent . \$self->\$method$_(\$value->[$_]->{values})) : '');\n";
 	    #push(@value, "\$value$_");
 	} else {
-            print FILE "        \$rc = \$self->lexeme(\$value);\n";
+            print FILE <<DOLEXEME;
+            \$rc = \$self->lexeme('$rhs[$_]', $ruleId, \$value, $_, '$lhs', $rhsJoined);
+DOLEXEME
 	}
-        print FILE "    }\n";
+        print FILE "        }\n";
     }
+    print FILE "    }\n";
     print FILE "\n";
     print FILE "    return \$rc;\n";
     print FILE "}\n";
@@ -137,14 +149,40 @@ Generated generic template.
 
 =head2 new($class, %options)
 
-Instantiate a new object.
+Instantiate a new object.  Takes as optional argument a hash that may contain the following key/values:
+
+=over
+
+=item g1Callback
+
+G1 callback (CODE ref).
+
+=item g1CallbackArgs
+
+G1 callback arguments (ARRAY ref). The g1 callback is called like: &$g1Callback(@{$g1CallbackArgs}, \$rc, $ruleId, $value, $index, $lhs, @rhs), where $value is the AST parse tree value of RHS No $index of this G1 rule number $ruleId, whose full definition is $lhs ::= @rhs. If the callback is defined, this will always be executed first, and it must return a true value putting its result in $rc, otherwise default behaviour applies.
+
+=item lexemeCallback
+
+lexeme callback (CODE ref).
+
+=item lexemeCallbackArgs
+
+Lexeme callback arguments (ARRAY ref). The lexeme callback is called like: &$lexemeCallback(@{$lexemeCallbackArgs}, \$rc, $name, $ruleId, $value, $index, $lhs, @rhs), where $value is the AST parse tree value of RHS No $index of this G1 rule number $ruleId, whose full definition is $lhs ::= @rhs. The RHS being a lexeme, $name contains the lexeme's name. If the callback is defined, this will always be executed first, and it must return a true value putting its result in $rc, otherwise default behaviour applies.
+
+=back
 
 =cut
 
 sub new {
     my ($class, %options) = @_;
 
-    my $self = {_nindent => 0};
+    my $self = {
+                _nindent            => 0,
+                _g1Callback         => $options{g1Callback}         || sub { return 0; },
+                _g1CallbackArgs     => $options{g1CallbackArgs}     || [],
+                _lexemeCallback     => $options{lexemeCallback}     || sub { return 0; },
+                _lexemeCallbackArgs => $options{lexemeCallbackArgs} || []
+               };
     bless($self, $class);
     return $self;
 }
@@ -156,14 +194,20 @@ Returns the characters of lexeme inside $value, that is an array reference. C.f.
 =cut
 
 sub lexeme {
-    my ($self, $value) = @_;
+    my $self = shift;
 
-    my $lexeme = $value->[2];
     my $rc = '';
-    if    ($lexeme eq ';') { $rc = " ;\n" . $self->indent();  }
-    elsif ($lexeme eq '{') { $rc = " {\n" . $self->indent(1); }
-    elsif ($lexeme eq '}') { $rc = "\n"  . $self->indent(-1) . " }\n" . $self->indent();}
-    else                   { $rc = " $lexeme"; }
+
+    if (! &($self->{_lexemeCallback})(@{$self->{_lexemeCallbackArgs}}, \$rc, @_)) {
+
+        # my ($name, $ruleId, $value, $index, $lhs, @rhs) = @_;
+
+        my $lexeme = $_[2]->[2];
+        if    ($lexeme eq ';') { $rc = " ;\n" . $self->indent();  }
+        elsif ($lexeme eq '{') { $rc = " {\n" . $self->indent(1); }
+        elsif ($lexeme eq '}') { $rc = "\n"  . $self->indent(-1) . " }\n" . $self->indent();}
+        else                   { $rc = " $lexeme"; }
+      }
 
     return $rc;
 }
