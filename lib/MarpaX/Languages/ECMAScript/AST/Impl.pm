@@ -6,7 +6,7 @@ package MarpaX::Languages::ECMAScript::AST::Impl;
 # ABSTRACT: Implementation of Marpa's interface
 
 use Marpa::R2 2.074;
-use Carp qw/croak/;
+use MarpaX::Languages::ECMAScript::AST::Exceptions qw/:all/;
 use MarpaX::Languages::ECMAScript::AST::Impl::Logger;
 
 # VERSION
@@ -22,12 +22,12 @@ sub BEGIN {
     #
     open($MARPA_TRACE_FILE_HANDLE, '>', \$MARPA_TRACE_BUFFER);
     if (! defined($MARPA_TRACE_FILE_HANDLE)) {
-      croak "Cannot create temporary file handle to tie Marpa logging, $!\n";
+      InternalError(error => "Cannot create temporary file handle to tie Marpa logging, $!\n");
     } else {
       if (! tie ${$MARPA_TRACE_FILE_HANDLE}, 'MarpaX::Languages::ECMAScript::AST::Impl::Logger') {
-        croak "Cannot tie $MARPA_TRACE_FILE_HANDLE, $!\n";
+        InternalError(error => "Cannot tie $MARPA_TRACE_FILE_HANDLE, $!\n");
         if (! close($MARPA_TRACE_FILE_HANDLE)) {
-          croak "Cannot close temporary file handle, $!\n";
+          InternalError(error => "Cannot close temporary file handle, $!\n");
         }
         $MARPA_TRACE_FILE_HANDLE = undef;
       }

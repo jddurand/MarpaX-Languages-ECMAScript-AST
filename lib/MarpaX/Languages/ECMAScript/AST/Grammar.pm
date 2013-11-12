@@ -6,7 +6,7 @@ package MarpaX::Languages::ECMAScript::AST::Grammar;
 # ABSTRACT: ECMAScript grammar written in Marpa BNF
 
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5;
-use Carp qw/croak/;
+use MarpaX::Languages::ECMAScript::AST::Exceptions qw/:all/;
 
 # VERSION
 
@@ -50,12 +50,12 @@ sub new {
 
   my $self = {};
   if (! defined($grammarName)) {
-    croak 'Usage: new($grammar_Name)';
+    InternalError(error => 'Usage: new($grammar_Name)');
   } elsif ($grammarName eq 'ECMAScript-262-5') {
     $self->{_grammarAlias} = 'ECMAScript_262_5';
     $self->{_grammar} = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5->new(@_);
   } else {
-    croak "Unsupported grammar name $grammarName";
+    InternalError(error => "Unsupported grammar name $grammarName");
   }
   bless($self, $class);
 

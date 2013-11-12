@@ -6,7 +6,7 @@ package MarpaX::Languages::ECMAScript::AST::Impl::Logger;
 # ABSTRACT: Log::Any implementation on top of Marpa
 
 use diagnostics;
-use Carp;
+use MarpaX::Languages::ECMAScript::AST::Exceptions qw/:all/;
 use Log::Any;
 
 # VERSION
@@ -60,7 +60,7 @@ sub PRINTF {
 sub UNTIE {
   my ($obj, $count) = @_;
   if ($count) {
-    croak "untie attempted while $count inner references still exist";
+    InternalError(error => "untie attempted while $count inner references still exist");
   }
 }
 

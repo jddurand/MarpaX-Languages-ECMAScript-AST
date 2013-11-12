@@ -15,7 +15,7 @@ use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Acti
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::RegularExpressionLiteral;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses;
-use Carp qw/croak/;
+use MarpaX::Languages::ECMAScript::AST::Exceptions qw/:all/;
 use Log::Any qw/$log/;
 use SUPER;
 
@@ -182,7 +182,7 @@ sub _eventCallback {
           $self->_isDecimalDigit($source, $pos, $impl)) {
         my ($start, $end) = $impl->last_completed_range('NumericLiteral');
         my $lastNumericLiteral = $impl->range_to_string($start, $end);
-        croak "[_eventCallback] NumericLiteral $lastNumericLiteral must not be immediately followed by an IdentifierStart or DecimalDigit";
+        SyntaxError(error => "NumericLiteral $lastNumericLiteral must not be immediately followed by an IdentifierStart or DecimalDigit");
       }
     }
     # 2. Then nulled events (XXX[])
@@ -192,7 +192,7 @@ sub _eventCallback {
 	my %lastLexeme = ();
 	$self->getLastLexeme(\%lastLexeme, $impl);
 	if (exists($ReservedWord{$lastLexeme{value}})) {
-	    croak "[_eventCallback] Identifier $lastLexeme{value} is a reserved word";
+	    SyntaxError(error => "Identifier $lastLexeme{value} is a reserved word");
 	}
     }
     elsif ($name eq '^INVISIBLE_SEMICOLON') {
@@ -214,14 +214,11 @@ sub _eventCallback {
       my $postLineTerminatorPos = $lastLexeme{start} + $lastLexeme{length};
       my $postLineTerminatorLength = $self->_postLineTerminatorLength($source, $postLineTerminatorPos, $impl);
       if ($postLineTerminatorLength > 0) {
-	  #$log->infof('[_eventCallback] Automatic Semicolon Insertion at position %d, span %d', $postLineTerminatorPos, $postLineTerminatorLength);
-	  #$log->tracef('[_eventCallback] Event %s: lexeme_read(\'SEMICOLON\', %d, %d, \';\')', $name, $postLineTerminatorPos, $postLineTerminatorLength);
 	  $impl->lexeme_read('SEMICOLON', $postLineTerminatorPos, $postLineTerminatorLength, ';');
       }
       my $lname = $name;
       substr($lname, 0, 1, '');
       my $lvalue = ($lname eq 'PLUSPLUS_POSTFIX') ? '++' : '--';
-      #$log->tracef('[_eventCallback] Event %s: lexeme_read(\'%s\', %d, %d, \'%s\')', $name, $lname, $rc, 2, $lvalue);
       $impl->lexeme_read($lname, $rc, 2, $lvalue);
       $rc += 2;
     }
@@ -234,7 +231,6 @@ sub _eventCallback {
           index($source, '/=', $realpos) != $realpos &&
           index($source, '//', $realpos) != $realpos &&
           index($source, '/*', $realpos) != $realpos) {
-        #$log->tracef('[_eventCallback] Event %s: lexeme_read(\'DIV\', %d, 1, \'/\')', $name, $realpos);
         $impl->lexeme_read('DIV', $realpos, 1, '/');
         $rc = $realpos + 1;
       }
@@ -247,7 +243,6 @@ sub _eventCallback {
       if (index($source, '/=', $realpos) == $realpos &&
           index($source, '//', $realpos) != $realpos &&
           index($source, '/*', $realpos) != $realpos) {
-        #$log->tracef('[_eventCallback] Event %s: lexeme_read(\'DIVASSIGN\', %d, 2, \'/=\')', $name, $realpos);
         $impl->lexeme_read('DIVASSIGN', $realpos, 2, '/=');
         $rc = $realpos + 2;
       }
@@ -400,20 +395,16 @@ sub _isEnd {
 sub _insertSemiColon {
   my ($self, $impl, $pos, $length) = @_;
 
-  #$log->tracef('[_insertSemiColon] Automatic Semicolon Insertion at position %d, length %d', $pos, $length);
-  #$log->tracef('[_insertSemiColon] lexeme_read(\'SEMICOLON\', %d, %d, \';\')', $pos, $length);
   if (! $impl->lexeme_read('SEMICOLON', $pos, $length, ';')) {
-    croak "[_insertSemiColon] Automatic Semicolon Insertion not allowed at position $pos";
+    SyntaxError(error => "Automatic Semicolon Insertion not allowed at position $pos");
   }
 }
 
 sub _insertInvisibleSemiColon {
   my ($self, $impl, $pos, $length) = @_;
 
-  #$log->tracef('[_insertInvisibleSemiColon] Automatic Invisible Semicolon Insertion at position %d, length %d', $pos, $length);
-  #$log->tracef('[_insertInvisibleSemiColon] lexeme_read(\'INVISIBLE_SEMICOLON\', %d, %d, \';\')', $pos, $length);
   if (! $impl->lexeme_read('INVISIBLE_SEMICOLON', $pos, $length, ';')) {
-    croak "[_insertInvisibleSemiColon] Automatic Invisible Semicolon Insertion not allowed at position $pos";
+    SyntaxError(error => "Automatic Invisible Semicolon Insertion not allowed at position $pos");
   }
 }
 
@@ -444,10 +435,8 @@ sub _failureCallback {
   } elsif ($self->_isRcurly($source, $rc, $impl)) {
     $self->_insertSemiColon($impl, $rc, 1);
   } else {
-    croak "[_failureCallback] Failure at position $rc: '" . substr($source, $rc, 10) . "'";
+    SyntaxError();
   }
-
-  #$log->tracef('[_failureCallback] Resuming at position %d', $rc);
 
   return $rc;
 }
@@ -473,7 +462,7 @@ sub _endCallback {
       $self->_insertSemiColon($impl, $lastValidPos, 1);
       my $haveProgramCompletion = grep {$_ eq 'Program$'} map {$_->[0]} @{$impl->events};
       if (! $haveProgramCompletion) {
-	  croak "end callback failure";
+	  SyntaxError(error => "Incomplete program");
       }
   }
 }

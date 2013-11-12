@@ -5,7 +5,6 @@ package MarpaX::Languages::ECMAScript::AST;
 
 # ABSTRACT: Translate a ECMAScript source to an AST
 
-use Carp qw/croak/;
 use MarpaX::Languages::ECMAScript::AST::Grammar qw//;
 use Digest::MD4 qw/md4_hex/;
 use CHI;

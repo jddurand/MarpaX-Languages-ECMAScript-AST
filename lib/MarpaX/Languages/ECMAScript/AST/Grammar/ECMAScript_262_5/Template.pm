@@ -1,6 +1,6 @@
 #
 # This is a generated file using the command:
-# /usr/bin/perl script/generateTemplate.pl ECMAScript-262-5
+# C:\perl-5.16\perl\bin\perl.exe script\generateTemplate.pl ECMAScript-262-5
 #
 use strict;
 use warnings FATAL => 'all';
@@ -20,14 +20,40 @@ Generated generic template.
 
 =head2 new($class, %options)
 
-Instantiate a new object.
+Instantiate a new object.  Takes as optional argument a hash that may contain the following key/values:
+
+=over
+
+=item g1Callback
+
+G1 callback (CODE ref).
+
+=item g1CallbackArgs
+
+G1 callback arguments (ARRAY ref). The g1 callback is called like: &$g1Callback(@{$g1CallbackArgs}, \$rc, $ruleId, $value, $index, $lhs, @rhs), where $value is the AST parse tree value of RHS No $index of this G1 rule number $ruleId, whose full definition is $lhs ::= @rhs. If the callback is defined, this will always be executed first, and it must return a true value putting its result in $rc, otherwise default behaviour applies.
+
+=item lexemeCallback
+
+lexeme callback (CODE ref).
+
+=item lexemeCallbackArgs
+
+Lexeme callback arguments (ARRAY ref). The lexeme callback is called like: &$lexemeCallback(@{$lexemeCallbackArgs}, \$rc, $name, $ruleId, $value, $index, $lhs, @rhs), where $value is the AST parse tree value of RHS No $index of this G1 rule number $ruleId, whose full definition is $lhs ::= @rhs. The RHS being a lexeme, $name contains the lexeme's name. If the callback is defined, this will always be executed first, and it must return a true value putting its result in $rc, otherwise default behaviour applies.
+
+=back
 
 =cut
 
 sub new {
     my ($class, %options) = @_;
 
-    my $self = {_nindent => 0};
+    my $self = {
+                _nindent            => 0,
+                _g1Callback         => $options{g1Callback}         || sub { return 0; },
+                _g1CallbackArgs     => $options{g1CallbackArgs}     || [],
+                _lexemeCallback     => $options{lexemeCallback}     || sub { return 0; },
+                _lexemeCallbackArgs => $options{lexemeCallbackArgs} || []
+               };
     bless($self, $class);
     return $self;
 }
@@ -39,14 +65,20 @@ Returns the characters of lexeme inside $value, that is an array reference. C.f.
 =cut
 
 sub lexeme {
-    my ($self, $value) = @_;
+    my $self = shift;
 
-    my $lexeme = $value->[2];
     my $rc = '';
-    if    ($lexeme eq ';') { $rc = " ;\n" . $self->indent();  }
-    elsif ($lexeme eq '{') { $rc = " {\n" . $self->indent(1); }
-    elsif ($lexeme eq '}') { $rc = "\n"  . $self->indent(-1) . " }\n" . $self->indent();}
-    else                   { $rc = " $lexeme"; }
+
+    if (! &($self->{_lexemeCallback})(@{$self->{_lexemeCallbackArgs}}, \$rc, @_)) {
+
+        # my ($name, $ruleId, $value, $index, $lhs, @rhs) = @_;
+
+        my $lexeme = $_[2]->[2];
+        if    ($lexeme eq ';') { $rc = " ;\n" . $self->indent();  }
+        elsif ($lexeme eq '{') { $rc = " {\n" . $self->indent(1); }
+        elsif ($lexeme eq '}') { $rc = "\n"  . $self->indent(-1) . " }\n" . $self->indent();}
+        else                   { $rc = " $lexeme"; }
+      }
 
     return $rc;
 }
@@ -122,7 +154,9 @@ sub G1_0 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 0, $value, $index, '[:start]', 'Program')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -142,7 +176,9 @@ sub G1_1 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 1, $value, $index, 'Literal', 'NullLiteral')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -162,7 +198,9 @@ sub G1_2 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 2, $value, $index, 'Literal', 'BooleanLiteral')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -182,7 +220,9 @@ sub G1_3 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 3, $value, $index, 'Literal', 'NumericLiteral')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -202,7 +242,9 @@ sub G1_4 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 4, $value, $index, 'Literal', 'StringLiteral')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -222,7 +264,9 @@ sub G1_5 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 5, $value, $index, 'Literal', 'RegularExpressionLiteral')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -242,8 +286,10 @@ sub G1_6 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 6, $value, $index, 'NumericLiteral', 'DECIMALLITERAL')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('DECIMALLITERAL', 6, $value, 0, 'NumericLiteral', 'DECIMALLITERAL');
+        }
     }
 
     return $rc;
@@ -263,8 +309,10 @@ sub G1_7 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 7, $value, $index, 'NumericLiteral', 'HEXINTEGERLITERAL')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('HEXINTEGERLITERAL', 7, $value, 0, 'NumericLiteral', 'HEXINTEGERLITERAL');
+        }
     }
 
     return $rc;
@@ -284,8 +332,10 @@ sub G1_8 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 8, $value, $index, 'NumericLiteral', 'OCTALINTEGERLITERAL')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('OCTALINTEGERLITERAL', 8, $value, 0, 'NumericLiteral', 'OCTALINTEGERLITERAL');
+        }
     }
 
     return $rc;
@@ -305,8 +355,10 @@ sub G1_9 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 9, $value, $index, 'PrimaryExpression', 'THIS')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('THIS', 9, $value, 0, 'PrimaryExpression', 'THIS');
+        }
     }
 
     return $rc;
@@ -326,8 +378,10 @@ sub G1_10 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 10, $value, $index, 'PrimaryExpression', 'IDENTIFIER')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('IDENTIFIER', 10, $value, 0, 'PrimaryExpression', 'IDENTIFIER');
+        }
     }
 
     return $rc;
@@ -347,7 +401,9 @@ sub G1_11 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 11, $value, $index, 'PrimaryExpression', 'Literal')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -367,7 +423,9 @@ sub G1_12 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 12, $value, $index, 'PrimaryExpression', 'ArrayLiteral')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -387,7 +445,9 @@ sub G1_13 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 13, $value, $index, 'PrimaryExpression', 'ObjectLiteral')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -407,13 +467,15 @@ sub G1_14 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 14, $value, $index, 'PrimaryExpression', 'LPAREN', 'Expression', 'RPAREN')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('LPAREN', 14, $value, 0, 'PrimaryExpression', 'LPAREN', 'Expression', 'RPAREN');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('RPAREN', 14, $value, 2, 'PrimaryExpression', 'LPAREN', 'Expression', 'RPAREN');
+        }
     }
 
     return $rc;
@@ -433,13 +495,15 @@ sub G1_15 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 15, $value, $index, 'ArrayLiteral', 'LBRACKET', 'Elisionopt', 'RBRACKET')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('LBRACKET', 15, $value, 0, 'ArrayLiteral', 'LBRACKET', 'Elisionopt', 'RBRACKET');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('RBRACKET', 15, $value, 2, 'ArrayLiteral', 'LBRACKET', 'Elisionopt', 'RBRACKET');
+        }
     }
 
     return $rc;
@@ -459,13 +523,15 @@ sub G1_16 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 16, $value, $index, 'ArrayLiteral', 'LBRACKET', 'ElementList', 'RBRACKET')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('LBRACKET', 16, $value, 0, 'ArrayLiteral', 'LBRACKET', 'ElementList', 'RBRACKET');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('RBRACKET', 16, $value, 2, 'ArrayLiteral', 'LBRACKET', 'ElementList', 'RBRACKET');
+        }
     }
 
     return $rc;
@@ -485,18 +551,20 @@ sub G1_17 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 3) {
-    }
-    elsif ($index == 4) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 17, $value, $index, 'ArrayLiteral', 'LBRACKET', 'ElementList', 'COMMA', 'Elisionopt', 'RBRACKET')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('LBRACKET', 17, $value, 0, 'ArrayLiteral', 'LBRACKET', 'ElementList', 'COMMA', 'Elisionopt', 'RBRACKET');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('COMMA', 17, $value, 2, 'ArrayLiteral', 'LBRACKET', 'ElementList', 'COMMA', 'Elisionopt', 'RBRACKET');
+        }
+        elsif ($index == 3) {
+        }
+        elsif ($index == 4) {
+            $rc = $self->lexeme('RBRACKET', 17, $value, 4, 'ArrayLiteral', 'LBRACKET', 'ElementList', 'COMMA', 'Elisionopt', 'RBRACKET');
+        }
     }
 
     return $rc;
@@ -516,9 +584,11 @@ sub G1_18 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 18, $value, $index, 'ElementList', 'Elisionopt', 'AssignmentExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -538,14 +608,16 @@ sub G1_19 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-    }
-    elsif ($index == 3) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 19, $value, $index, 'ElementList', 'ElementList', 'COMMA', 'Elisionopt', 'AssignmentExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('COMMA', 19, $value, 1, 'ElementList', 'ElementList', 'COMMA', 'Elisionopt', 'AssignmentExpression');
+        }
+        elsif ($index == 2) {
+        }
+        elsif ($index == 3) {
+        }
     }
 
     return $rc;
@@ -565,8 +637,10 @@ sub G1_20 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 20, $value, $index, 'Elision', 'COMMA')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('COMMA', 20, $value, 0, 'Elision', 'COMMA');
+        }
     }
 
     return $rc;
@@ -586,10 +660,12 @@ sub G1_21 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 21, $value, $index, 'Elision', 'Elision', 'COMMA')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('COMMA', 21, $value, 1, 'Elision', 'Elision', 'COMMA');
+        }
     }
 
     return $rc;
@@ -609,7 +685,9 @@ sub G1_22 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 22, $value, $index, 'Elisionopt', 'Elision')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -629,6 +707,8 @@ sub G1_23 {
 
     my $rc = '';
 
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 23, $value, $index, 'Elisionopt', )) {
+    }
 
     return $rc;
 }
@@ -647,11 +727,13 @@ sub G1_24 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 24, $value, $index, 'ObjectLiteral', 'LCURLY', 'RCURLY')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('LCURLY', 24, $value, 0, 'ObjectLiteral', 'LCURLY', 'RCURLY');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('RCURLY', 24, $value, 1, 'ObjectLiteral', 'LCURLY', 'RCURLY');
+        }
     }
 
     return $rc;
@@ -671,13 +753,15 @@ sub G1_25 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 25, $value, $index, 'ObjectLiteral', 'LCURLY', 'PropertyNameAndValueList', 'RCURLY')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('LCURLY', 25, $value, 0, 'ObjectLiteral', 'LCURLY', 'PropertyNameAndValueList', 'RCURLY');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('RCURLY', 25, $value, 2, 'ObjectLiteral', 'LCURLY', 'PropertyNameAndValueList', 'RCURLY');
+        }
     }
 
     return $rc;
@@ -697,16 +781,18 @@ sub G1_26 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 3) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 26, $value, $index, 'ObjectLiteral', 'LCURLY', 'PropertyNameAndValueList', 'COMMA', 'RCURLY')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('LCURLY', 26, $value, 0, 'ObjectLiteral', 'LCURLY', 'PropertyNameAndValueList', 'COMMA', 'RCURLY');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('COMMA', 26, $value, 2, 'ObjectLiteral', 'LCURLY', 'PropertyNameAndValueList', 'COMMA', 'RCURLY');
+        }
+        elsif ($index == 3) {
+            $rc = $self->lexeme('RCURLY', 26, $value, 3, 'ObjectLiteral', 'LCURLY', 'PropertyNameAndValueList', 'COMMA', 'RCURLY');
+        }
     }
 
     return $rc;
@@ -726,7 +812,9 @@ sub G1_27 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 27, $value, $index, 'PropertyNameAndValueList', 'PropertyAssignment')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -746,12 +834,14 @@ sub G1_28 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 28, $value, $index, 'PropertyNameAndValueList', 'PropertyNameAndValueList', 'COMMA', 'PropertyAssignment')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('COMMA', 28, $value, 1, 'PropertyNameAndValueList', 'PropertyNameAndValueList', 'COMMA', 'PropertyAssignment');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -771,12 +861,14 @@ sub G1_29 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 29, $value, $index, 'PropertyAssignment', 'PropertyName', 'COLON', 'AssignmentExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('COLON', 29, $value, 1, 'PropertyAssignment', 'PropertyName', 'COLON', 'AssignmentExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -796,24 +888,26 @@ sub G1_30 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 3) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 4) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 5) {
-    }
-    elsif ($index == 6) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 30, $value, $index, 'PropertyAssignment', 'GET', 'PropertyName', 'LPAREN', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('GET', 30, $value, 0, 'PropertyAssignment', 'GET', 'PropertyName', 'LPAREN', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('LPAREN', 30, $value, 2, 'PropertyAssignment', 'GET', 'PropertyName', 'LPAREN', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 3) {
+            $rc = $self->lexeme('RPAREN', 30, $value, 3, 'PropertyAssignment', 'GET', 'PropertyName', 'LPAREN', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 4) {
+            $rc = $self->lexeme('LCURLY', 30, $value, 4, 'PropertyAssignment', 'GET', 'PropertyName', 'LPAREN', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 5) {
+        }
+        elsif ($index == 6) {
+            $rc = $self->lexeme('RCURLY', 30, $value, 6, 'PropertyAssignment', 'GET', 'PropertyName', 'LPAREN', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
     }
 
     return $rc;
@@ -833,26 +927,28 @@ sub G1_31 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 3) {
-    }
-    elsif ($index == 4) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 5) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 6) {
-    }
-    elsif ($index == 7) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 31, $value, $index, 'PropertyAssignment', 'SET', 'PropertyName', 'LPAREN', 'PropertySetParameterList', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('SET', 31, $value, 0, 'PropertyAssignment', 'SET', 'PropertyName', 'LPAREN', 'PropertySetParameterList', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('LPAREN', 31, $value, 2, 'PropertyAssignment', 'SET', 'PropertyName', 'LPAREN', 'PropertySetParameterList', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 3) {
+        }
+        elsif ($index == 4) {
+            $rc = $self->lexeme('RPAREN', 31, $value, 4, 'PropertyAssignment', 'SET', 'PropertyName', 'LPAREN', 'PropertySetParameterList', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 5) {
+            $rc = $self->lexeme('LCURLY', 31, $value, 5, 'PropertyAssignment', 'SET', 'PropertyName', 'LPAREN', 'PropertySetParameterList', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 6) {
+        }
+        elsif ($index == 7) {
+            $rc = $self->lexeme('RCURLY', 31, $value, 7, 'PropertyAssignment', 'SET', 'PropertyName', 'LPAREN', 'PropertySetParameterList', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
     }
 
     return $rc;
@@ -872,8 +968,10 @@ sub G1_32 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 32, $value, $index, 'PropertyName', 'IDENTIFIERNAME')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('IDENTIFIERNAME', 32, $value, 0, 'PropertyName', 'IDENTIFIERNAME');
+        }
     }
 
     return $rc;
@@ -893,7 +991,9 @@ sub G1_33 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 33, $value, $index, 'PropertyName', 'StringLiteral')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -913,7 +1013,9 @@ sub G1_34 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 34, $value, $index, 'PropertyName', 'NumericLiteral')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -933,8 +1035,10 @@ sub G1_35 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 35, $value, $index, 'PropertySetParameterList', 'IDENTIFIER')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('IDENTIFIER', 35, $value, 0, 'PropertySetParameterList', 'IDENTIFIER');
+        }
     }
 
     return $rc;
@@ -954,7 +1058,9 @@ sub G1_36 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 36, $value, $index, 'MemberExpression', 'PrimaryExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -974,7 +1080,9 @@ sub G1_37 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 37, $value, $index, 'MemberExpression', 'FunctionExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -994,15 +1102,17 @@ sub G1_38 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-    }
-    elsif ($index == 3) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 38, $value, $index, 'MemberExpression', 'MemberExpression', 'LBRACKET', 'Expression', 'RBRACKET')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LBRACKET', 38, $value, 1, 'MemberExpression', 'MemberExpression', 'LBRACKET', 'Expression', 'RBRACKET');
+        }
+        elsif ($index == 2) {
+        }
+        elsif ($index == 3) {
+            $rc = $self->lexeme('RBRACKET', 38, $value, 3, 'MemberExpression', 'MemberExpression', 'LBRACKET', 'Expression', 'RBRACKET');
+        }
     }
 
     return $rc;
@@ -1022,13 +1132,15 @@ sub G1_39 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 39, $value, $index, 'MemberExpression', 'MemberExpression', 'DOT', 'IDENTIFIERNAME')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('DOT', 39, $value, 1, 'MemberExpression', 'MemberExpression', 'DOT', 'IDENTIFIERNAME');
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('IDENTIFIERNAME', 39, $value, 2, 'MemberExpression', 'MemberExpression', 'DOT', 'IDENTIFIERNAME');
+        }
     }
 
     return $rc;
@@ -1048,12 +1160,14 @@ sub G1_40 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 40, $value, $index, 'MemberExpression', 'NEW', 'MemberExpression', 'Arguments')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('NEW', 40, $value, 0, 'MemberExpression', 'NEW', 'MemberExpression', 'Arguments');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -1073,7 +1187,9 @@ sub G1_41 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 41, $value, $index, 'NewExpression', 'MemberExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -1093,10 +1209,12 @@ sub G1_42 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 42, $value, $index, 'NewExpression', 'NEW', 'NewExpression')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('NEW', 42, $value, 0, 'NewExpression', 'NEW', 'NewExpression');
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -1116,9 +1234,11 @@ sub G1_43 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 43, $value, $index, 'CallExpression', 'MemberExpression', 'Arguments')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -1138,9 +1258,11 @@ sub G1_44 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 44, $value, $index, 'CallExpression', 'CallExpression', 'Arguments')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -1160,15 +1282,17 @@ sub G1_45 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-    }
-    elsif ($index == 3) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 45, $value, $index, 'CallExpression', 'CallExpression', 'LBRACKET', 'Expression', 'RBRACKET')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LBRACKET', 45, $value, 1, 'CallExpression', 'CallExpression', 'LBRACKET', 'Expression', 'RBRACKET');
+        }
+        elsif ($index == 2) {
+        }
+        elsif ($index == 3) {
+            $rc = $self->lexeme('RBRACKET', 45, $value, 3, 'CallExpression', 'CallExpression', 'LBRACKET', 'Expression', 'RBRACKET');
+        }
     }
 
     return $rc;
@@ -1188,13 +1312,15 @@ sub G1_46 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 46, $value, $index, 'CallExpression', 'CallExpression', 'DOT', 'IDENTIFIERNAME')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('DOT', 46, $value, 1, 'CallExpression', 'CallExpression', 'DOT', 'IDENTIFIERNAME');
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('IDENTIFIERNAME', 46, $value, 2, 'CallExpression', 'CallExpression', 'DOT', 'IDENTIFIERNAME');
+        }
     }
 
     return $rc;
@@ -1214,11 +1340,13 @@ sub G1_47 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 47, $value, $index, 'Arguments', 'LPAREN', 'RPAREN')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('LPAREN', 47, $value, 0, 'Arguments', 'LPAREN', 'RPAREN');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('RPAREN', 47, $value, 1, 'Arguments', 'LPAREN', 'RPAREN');
+        }
     }
 
     return $rc;
@@ -1238,13 +1366,15 @@ sub G1_48 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 48, $value, $index, 'Arguments', 'LPAREN', 'ArgumentList', 'RPAREN')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('LPAREN', 48, $value, 0, 'Arguments', 'LPAREN', 'ArgumentList', 'RPAREN');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('RPAREN', 48, $value, 2, 'Arguments', 'LPAREN', 'ArgumentList', 'RPAREN');
+        }
     }
 
     return $rc;
@@ -1264,7 +1394,9 @@ sub G1_49 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 49, $value, $index, 'ArgumentList', 'AssignmentExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -1284,12 +1416,14 @@ sub G1_50 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 50, $value, $index, 'ArgumentList', 'ArgumentList', 'COMMA', 'AssignmentExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('COMMA', 50, $value, 1, 'ArgumentList', 'ArgumentList', 'COMMA', 'AssignmentExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -1309,7 +1443,9 @@ sub G1_51 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 51, $value, $index, 'LeftHandSideExpression', 'NewExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -1329,7 +1465,9 @@ sub G1_52 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 52, $value, $index, 'LeftHandSideExpression', 'CallExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -1349,7 +1487,9 @@ sub G1_53 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 53, $value, $index, 'PostfixExpression', 'LeftHandSideExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -1369,10 +1509,12 @@ sub G1_54 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 54, $value, $index, 'PostfixExpression', 'LeftHandSideExpression', 'PLUSPLUS_POSTFIX')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('PLUSPLUS_POSTFIX', 54, $value, 1, 'PostfixExpression', 'LeftHandSideExpression', 'PLUSPLUS_POSTFIX');
+        }
     }
 
     return $rc;
@@ -1392,10 +1534,12 @@ sub G1_55 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 55, $value, $index, 'PostfixExpression', 'LeftHandSideExpression', 'MINUSMINUS_POSTFIX')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('MINUSMINUS_POSTFIX', 55, $value, 1, 'PostfixExpression', 'LeftHandSideExpression', 'MINUSMINUS_POSTFIX');
+        }
     }
 
     return $rc;
@@ -1415,7 +1559,9 @@ sub G1_56 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 56, $value, $index, 'UnaryExpression', 'PostfixExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -1435,10 +1581,12 @@ sub G1_57 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 57, $value, $index, 'UnaryExpression', 'DELETE', 'UnaryExpression')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('DELETE', 57, $value, 0, 'UnaryExpression', 'DELETE', 'UnaryExpression');
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -1458,10 +1606,12 @@ sub G1_58 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 58, $value, $index, 'UnaryExpression', 'VOID', 'UnaryExpression')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('VOID', 58, $value, 0, 'UnaryExpression', 'VOID', 'UnaryExpression');
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -1481,10 +1631,12 @@ sub G1_59 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 59, $value, $index, 'UnaryExpression', 'TYPEOF', 'UnaryExpression')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('TYPEOF', 59, $value, 0, 'UnaryExpression', 'TYPEOF', 'UnaryExpression');
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -1504,10 +1656,12 @@ sub G1_60 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 60, $value, $index, 'UnaryExpression', 'PLUSPLUS', 'UnaryExpression')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('PLUSPLUS', 60, $value, 0, 'UnaryExpression', 'PLUSPLUS', 'UnaryExpression');
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -1527,10 +1681,12 @@ sub G1_61 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 61, $value, $index, 'UnaryExpression', 'MINUSMINUS', 'UnaryExpression')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('MINUSMINUS', 61, $value, 0, 'UnaryExpression', 'MINUSMINUS', 'UnaryExpression');
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -1550,10 +1706,12 @@ sub G1_62 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 62, $value, $index, 'UnaryExpression', 'PLUS', 'UnaryExpression')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('PLUS', 62, $value, 0, 'UnaryExpression', 'PLUS', 'UnaryExpression');
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -1573,10 +1731,12 @@ sub G1_63 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 63, $value, $index, 'UnaryExpression', 'MINUS', 'UnaryExpression')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('MINUS', 63, $value, 0, 'UnaryExpression', 'MINUS', 'UnaryExpression');
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -1596,10 +1756,12 @@ sub G1_64 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 64, $value, $index, 'UnaryExpression', 'INVERT', 'UnaryExpression')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('INVERT', 64, $value, 0, 'UnaryExpression', 'INVERT', 'UnaryExpression');
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -1619,10 +1781,12 @@ sub G1_65 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 65, $value, $index, 'UnaryExpression', 'NOT', 'UnaryExpression')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('NOT', 65, $value, 0, 'UnaryExpression', 'NOT', 'UnaryExpression');
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -1642,7 +1806,9 @@ sub G1_66 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 66, $value, $index, 'MultiplicativeExpression', 'UnaryExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -1662,12 +1828,14 @@ sub G1_67 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 67, $value, $index, 'MultiplicativeExpression', 'MultiplicativeExpression', 'MUL', 'UnaryExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('MUL', 67, $value, 1, 'MultiplicativeExpression', 'MultiplicativeExpression', 'MUL', 'UnaryExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -1687,12 +1855,14 @@ sub G1_68 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 68, $value, $index, 'MultiplicativeExpression', 'MultiplicativeExpression', 'DIV', 'UnaryExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('DIV', 68, $value, 1, 'MultiplicativeExpression', 'MultiplicativeExpression', 'DIV', 'UnaryExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -1712,12 +1882,14 @@ sub G1_69 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 69, $value, $index, 'MultiplicativeExpression', 'MultiplicativeExpression', 'MODULUS', 'UnaryExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('MODULUS', 69, $value, 1, 'MultiplicativeExpression', 'MultiplicativeExpression', 'MODULUS', 'UnaryExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -1737,7 +1909,9 @@ sub G1_70 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 70, $value, $index, 'AdditiveExpression', 'MultiplicativeExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -1757,12 +1931,14 @@ sub G1_71 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 71, $value, $index, 'AdditiveExpression', 'AdditiveExpression', 'PLUS', 'MultiplicativeExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('PLUS', 71, $value, 1, 'AdditiveExpression', 'AdditiveExpression', 'PLUS', 'MultiplicativeExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -1782,12 +1958,14 @@ sub G1_72 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 72, $value, $index, 'AdditiveExpression', 'AdditiveExpression', 'MINUS', 'MultiplicativeExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('MINUS', 72, $value, 1, 'AdditiveExpression', 'AdditiveExpression', 'MINUS', 'MultiplicativeExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -1807,7 +1985,9 @@ sub G1_73 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 73, $value, $index, 'ShiftExpression', 'AdditiveExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -1827,12 +2007,14 @@ sub G1_74 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 74, $value, $index, 'ShiftExpression', 'ShiftExpression', 'LEFTMOVE', 'AdditiveExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LEFTMOVE', 74, $value, 1, 'ShiftExpression', 'ShiftExpression', 'LEFTMOVE', 'AdditiveExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -1852,12 +2034,14 @@ sub G1_75 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 75, $value, $index, 'ShiftExpression', 'ShiftExpression', 'RIGHTMOVE', 'AdditiveExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('RIGHTMOVE', 75, $value, 1, 'ShiftExpression', 'ShiftExpression', 'RIGHTMOVE', 'AdditiveExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -1877,12 +2061,14 @@ sub G1_76 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 76, $value, $index, 'ShiftExpression', 'ShiftExpression', 'RIGHTMOVEFILL', 'AdditiveExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('RIGHTMOVEFILL', 76, $value, 1, 'ShiftExpression', 'ShiftExpression', 'RIGHTMOVEFILL', 'AdditiveExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -1902,7 +2088,9 @@ sub G1_77 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 77, $value, $index, 'RelationalExpression', 'ShiftExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -1922,12 +2110,14 @@ sub G1_78 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 78, $value, $index, 'RelationalExpression', 'RelationalExpression', 'LT', 'ShiftExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LT', 78, $value, 1, 'RelationalExpression', 'RelationalExpression', 'LT', 'ShiftExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -1947,12 +2137,14 @@ sub G1_79 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 79, $value, $index, 'RelationalExpression', 'RelationalExpression', 'GT', 'ShiftExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('GT', 79, $value, 1, 'RelationalExpression', 'RelationalExpression', 'GT', 'ShiftExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -1972,12 +2164,14 @@ sub G1_80 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 80, $value, $index, 'RelationalExpression', 'RelationalExpression', 'LE', 'ShiftExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LE', 80, $value, 1, 'RelationalExpression', 'RelationalExpression', 'LE', 'ShiftExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -1997,12 +2191,14 @@ sub G1_81 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 81, $value, $index, 'RelationalExpression', 'RelationalExpression', 'GE', 'ShiftExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('GE', 81, $value, 1, 'RelationalExpression', 'RelationalExpression', 'GE', 'ShiftExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2022,12 +2218,14 @@ sub G1_82 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 82, $value, $index, 'RelationalExpression', 'RelationalExpression', 'INSTANCEOF', 'ShiftExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('INSTANCEOF', 82, $value, 1, 'RelationalExpression', 'RelationalExpression', 'INSTANCEOF', 'ShiftExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2047,12 +2245,14 @@ sub G1_83 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 83, $value, $index, 'RelationalExpression', 'RelationalExpression', 'IN', 'ShiftExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('IN', 83, $value, 1, 'RelationalExpression', 'RelationalExpression', 'IN', 'ShiftExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2072,7 +2272,9 @@ sub G1_84 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 84, $value, $index, 'RelationalExpressionNoIn', 'ShiftExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -2092,12 +2294,14 @@ sub G1_85 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 85, $value, $index, 'RelationalExpressionNoIn', 'RelationalExpressionNoIn', 'LT', 'ShiftExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LT', 85, $value, 1, 'RelationalExpressionNoIn', 'RelationalExpressionNoIn', 'LT', 'ShiftExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2117,12 +2321,14 @@ sub G1_86 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 86, $value, $index, 'RelationalExpressionNoIn', 'RelationalExpressionNoIn', 'GT', 'ShiftExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('GT', 86, $value, 1, 'RelationalExpressionNoIn', 'RelationalExpressionNoIn', 'GT', 'ShiftExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2142,12 +2348,14 @@ sub G1_87 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 87, $value, $index, 'RelationalExpressionNoIn', 'RelationalExpressionNoIn', 'LE', 'ShiftExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LE', 87, $value, 1, 'RelationalExpressionNoIn', 'RelationalExpressionNoIn', 'LE', 'ShiftExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2167,12 +2375,14 @@ sub G1_88 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 88, $value, $index, 'RelationalExpressionNoIn', 'RelationalExpressionNoIn', 'GE', 'ShiftExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('GE', 88, $value, 1, 'RelationalExpressionNoIn', 'RelationalExpressionNoIn', 'GE', 'ShiftExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2192,12 +2402,14 @@ sub G1_89 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 89, $value, $index, 'RelationalExpressionNoIn', 'RelationalExpressionNoIn', 'INSTANCEOF', 'ShiftExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('INSTANCEOF', 89, $value, 1, 'RelationalExpressionNoIn', 'RelationalExpressionNoIn', 'INSTANCEOF', 'ShiftExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2217,7 +2429,9 @@ sub G1_90 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 90, $value, $index, 'EqualityExpression', 'RelationalExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -2237,12 +2451,14 @@ sub G1_91 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 91, $value, $index, 'EqualityExpression', 'EqualityExpression', 'EQ', 'RelationalExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('EQ', 91, $value, 1, 'EqualityExpression', 'EqualityExpression', 'EQ', 'RelationalExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2262,12 +2478,14 @@ sub G1_92 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 92, $value, $index, 'EqualityExpression', 'EqualityExpression', 'NE', 'RelationalExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('NE', 92, $value, 1, 'EqualityExpression', 'EqualityExpression', 'NE', 'RelationalExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2287,12 +2505,14 @@ sub G1_93 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 93, $value, $index, 'EqualityExpression', 'EqualityExpression', 'STRICTEQ', 'RelationalExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('STRICTEQ', 93, $value, 1, 'EqualityExpression', 'EqualityExpression', 'STRICTEQ', 'RelationalExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2312,12 +2532,14 @@ sub G1_94 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 94, $value, $index, 'EqualityExpression', 'EqualityExpression', 'STRICTNE', 'RelationalExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('STRICTNE', 94, $value, 1, 'EqualityExpression', 'EqualityExpression', 'STRICTNE', 'RelationalExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2337,7 +2559,9 @@ sub G1_95 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 95, $value, $index, 'EqualityExpressionNoIn', 'RelationalExpressionNoIn')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -2357,12 +2581,14 @@ sub G1_96 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 96, $value, $index, 'EqualityExpressionNoIn', 'EqualityExpressionNoIn', 'EQ', 'RelationalExpressionNoIn')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('EQ', 96, $value, 1, 'EqualityExpressionNoIn', 'EqualityExpressionNoIn', 'EQ', 'RelationalExpressionNoIn');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2382,12 +2608,14 @@ sub G1_97 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 97, $value, $index, 'EqualityExpressionNoIn', 'EqualityExpressionNoIn', 'NE', 'RelationalExpressionNoIn')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('NE', 97, $value, 1, 'EqualityExpressionNoIn', 'EqualityExpressionNoIn', 'NE', 'RelationalExpressionNoIn');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2407,12 +2635,14 @@ sub G1_98 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 98, $value, $index, 'EqualityExpressionNoIn', 'EqualityExpressionNoIn', 'STRICTEQ', 'RelationalExpressionNoIn')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('STRICTEQ', 98, $value, 1, 'EqualityExpressionNoIn', 'EqualityExpressionNoIn', 'STRICTEQ', 'RelationalExpressionNoIn');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2432,12 +2662,14 @@ sub G1_99 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 99, $value, $index, 'EqualityExpressionNoIn', 'EqualityExpressionNoIn', 'STRICTNE', 'RelationalExpressionNoIn')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('STRICTNE', 99, $value, 1, 'EqualityExpressionNoIn', 'EqualityExpressionNoIn', 'STRICTNE', 'RelationalExpressionNoIn');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2457,7 +2689,9 @@ sub G1_100 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 100, $value, $index, 'BitwiseANDExpression', 'EqualityExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -2477,12 +2711,14 @@ sub G1_101 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 101, $value, $index, 'BitwiseANDExpression', 'BitwiseANDExpression', 'BITAND', 'EqualityExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('BITAND', 101, $value, 1, 'BitwiseANDExpression', 'BitwiseANDExpression', 'BITAND', 'EqualityExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2502,7 +2738,9 @@ sub G1_102 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 102, $value, $index, 'BitwiseANDExpressionNoIn', 'EqualityExpressionNoIn')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -2522,12 +2760,14 @@ sub G1_103 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 103, $value, $index, 'BitwiseANDExpressionNoIn', 'BitwiseANDExpressionNoIn', 'BITAND', 'EqualityExpressionNoIn')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('BITAND', 103, $value, 1, 'BitwiseANDExpressionNoIn', 'BitwiseANDExpressionNoIn', 'BITAND', 'EqualityExpressionNoIn');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2547,7 +2787,9 @@ sub G1_104 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 104, $value, $index, 'BitwiseXORExpression', 'BitwiseANDExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -2567,12 +2809,14 @@ sub G1_105 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 105, $value, $index, 'BitwiseXORExpression', 'BitwiseXORExpression', 'BITXOR', 'BitwiseANDExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('BITXOR', 105, $value, 1, 'BitwiseXORExpression', 'BitwiseXORExpression', 'BITXOR', 'BitwiseANDExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2592,7 +2836,9 @@ sub G1_106 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 106, $value, $index, 'BitwiseXORExpressionNoIn', 'BitwiseANDExpressionNoIn')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -2612,12 +2858,14 @@ sub G1_107 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 107, $value, $index, 'BitwiseXORExpressionNoIn', 'BitwiseXORExpressionNoIn', 'BITXOR', 'BitwiseANDExpressionNoIn')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('BITXOR', 107, $value, 1, 'BitwiseXORExpressionNoIn', 'BitwiseXORExpressionNoIn', 'BITXOR', 'BitwiseANDExpressionNoIn');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2637,7 +2885,9 @@ sub G1_108 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 108, $value, $index, 'BitwiseORExpression', 'BitwiseXORExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -2657,12 +2907,14 @@ sub G1_109 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 109, $value, $index, 'BitwiseORExpression', 'BitwiseORExpression', 'BITOR', 'BitwiseXORExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('BITOR', 109, $value, 1, 'BitwiseORExpression', 'BitwiseORExpression', 'BITOR', 'BitwiseXORExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2682,7 +2934,9 @@ sub G1_110 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 110, $value, $index, 'BitwiseORExpressionNoIn', 'BitwiseXORExpressionNoIn')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -2702,12 +2956,14 @@ sub G1_111 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 111, $value, $index, 'BitwiseORExpressionNoIn', 'BitwiseORExpressionNoIn', 'BITOR', 'BitwiseXORExpressionNoIn')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('BITOR', 111, $value, 1, 'BitwiseORExpressionNoIn', 'BitwiseORExpressionNoIn', 'BITOR', 'BitwiseXORExpressionNoIn');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2727,7 +2983,9 @@ sub G1_112 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 112, $value, $index, 'LogicalANDExpression', 'BitwiseORExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -2747,12 +3005,14 @@ sub G1_113 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 113, $value, $index, 'LogicalANDExpression', 'LogicalANDExpression', 'AND', 'BitwiseORExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('AND', 113, $value, 1, 'LogicalANDExpression', 'LogicalANDExpression', 'AND', 'BitwiseORExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2772,7 +3032,9 @@ sub G1_114 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 114, $value, $index, 'LogicalANDExpressionNoIn', 'BitwiseORExpressionNoIn')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -2792,12 +3054,14 @@ sub G1_115 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 115, $value, $index, 'LogicalANDExpressionNoIn', 'LogicalANDExpressionNoIn', 'AND', 'BitwiseORExpressionNoIn')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('AND', 115, $value, 1, 'LogicalANDExpressionNoIn', 'LogicalANDExpressionNoIn', 'AND', 'BitwiseORExpressionNoIn');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2817,7 +3081,9 @@ sub G1_116 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 116, $value, $index, 'LogicalORExpression', 'LogicalANDExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -2837,12 +3103,14 @@ sub G1_117 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 117, $value, $index, 'LogicalORExpression', 'LogicalORExpression', 'OR', 'LogicalANDExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('OR', 117, $value, 1, 'LogicalORExpression', 'LogicalORExpression', 'OR', 'LogicalANDExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2862,7 +3130,9 @@ sub G1_118 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 118, $value, $index, 'LogicalORExpressionNoIn', 'LogicalANDExpressionNoIn')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -2882,12 +3152,14 @@ sub G1_119 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 119, $value, $index, 'LogicalORExpressionNoIn', 'LogicalORExpressionNoIn', 'OR', 'LogicalANDExpressionNoIn')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('OR', 119, $value, 1, 'LogicalORExpressionNoIn', 'LogicalORExpressionNoIn', 'OR', 'LogicalANDExpressionNoIn');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -2907,7 +3179,9 @@ sub G1_120 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 120, $value, $index, 'ConditionalExpression', 'LogicalORExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -2927,17 +3201,19 @@ sub G1_121 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-    }
-    elsif ($index == 3) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 4) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 121, $value, $index, 'ConditionalExpression', 'LogicalORExpression', 'QUESTION_MARK', 'AssignmentExpression', 'COLON', 'AssignmentExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('QUESTION_MARK', 121, $value, 1, 'ConditionalExpression', 'LogicalORExpression', 'QUESTION_MARK', 'AssignmentExpression', 'COLON', 'AssignmentExpression');
+        }
+        elsif ($index == 2) {
+        }
+        elsif ($index == 3) {
+            $rc = $self->lexeme('COLON', 121, $value, 3, 'ConditionalExpression', 'LogicalORExpression', 'QUESTION_MARK', 'AssignmentExpression', 'COLON', 'AssignmentExpression');
+        }
+        elsif ($index == 4) {
+        }
     }
 
     return $rc;
@@ -2957,7 +3233,9 @@ sub G1_122 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 122, $value, $index, 'ConditionalExpressionNoIn', 'LogicalORExpressionNoIn')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -2977,17 +3255,19 @@ sub G1_123 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-    }
-    elsif ($index == 3) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 4) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 123, $value, $index, 'ConditionalExpressionNoIn', 'LogicalORExpressionNoIn', 'QUESTION_MARK', 'AssignmentExpression', 'COLON', 'AssignmentExpressionNoIn')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('QUESTION_MARK', 123, $value, 1, 'ConditionalExpressionNoIn', 'LogicalORExpressionNoIn', 'QUESTION_MARK', 'AssignmentExpression', 'COLON', 'AssignmentExpressionNoIn');
+        }
+        elsif ($index == 2) {
+        }
+        elsif ($index == 3) {
+            $rc = $self->lexeme('COLON', 123, $value, 3, 'ConditionalExpressionNoIn', 'LogicalORExpressionNoIn', 'QUESTION_MARK', 'AssignmentExpression', 'COLON', 'AssignmentExpressionNoIn');
+        }
+        elsif ($index == 4) {
+        }
     }
 
     return $rc;
@@ -3007,7 +3287,9 @@ sub G1_124 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 124, $value, $index, 'AssignmentExpression', 'ConditionalExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3027,12 +3309,14 @@ sub G1_125 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 125, $value, $index, 'AssignmentExpression', 'LeftHandSideExpression', 'ASSIGN', 'AssignmentExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('ASSIGN', 125, $value, 1, 'AssignmentExpression', 'LeftHandSideExpression', 'ASSIGN', 'AssignmentExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -3052,11 +3336,13 @@ sub G1_126 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 126, $value, $index, 'AssignmentExpression', 'LeftHandSideExpression', 'AssignmentOperator', 'AssignmentExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -3076,7 +3362,9 @@ sub G1_127 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 127, $value, $index, 'AssignmentExpressionNoIn', 'ConditionalExpressionNoIn')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3096,12 +3384,14 @@ sub G1_128 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 128, $value, $index, 'AssignmentExpressionNoIn', 'LeftHandSideExpression', 'ASSIGN', 'AssignmentExpressionNoIn')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('ASSIGN', 128, $value, 1, 'AssignmentExpressionNoIn', 'LeftHandSideExpression', 'ASSIGN', 'AssignmentExpressionNoIn');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -3121,11 +3411,13 @@ sub G1_129 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 129, $value, $index, 'AssignmentExpressionNoIn', 'LeftHandSideExpression', 'AssignmentOperator', 'AssignmentExpressionNoIn')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -3145,8 +3437,10 @@ sub G1_130 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 130, $value, $index, 'AssignmentOperator', 'MULASSIGN')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('MULASSIGN', 130, $value, 0, 'AssignmentOperator', 'MULASSIGN');
+        }
     }
 
     return $rc;
@@ -3166,8 +3460,10 @@ sub G1_131 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 131, $value, $index, 'AssignmentOperator', 'DIVASSIGN')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('DIVASSIGN', 131, $value, 0, 'AssignmentOperator', 'DIVASSIGN');
+        }
     }
 
     return $rc;
@@ -3187,8 +3483,10 @@ sub G1_132 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 132, $value, $index, 'AssignmentOperator', 'MODULUSASSIGN')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('MODULUSASSIGN', 132, $value, 0, 'AssignmentOperator', 'MODULUSASSIGN');
+        }
     }
 
     return $rc;
@@ -3208,8 +3506,10 @@ sub G1_133 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 133, $value, $index, 'AssignmentOperator', 'PLUSASSIGN')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('PLUSASSIGN', 133, $value, 0, 'AssignmentOperator', 'PLUSASSIGN');
+        }
     }
 
     return $rc;
@@ -3229,8 +3529,10 @@ sub G1_134 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 134, $value, $index, 'AssignmentOperator', 'MINUSASSIGN')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('MINUSASSIGN', 134, $value, 0, 'AssignmentOperator', 'MINUSASSIGN');
+        }
     }
 
     return $rc;
@@ -3250,8 +3552,10 @@ sub G1_135 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 135, $value, $index, 'AssignmentOperator', 'LEFTMOVEASSIGN')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('LEFTMOVEASSIGN', 135, $value, 0, 'AssignmentOperator', 'LEFTMOVEASSIGN');
+        }
     }
 
     return $rc;
@@ -3271,8 +3575,10 @@ sub G1_136 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 136, $value, $index, 'AssignmentOperator', 'RIGHTMOVEASSIGN')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('RIGHTMOVEASSIGN', 136, $value, 0, 'AssignmentOperator', 'RIGHTMOVEASSIGN');
+        }
     }
 
     return $rc;
@@ -3292,8 +3598,10 @@ sub G1_137 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 137, $value, $index, 'AssignmentOperator', 'RIGHTMOVEFILLASSIGN')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('RIGHTMOVEFILLASSIGN', 137, $value, 0, 'AssignmentOperator', 'RIGHTMOVEFILLASSIGN');
+        }
     }
 
     return $rc;
@@ -3313,8 +3621,10 @@ sub G1_138 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 138, $value, $index, 'AssignmentOperator', 'BITANDASSIGN')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('BITANDASSIGN', 138, $value, 0, 'AssignmentOperator', 'BITANDASSIGN');
+        }
     }
 
     return $rc;
@@ -3334,8 +3644,10 @@ sub G1_139 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 139, $value, $index, 'AssignmentOperator', 'BITXORASSIGN')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('BITXORASSIGN', 139, $value, 0, 'AssignmentOperator', 'BITXORASSIGN');
+        }
     }
 
     return $rc;
@@ -3355,8 +3667,10 @@ sub G1_140 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 140, $value, $index, 'AssignmentOperator', 'BITORASSIGN')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('BITORASSIGN', 140, $value, 0, 'AssignmentOperator', 'BITORASSIGN');
+        }
     }
 
     return $rc;
@@ -3376,7 +3690,9 @@ sub G1_141 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 141, $value, $index, 'Expression', 'AssignmentExpression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3396,12 +3712,14 @@ sub G1_142 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 142, $value, $index, 'Expression', 'Expression', 'COMMA', 'AssignmentExpression')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('COMMA', 142, $value, 1, 'Expression', 'Expression', 'COMMA', 'AssignmentExpression');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -3421,7 +3739,9 @@ sub G1_143 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 143, $value, $index, 'ExpressionNoIn', 'AssignmentExpressionNoIn')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3441,12 +3761,14 @@ sub G1_144 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 144, $value, $index, 'ExpressionNoIn', 'ExpressionNoIn', 'COMMA', 'AssignmentExpressionNoIn')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('COMMA', 144, $value, 1, 'ExpressionNoIn', 'ExpressionNoIn', 'COMMA', 'AssignmentExpressionNoIn');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -3466,7 +3788,9 @@ sub G1_145 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 145, $value, $index, 'Statement', 'Block')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3486,7 +3810,9 @@ sub G1_146 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 146, $value, $index, 'Statement', 'VariableStatement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3506,7 +3832,9 @@ sub G1_147 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 147, $value, $index, 'Statement', 'EmptyStatement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3526,7 +3854,9 @@ sub G1_148 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 148, $value, $index, 'Statement', 'ExpressionStatement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3546,7 +3876,9 @@ sub G1_149 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 149, $value, $index, 'Statement', 'IfStatement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3566,7 +3898,9 @@ sub G1_150 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 150, $value, $index, 'Statement', 'IterationStatement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3586,7 +3920,9 @@ sub G1_151 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 151, $value, $index, 'Statement', 'ContinueStatement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3606,7 +3942,9 @@ sub G1_152 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 152, $value, $index, 'Statement', 'BreakStatement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3626,7 +3964,9 @@ sub G1_153 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 153, $value, $index, 'Statement', 'ReturnStatement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3646,7 +3986,9 @@ sub G1_154 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 154, $value, $index, 'Statement', 'WithStatement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3666,7 +4008,9 @@ sub G1_155 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 155, $value, $index, 'Statement', 'LabelledStatement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3686,7 +4030,9 @@ sub G1_156 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 156, $value, $index, 'Statement', 'SwitchStatement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3706,7 +4052,9 @@ sub G1_157 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 157, $value, $index, 'Statement', 'ThrowStatement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3726,7 +4074,9 @@ sub G1_158 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 158, $value, $index, 'Statement', 'TryStatement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3746,7 +4096,9 @@ sub G1_159 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 159, $value, $index, 'Statement', 'DebuggerStatement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3766,13 +4118,15 @@ sub G1_160 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 160, $value, $index, 'Block', 'LCURLY', 'StatementListopt', 'RCURLY')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('LCURLY', 160, $value, 0, 'Block', 'LCURLY', 'StatementListopt', 'RCURLY');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('RCURLY', 160, $value, 2, 'Block', 'LCURLY', 'StatementListopt', 'RCURLY');
+        }
     }
 
     return $rc;
@@ -3792,7 +4146,9 @@ sub G1_161 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 161, $value, $index, 'StatementList', 'Statement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3812,9 +4168,11 @@ sub G1_162 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 162, $value, $index, 'StatementList', 'StatementList', 'Statement')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -3834,13 +4192,15 @@ sub G1_163 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 163, $value, $index, 'VariableStatement', 'VAR', 'VariableDeclarationList', 'SEMICOLON')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('VAR', 163, $value, 0, 'VariableStatement', 'VAR', 'VariableDeclarationList', 'SEMICOLON');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('SEMICOLON', 163, $value, 2, 'VariableStatement', 'VAR', 'VariableDeclarationList', 'SEMICOLON');
+        }
     }
 
     return $rc;
@@ -3860,7 +4220,9 @@ sub G1_164 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 164, $value, $index, 'VariableDeclarationList', 'VariableDeclaration')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3880,12 +4242,14 @@ sub G1_165 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 165, $value, $index, 'VariableDeclarationList', 'VariableDeclarationList', 'COMMA', 'VariableDeclaration')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('COMMA', 165, $value, 1, 'VariableDeclarationList', 'VariableDeclarationList', 'COMMA', 'VariableDeclaration');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -3905,7 +4269,9 @@ sub G1_166 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 166, $value, $index, 'VariableDeclarationListNoIn', 'VariableDeclarationNoIn')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -3925,12 +4291,14 @@ sub G1_167 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 167, $value, $index, 'VariableDeclarationListNoIn', 'VariableDeclarationListNoIn', 'COMMA', 'VariableDeclarationNoIn')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('COMMA', 167, $value, 1, 'VariableDeclarationListNoIn', 'VariableDeclarationListNoIn', 'COMMA', 'VariableDeclarationNoIn');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -3950,10 +4318,12 @@ sub G1_168 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 168, $value, $index, 'VariableDeclaration', 'IDENTIFIER', 'Initialiseropt')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('IDENTIFIER', 168, $value, 0, 'VariableDeclaration', 'IDENTIFIER', 'Initialiseropt');
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -3973,10 +4343,12 @@ sub G1_169 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 169, $value, $index, 'VariableDeclarationNoIn', 'IDENTIFIER', 'InitialiserNoInopt')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('IDENTIFIER', 169, $value, 0, 'VariableDeclarationNoIn', 'IDENTIFIER', 'InitialiserNoInopt');
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -3996,7 +4368,9 @@ sub G1_170 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 170, $value, $index, 'Initialiseropt', 'Initialiser')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -4016,6 +4390,8 @@ sub G1_171 {
 
     my $rc = '';
 
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 171, $value, $index, 'Initialiseropt', )) {
+    }
 
     return $rc;
 }
@@ -4034,10 +4410,12 @@ sub G1_172 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 172, $value, $index, 'Initialiser', 'ASSIGN', 'AssignmentExpression')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('ASSIGN', 172, $value, 0, 'Initialiser', 'ASSIGN', 'AssignmentExpression');
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -4057,7 +4435,9 @@ sub G1_173 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 173, $value, $index, 'InitialiserNoInopt', 'InitialiserNoIn')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -4077,6 +4457,8 @@ sub G1_174 {
 
     my $rc = '';
 
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 174, $value, $index, 'InitialiserNoInopt', )) {
+    }
 
     return $rc;
 }
@@ -4095,10 +4477,12 @@ sub G1_175 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 175, $value, $index, 'InitialiserNoIn', 'ASSIGN', 'AssignmentExpressionNoIn')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('ASSIGN', 175, $value, 0, 'InitialiserNoIn', 'ASSIGN', 'AssignmentExpressionNoIn');
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -4118,8 +4502,10 @@ sub G1_176 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 176, $value, $index, 'EmptyStatement', 'VISIBLE_SEMICOLON')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('VISIBLE_SEMICOLON', 176, $value, 0, 'EmptyStatement', 'VISIBLE_SEMICOLON');
+        }
     }
 
     return $rc;
@@ -4139,10 +4525,12 @@ sub G1_177 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 177, $value, $index, 'ExpressionStatement', 'Expression', 'SEMICOLON')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('SEMICOLON', 177, $value, 1, 'ExpressionStatement', 'Expression', 'SEMICOLON');
+        }
     }
 
     return $rc;
@@ -4162,23 +4550,25 @@ sub G1_178 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-    }
-    elsif ($index == 3) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 4) {
-    }
-    elsif ($index == 5) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 6) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 178, $value, $index, 'IfStatement', 'IF', 'LPAREN', 'Expression', 'RPAREN', 'Statement', 'ELSE', 'Statement')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('IF', 178, $value, 0, 'IfStatement', 'IF', 'LPAREN', 'Expression', 'RPAREN', 'Statement', 'ELSE', 'Statement');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LPAREN', 178, $value, 1, 'IfStatement', 'IF', 'LPAREN', 'Expression', 'RPAREN', 'Statement', 'ELSE', 'Statement');
+        }
+        elsif ($index == 2) {
+        }
+        elsif ($index == 3) {
+            $rc = $self->lexeme('RPAREN', 178, $value, 3, 'IfStatement', 'IF', 'LPAREN', 'Expression', 'RPAREN', 'Statement', 'ELSE', 'Statement');
+        }
+        elsif ($index == 4) {
+        }
+        elsif ($index == 5) {
+            $rc = $self->lexeme('ELSE', 178, $value, 5, 'IfStatement', 'IF', 'LPAREN', 'Expression', 'RPAREN', 'Statement', 'ELSE', 'Statement');
+        }
+        elsif ($index == 6) {
+        }
     }
 
     return $rc;
@@ -4198,18 +4588,20 @@ sub G1_179 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-    }
-    elsif ($index == 3) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 4) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 179, $value, $index, 'IfStatement', 'IF', 'LPAREN', 'Expression', 'RPAREN', 'Statement')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('IF', 179, $value, 0, 'IfStatement', 'IF', 'LPAREN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LPAREN', 179, $value, 1, 'IfStatement', 'IF', 'LPAREN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 2) {
+        }
+        elsif ($index == 3) {
+            $rc = $self->lexeme('RPAREN', 179, $value, 3, 'IfStatement', 'IF', 'LPAREN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 4) {
+        }
     }
 
     return $rc;
@@ -4229,7 +4621,9 @@ sub G1_180 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 180, $value, $index, 'ExpressionNoInopt', 'ExpressionNoIn')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -4249,6 +4643,8 @@ sub G1_181 {
 
     my $rc = '';
 
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 181, $value, $index, 'ExpressionNoInopt', )) {
+    }
 
     return $rc;
 }
@@ -4267,7 +4663,9 @@ sub G1_182 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 182, $value, $index, 'Expressionopt', 'Expression')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -4287,6 +4685,8 @@ sub G1_183 {
 
     my $rc = '';
 
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 183, $value, $index, 'Expressionopt', )) {
+    }
 
     return $rc;
 }
@@ -4305,24 +4705,26 @@ sub G1_184 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 3) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 4) {
-    }
-    elsif ($index == 5) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 6) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 184, $value, $index, 'IterationStatement', 'DO', 'Statement', 'WHILE', 'LPAREN', 'Expression', 'RPAREN', 'SEMICOLON')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('DO', 184, $value, 0, 'IterationStatement', 'DO', 'Statement', 'WHILE', 'LPAREN', 'Expression', 'RPAREN', 'SEMICOLON');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('WHILE', 184, $value, 2, 'IterationStatement', 'DO', 'Statement', 'WHILE', 'LPAREN', 'Expression', 'RPAREN', 'SEMICOLON');
+        }
+        elsif ($index == 3) {
+            $rc = $self->lexeme('LPAREN', 184, $value, 3, 'IterationStatement', 'DO', 'Statement', 'WHILE', 'LPAREN', 'Expression', 'RPAREN', 'SEMICOLON');
+        }
+        elsif ($index == 4) {
+        }
+        elsif ($index == 5) {
+            $rc = $self->lexeme('RPAREN', 184, $value, 5, 'IterationStatement', 'DO', 'Statement', 'WHILE', 'LPAREN', 'Expression', 'RPAREN', 'SEMICOLON');
+        }
+        elsif ($index == 6) {
+            $rc = $self->lexeme('SEMICOLON', 184, $value, 6, 'IterationStatement', 'DO', 'Statement', 'WHILE', 'LPAREN', 'Expression', 'RPAREN', 'SEMICOLON');
+        }
     }
 
     return $rc;
@@ -4342,18 +4744,20 @@ sub G1_185 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-    }
-    elsif ($index == 3) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 4) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 185, $value, $index, 'IterationStatement', 'WHILE', 'LPAREN', 'Expression', 'RPAREN', 'Statement')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('WHILE', 185, $value, 0, 'IterationStatement', 'WHILE', 'LPAREN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LPAREN', 185, $value, 1, 'IterationStatement', 'WHILE', 'LPAREN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 2) {
+        }
+        elsif ($index == 3) {
+            $rc = $self->lexeme('RPAREN', 185, $value, 3, 'IterationStatement', 'WHILE', 'LPAREN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 4) {
+        }
     }
 
     return $rc;
@@ -4373,28 +4777,30 @@ sub G1_186 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-    }
-    elsif ($index == 3) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 4) {
-    }
-    elsif ($index == 5) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 6) {
-    }
-    elsif ($index == 7) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 8) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 186, $value, $index, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('FOR', 186, $value, 0, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LPAREN', 186, $value, 1, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 2) {
+        }
+        elsif ($index == 3) {
+            $rc = $self->lexeme('VISIBLE_SEMICOLON', 186, $value, 3, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 4) {
+        }
+        elsif ($index == 5) {
+            $rc = $self->lexeme('VISIBLE_SEMICOLON', 186, $value, 5, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 6) {
+        }
+        elsif ($index == 7) {
+            $rc = $self->lexeme('RPAREN', 186, $value, 7, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 8) {
+        }
     }
 
     return $rc;
@@ -4414,31 +4820,33 @@ sub G1_187 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 3) {
-    }
-    elsif ($index == 4) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 5) {
-    }
-    elsif ($index == 6) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 7) {
-    }
-    elsif ($index == 8) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 9) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 187, $value, $index, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('FOR', 187, $value, 0, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LPAREN', 187, $value, 1, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('VAR', 187, $value, 2, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 3) {
+        }
+        elsif ($index == 4) {
+            $rc = $self->lexeme('VISIBLE_SEMICOLON', 187, $value, 4, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 5) {
+        }
+        elsif ($index == 6) {
+            $rc = $self->lexeme('VISIBLE_SEMICOLON', 187, $value, 6, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 7) {
+        }
+        elsif ($index == 8) {
+            $rc = $self->lexeme('RPAREN', 187, $value, 8, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 9) {
+        }
     }
 
     return $rc;
@@ -4458,23 +4866,25 @@ sub G1_188 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-    }
-    elsif ($index == 3) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 4) {
-    }
-    elsif ($index == 5) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 6) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 188, $value, $index, 'IterationStatement', 'FOR', 'LPAREN', 'LeftHandSideExpression', 'IN', 'Expression', 'RPAREN', 'Statement')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('FOR', 188, $value, 0, 'IterationStatement', 'FOR', 'LPAREN', 'LeftHandSideExpression', 'IN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LPAREN', 188, $value, 1, 'IterationStatement', 'FOR', 'LPAREN', 'LeftHandSideExpression', 'IN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 2) {
+        }
+        elsif ($index == 3) {
+            $rc = $self->lexeme('IN', 188, $value, 3, 'IterationStatement', 'FOR', 'LPAREN', 'LeftHandSideExpression', 'IN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 4) {
+        }
+        elsif ($index == 5) {
+            $rc = $self->lexeme('RPAREN', 188, $value, 5, 'IterationStatement', 'FOR', 'LPAREN', 'LeftHandSideExpression', 'IN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 6) {
+        }
     }
 
     return $rc;
@@ -4494,26 +4904,28 @@ sub G1_189 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 3) {
-    }
-    elsif ($index == 4) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 5) {
-    }
-    elsif ($index == 6) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 7) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 189, $value, $index, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationNoIn', 'IN', 'Expression', 'RPAREN', 'Statement')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('FOR', 189, $value, 0, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationNoIn', 'IN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LPAREN', 189, $value, 1, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationNoIn', 'IN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('VAR', 189, $value, 2, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationNoIn', 'IN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 3) {
+        }
+        elsif ($index == 4) {
+            $rc = $self->lexeme('IN', 189, $value, 4, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationNoIn', 'IN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 5) {
+        }
+        elsif ($index == 6) {
+            $rc = $self->lexeme('RPAREN', 189, $value, 6, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationNoIn', 'IN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 7) {
+        }
     }
 
     return $rc;
@@ -4533,11 +4945,13 @@ sub G1_190 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 190, $value, $index, 'ContinueStatement', 'CONTINUE', 'SEMICOLON')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('CONTINUE', 190, $value, 0, 'ContinueStatement', 'CONTINUE', 'SEMICOLON');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('SEMICOLON', 190, $value, 1, 'ContinueStatement', 'CONTINUE', 'SEMICOLON');
+        }
     }
 
     return $rc;
@@ -4557,11 +4971,13 @@ sub G1_191 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 191, $value, $index, 'ContinueStatement', 'CONTINUE', 'INVISIBLE_SEMICOLON')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('CONTINUE', 191, $value, 0, 'ContinueStatement', 'CONTINUE', 'INVISIBLE_SEMICOLON');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('INVISIBLE_SEMICOLON', 191, $value, 1, 'ContinueStatement', 'CONTINUE', 'INVISIBLE_SEMICOLON');
+        }
     }
 
     return $rc;
@@ -4581,14 +4997,16 @@ sub G1_192 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 192, $value, $index, 'ContinueStatement', 'CONTINUE', 'IDENTIFIER', 'SEMICOLON')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('CONTINUE', 192, $value, 0, 'ContinueStatement', 'CONTINUE', 'IDENTIFIER', 'SEMICOLON');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('IDENTIFIER', 192, $value, 1, 'ContinueStatement', 'CONTINUE', 'IDENTIFIER', 'SEMICOLON');
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('SEMICOLON', 192, $value, 2, 'ContinueStatement', 'CONTINUE', 'IDENTIFIER', 'SEMICOLON');
+        }
     }
 
     return $rc;
@@ -4608,11 +5026,13 @@ sub G1_193 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 193, $value, $index, 'BreakStatement', 'BREAK', 'SEMICOLON')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('BREAK', 193, $value, 0, 'BreakStatement', 'BREAK', 'SEMICOLON');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('SEMICOLON', 193, $value, 1, 'BreakStatement', 'BREAK', 'SEMICOLON');
+        }
     }
 
     return $rc;
@@ -4632,11 +5052,13 @@ sub G1_194 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 194, $value, $index, 'BreakStatement', 'BREAK', 'INVISIBLE_SEMICOLON')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('BREAK', 194, $value, 0, 'BreakStatement', 'BREAK', 'INVISIBLE_SEMICOLON');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('INVISIBLE_SEMICOLON', 194, $value, 1, 'BreakStatement', 'BREAK', 'INVISIBLE_SEMICOLON');
+        }
     }
 
     return $rc;
@@ -4656,14 +5078,16 @@ sub G1_195 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 195, $value, $index, 'BreakStatement', 'BREAK', 'IDENTIFIER', 'SEMICOLON')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('BREAK', 195, $value, 0, 'BreakStatement', 'BREAK', 'IDENTIFIER', 'SEMICOLON');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('IDENTIFIER', 195, $value, 1, 'BreakStatement', 'BREAK', 'IDENTIFIER', 'SEMICOLON');
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('SEMICOLON', 195, $value, 2, 'BreakStatement', 'BREAK', 'IDENTIFIER', 'SEMICOLON');
+        }
     }
 
     return $rc;
@@ -4683,11 +5107,13 @@ sub G1_196 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 196, $value, $index, 'ReturnStatement', 'RETURN', 'SEMICOLON')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('RETURN', 196, $value, 0, 'ReturnStatement', 'RETURN', 'SEMICOLON');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('SEMICOLON', 196, $value, 1, 'ReturnStatement', 'RETURN', 'SEMICOLON');
+        }
     }
 
     return $rc;
@@ -4707,11 +5133,13 @@ sub G1_197 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 197, $value, $index, 'ReturnStatement', 'RETURN', 'INVISIBLE_SEMICOLON')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('RETURN', 197, $value, 0, 'ReturnStatement', 'RETURN', 'INVISIBLE_SEMICOLON');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('INVISIBLE_SEMICOLON', 197, $value, 1, 'ReturnStatement', 'RETURN', 'INVISIBLE_SEMICOLON');
+        }
     }
 
     return $rc;
@@ -4731,13 +5159,15 @@ sub G1_198 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 198, $value, $index, 'ReturnStatement', 'RETURN', 'Expression', 'SEMICOLON')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('RETURN', 198, $value, 0, 'ReturnStatement', 'RETURN', 'Expression', 'SEMICOLON');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('SEMICOLON', 198, $value, 2, 'ReturnStatement', 'RETURN', 'Expression', 'SEMICOLON');
+        }
     }
 
     return $rc;
@@ -4757,18 +5187,20 @@ sub G1_199 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-    }
-    elsif ($index == 3) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 4) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 199, $value, $index, 'WithStatement', 'WITH', 'LPAREN', 'Expression', 'RPAREN', 'Statement')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('WITH', 199, $value, 0, 'WithStatement', 'WITH', 'LPAREN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LPAREN', 199, $value, 1, 'WithStatement', 'WITH', 'LPAREN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 2) {
+        }
+        elsif ($index == 3) {
+            $rc = $self->lexeme('RPAREN', 199, $value, 3, 'WithStatement', 'WITH', 'LPAREN', 'Expression', 'RPAREN', 'Statement');
+        }
+        elsif ($index == 4) {
+        }
     }
 
     return $rc;
@@ -4788,18 +5220,20 @@ sub G1_200 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-    }
-    elsif ($index == 3) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 4) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 200, $value, $index, 'SwitchStatement', 'SWITCH', 'LPAREN', 'Expression', 'RPAREN', 'CaseBlock')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('SWITCH', 200, $value, 0, 'SwitchStatement', 'SWITCH', 'LPAREN', 'Expression', 'RPAREN', 'CaseBlock');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LPAREN', 200, $value, 1, 'SwitchStatement', 'SWITCH', 'LPAREN', 'Expression', 'RPAREN', 'CaseBlock');
+        }
+        elsif ($index == 2) {
+        }
+        elsif ($index == 3) {
+            $rc = $self->lexeme('RPAREN', 200, $value, 3, 'SwitchStatement', 'SWITCH', 'LPAREN', 'Expression', 'RPAREN', 'CaseBlock');
+        }
+        elsif ($index == 4) {
+        }
     }
 
     return $rc;
@@ -4819,13 +5253,15 @@ sub G1_201 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 201, $value, $index, 'CaseBlock', 'LCURLY', 'CaseClausesopt', 'RCURLY')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('LCURLY', 201, $value, 0, 'CaseBlock', 'LCURLY', 'CaseClausesopt', 'RCURLY');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('RCURLY', 201, $value, 2, 'CaseBlock', 'LCURLY', 'CaseClausesopt', 'RCURLY');
+        }
     }
 
     return $rc;
@@ -4845,17 +5281,19 @@ sub G1_202 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-    }
-    elsif ($index == 3) {
-    }
-    elsif ($index == 4) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 202, $value, $index, 'CaseBlock', 'LCURLY', 'CaseClausesopt', 'DefaultClause', 'CaseClausesopt', 'RCURLY')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('LCURLY', 202, $value, 0, 'CaseBlock', 'LCURLY', 'CaseClausesopt', 'DefaultClause', 'CaseClausesopt', 'RCURLY');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+        }
+        elsif ($index == 3) {
+        }
+        elsif ($index == 4) {
+            $rc = $self->lexeme('RCURLY', 202, $value, 4, 'CaseBlock', 'LCURLY', 'CaseClausesopt', 'DefaultClause', 'CaseClausesopt', 'RCURLY');
+        }
     }
 
     return $rc;
@@ -4875,7 +5313,9 @@ sub G1_203 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 203, $value, $index, 'CaseClausesopt', 'CaseClauses')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -4895,6 +5335,8 @@ sub G1_204 {
 
     my $rc = '';
 
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 204, $value, $index, 'CaseClausesopt', )) {
+    }
 
     return $rc;
 }
@@ -4913,7 +5355,9 @@ sub G1_205 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 205, $value, $index, 'CaseClauses', 'CaseClause')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -4933,9 +5377,11 @@ sub G1_206 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 206, $value, $index, 'CaseClauses', 'CaseClauses', 'CaseClause')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -4955,15 +5401,17 @@ sub G1_207 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 3) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 207, $value, $index, 'CaseClause', 'CASE', 'Expression', 'COLON', 'StatementListopt')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('CASE', 207, $value, 0, 'CaseClause', 'CASE', 'Expression', 'COLON', 'StatementListopt');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('COLON', 207, $value, 2, 'CaseClause', 'CASE', 'Expression', 'COLON', 'StatementListopt');
+        }
+        elsif ($index == 3) {
+        }
     }
 
     return $rc;
@@ -4983,7 +5431,9 @@ sub G1_208 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 208, $value, $index, 'StatementListopt', 'StatementList')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -5003,6 +5453,8 @@ sub G1_209 {
 
     my $rc = '';
 
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 209, $value, $index, 'StatementListopt', )) {
+    }
 
     return $rc;
 }
@@ -5021,13 +5473,15 @@ sub G1_210 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 210, $value, $index, 'DefaultClause', 'DEFAULT', 'COLON', 'StatementListopt')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('DEFAULT', 210, $value, 0, 'DefaultClause', 'DEFAULT', 'COLON', 'StatementListopt');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('COLON', 210, $value, 1, 'DefaultClause', 'DEFAULT', 'COLON', 'StatementListopt');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -5047,13 +5501,15 @@ sub G1_211 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 211, $value, $index, 'LabelledStatement', 'IDENTIFIER', 'COLON', 'Statement')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('IDENTIFIER', 211, $value, 0, 'LabelledStatement', 'IDENTIFIER', 'COLON', 'Statement');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('COLON', 211, $value, 1, 'LabelledStatement', 'IDENTIFIER', 'COLON', 'Statement');
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -5073,13 +5529,15 @@ sub G1_212 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 212, $value, $index, 'ThrowStatement', 'THROW', 'Expression', 'SEMICOLON')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('THROW', 212, $value, 0, 'ThrowStatement', 'THROW', 'Expression', 'SEMICOLON');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('SEMICOLON', 212, $value, 2, 'ThrowStatement', 'THROW', 'Expression', 'SEMICOLON');
+        }
     }
 
     return $rc;
@@ -5099,12 +5557,14 @@ sub G1_213 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 213, $value, $index, 'TryStatement', 'TRY', 'Block', 'Catch')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('TRY', 213, $value, 0, 'TryStatement', 'TRY', 'Block', 'Catch');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -5124,12 +5584,14 @@ sub G1_214 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 214, $value, $index, 'TryStatement', 'TRY', 'Block', 'Finally')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('TRY', 214, $value, 0, 'TryStatement', 'TRY', 'Block', 'Finally');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+        }
     }
 
     return $rc;
@@ -5149,14 +5611,16 @@ sub G1_215 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-    }
-    elsif ($index == 3) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 215, $value, $index, 'TryStatement', 'TRY', 'Block', 'Catch', 'Finally')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('TRY', 215, $value, 0, 'TryStatement', 'TRY', 'Block', 'Catch', 'Finally');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+        }
+        elsif ($index == 3) {
+        }
     }
 
     return $rc;
@@ -5176,19 +5640,21 @@ sub G1_216 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 3) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 4) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 216, $value, $index, 'Catch', 'CATCH', 'LPAREN', 'IDENTIFIER', 'RPAREN', 'Block')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('CATCH', 216, $value, 0, 'Catch', 'CATCH', 'LPAREN', 'IDENTIFIER', 'RPAREN', 'Block');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('LPAREN', 216, $value, 1, 'Catch', 'CATCH', 'LPAREN', 'IDENTIFIER', 'RPAREN', 'Block');
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('IDENTIFIER', 216, $value, 2, 'Catch', 'CATCH', 'LPAREN', 'IDENTIFIER', 'RPAREN', 'Block');
+        }
+        elsif ($index == 3) {
+            $rc = $self->lexeme('RPAREN', 216, $value, 3, 'Catch', 'CATCH', 'LPAREN', 'IDENTIFIER', 'RPAREN', 'Block');
+        }
+        elsif ($index == 4) {
+        }
     }
 
     return $rc;
@@ -5208,10 +5674,12 @@ sub G1_217 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 217, $value, $index, 'Finally', 'FINALLY', 'Block')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('FINALLY', 217, $value, 0, 'Finally', 'FINALLY', 'Block');
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -5231,11 +5699,13 @@ sub G1_218 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 218, $value, $index, 'DebuggerStatement', 'DEBUGGER', 'SEMICOLON')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('DEBUGGER', 218, $value, 0, 'DebuggerStatement', 'DEBUGGER', 'SEMICOLON');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('SEMICOLON', 218, $value, 1, 'DebuggerStatement', 'DEBUGGER', 'SEMICOLON');
+        }
     }
 
     return $rc;
@@ -5255,27 +5725,29 @@ sub G1_219 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 3) {
-    }
-    elsif ($index == 4) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 5) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 6) {
-    }
-    elsif ($index == 7) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 219, $value, $index, 'FunctionDeclaration', 'FUNCTION', 'IDENTIFIER', 'LPAREN', 'FormalParameterListopt', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('FUNCTION', 219, $value, 0, 'FunctionDeclaration', 'FUNCTION', 'IDENTIFIER', 'LPAREN', 'FormalParameterListopt', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('IDENTIFIER', 219, $value, 1, 'FunctionDeclaration', 'FUNCTION', 'IDENTIFIER', 'LPAREN', 'FormalParameterListopt', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('LPAREN', 219, $value, 2, 'FunctionDeclaration', 'FUNCTION', 'IDENTIFIER', 'LPAREN', 'FormalParameterListopt', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 3) {
+        }
+        elsif ($index == 4) {
+            $rc = $self->lexeme('RPAREN', 219, $value, 4, 'FunctionDeclaration', 'FUNCTION', 'IDENTIFIER', 'LPAREN', 'FormalParameterListopt', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 5) {
+            $rc = $self->lexeme('LCURLY', 219, $value, 5, 'FunctionDeclaration', 'FUNCTION', 'IDENTIFIER', 'LPAREN', 'FormalParameterListopt', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 6) {
+        }
+        elsif ($index == 7) {
+            $rc = $self->lexeme('RCURLY', 219, $value, 7, 'FunctionDeclaration', 'FUNCTION', 'IDENTIFIER', 'LPAREN', 'FormalParameterListopt', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
     }
 
     return $rc;
@@ -5295,8 +5767,10 @@ sub G1_220 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 220, $value, $index, 'Identifieropt', 'IDENTIFIER')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('IDENTIFIER', 220, $value, 0, 'Identifieropt', 'IDENTIFIER');
+        }
     }
 
     return $rc;
@@ -5316,6 +5790,8 @@ sub G1_221 {
 
     my $rc = '';
 
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 221, $value, $index, 'Identifieropt', )) {
+    }
 
     return $rc;
 }
@@ -5334,26 +5810,28 @@ sub G1_222 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 1) {
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 3) {
-    }
-    elsif ($index == 4) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 5) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 6) {
-    }
-    elsif ($index == 7) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 222, $value, $index, 'FunctionExpression', 'FUNCTION', 'Identifieropt', 'LPAREN', 'FormalParameterListopt', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('FUNCTION', 222, $value, 0, 'FunctionExpression', 'FUNCTION', 'Identifieropt', 'LPAREN', 'FormalParameterListopt', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 1) {
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('LPAREN', 222, $value, 2, 'FunctionExpression', 'FUNCTION', 'Identifieropt', 'LPAREN', 'FormalParameterListopt', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 3) {
+        }
+        elsif ($index == 4) {
+            $rc = $self->lexeme('RPAREN', 222, $value, 4, 'FunctionExpression', 'FUNCTION', 'Identifieropt', 'LPAREN', 'FormalParameterListopt', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 5) {
+            $rc = $self->lexeme('LCURLY', 222, $value, 5, 'FunctionExpression', 'FUNCTION', 'Identifieropt', 'LPAREN', 'FormalParameterListopt', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
+        elsif ($index == 6) {
+        }
+        elsif ($index == 7) {
+            $rc = $self->lexeme('RCURLY', 222, $value, 7, 'FunctionExpression', 'FUNCTION', 'Identifieropt', 'LPAREN', 'FormalParameterListopt', 'RPAREN', 'LCURLY', 'FunctionBody', 'RCURLY');
+        }
     }
 
     return $rc;
@@ -5373,7 +5851,9 @@ sub G1_223 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 223, $value, $index, 'FormalParameterListopt', 'FormalParameterList')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -5393,6 +5873,8 @@ sub G1_224 {
 
     my $rc = '';
 
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 224, $value, $index, 'FormalParameterListopt', )) {
+    }
 
     return $rc;
 }
@@ -5411,8 +5893,10 @@ sub G1_225 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 225, $value, $index, 'FormalParameterList', 'IDENTIFIER')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('IDENTIFIER', 225, $value, 0, 'FormalParameterList', 'IDENTIFIER');
+        }
     }
 
     return $rc;
@@ -5432,13 +5916,15 @@ sub G1_226 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
-        $rc = $self->lexeme($value);
-    }
-    elsif ($index == 2) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 226, $value, $index, 'FormalParameterList', 'FormalParameterList', 'COMMA', 'IDENTIFIER')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+            $rc = $self->lexeme('COMMA', 226, $value, 1, 'FormalParameterList', 'FormalParameterList', 'COMMA', 'IDENTIFIER');
+        }
+        elsif ($index == 2) {
+            $rc = $self->lexeme('IDENTIFIER', 226, $value, 2, 'FormalParameterList', 'FormalParameterList', 'COMMA', 'IDENTIFIER');
+        }
     }
 
     return $rc;
@@ -5458,7 +5944,9 @@ sub G1_227 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 227, $value, $index, 'SourceElementsopt', 'SourceElements')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -5478,6 +5966,8 @@ sub G1_228 {
 
     my $rc = '';
 
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 228, $value, $index, 'SourceElementsopt', )) {
+    }
 
     return $rc;
 }
@@ -5496,7 +5986,9 @@ sub G1_229 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 229, $value, $index, 'FunctionBody', 'SourceElementsopt')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -5516,7 +6008,9 @@ sub G1_230 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 230, $value, $index, 'Program', 'SourceElementsopt')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -5536,7 +6030,9 @@ sub G1_231 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 231, $value, $index, 'SourceElements', 'SourceElement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -5556,9 +6052,11 @@ sub G1_232 {
 
     my $rc = '';
 
-    if ($index == 0) {
-    }
-    elsif ($index == 1) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 232, $value, $index, 'SourceElements', 'SourceElements', 'SourceElement')) {
+        if ($index == 0) {
+        }
+        elsif ($index == 1) {
+        }
     }
 
     return $rc;
@@ -5578,7 +6076,9 @@ sub G1_233 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 233, $value, $index, 'SourceElement', 'Statement')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -5598,7 +6098,9 @@ sub G1_234 {
 
     my $rc = '';
 
-    if ($index == 0) {
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 234, $value, $index, 'SourceElement', 'FunctionDeclaration')) {
+        if ($index == 0) {
+        }
     }
 
     return $rc;
@@ -5618,8 +6120,10 @@ sub G1_235 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 235, $value, $index, 'NullLiteral', 'NULL')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('NULL', 235, $value, 0, 'NullLiteral', 'NULL');
+        }
     }
 
     return $rc;
@@ -5639,8 +6143,10 @@ sub G1_236 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 236, $value, $index, 'BooleanLiteral', 'TRUE')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('TRUE', 236, $value, 0, 'BooleanLiteral', 'TRUE');
+        }
     }
 
     return $rc;
@@ -5660,8 +6166,10 @@ sub G1_237 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 237, $value, $index, 'BooleanLiteral', 'FALSE')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('FALSE', 237, $value, 0, 'BooleanLiteral', 'FALSE');
+        }
     }
 
     return $rc;
@@ -5681,8 +6189,10 @@ sub G1_238 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 238, $value, $index, 'StringLiteral', 'STRINGLITERAL')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('STRINGLITERAL', 238, $value, 0, 'StringLiteral', 'STRINGLITERAL');
+        }
     }
 
     return $rc;
@@ -5702,8 +6212,10 @@ sub G1_239 {
 
     my $rc = '';
 
-    if ($index == 0) {
-        $rc = $self->lexeme($value);
+    if (! &($self->{_g1Callback})(@{$self->{_g1CallbackArgs}}, $rc, 239, $value, $index, 'RegularExpressionLiteral', 'REGULAREXPRESSIONLITERAL')) {
+        if ($index == 0) {
+            $rc = $self->lexeme('REGULAREXPRESSIONLITERAL', 239, $value, 0, 'RegularExpressionLiteral', 'REGULAREXPRESSIONLITERAL');
+        }
     }
 
     return $rc;

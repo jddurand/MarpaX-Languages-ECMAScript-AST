@@ -6,8 +6,7 @@ use MarpaX::Languages::ECMAScript::AST::Util qw/:all/;
 use MarpaX::Languages::ECMAScript::AST::Impl qw//;
 use Log::Any qw/$log/;
 use constant SEARCH_KEYWORD_IN_GRAMMAR => '# DO NOT REMOVE NOR MODIFY THIS LINE';
-
-use Carp qw/croak/;
+use MarpaX::Languages::ECMAScript::AST::Exceptions qw/:all/;
 
 # ABSTRACT: ECMAScript, grammars base package
 
@@ -45,9 +44,9 @@ Instance a new object. Takes a grammar, a package name and an ECMAScript specifi
 sub new {
   my ($class, $grammar, $package, $spec) = @_;
 
-  croak "Missing grammar" if (! defined($grammar));
-  croak "Missing package name" if (! defined($package));
-  croak "Missing ECMAScript specification" if (! defined($spec));
+  InternalError(error => 'Missing grammar') if (! defined($grammar));
+  InternalError(error => 'Missing package name') if (! defined($package));
+  InternalError(error => 'Missing ECMAScript specification') if (! defined($spec));
 
   my $self  = {
       _content => $grammar,
@@ -167,7 +166,7 @@ Reference to an array of End callback Code Reference first arguments
 
 =back
 
-This method must be called as a super method by grammar using this package as a parent. $self must be a reference to a grammar instantiated via MarpaX::Languages::ECMAScript::AST::Grammar. The callback code will always be called with: per-callback arguments, $source, $pos (i.e. current position), $max (i.e. max position), $impl (i.e. a MarpaX::Languages::ECMAScript::AST::Impl instance). The default and failure callbacks must always return the new position in the stream, and croak if there is an error. In the 'end' and 'failure' callbacks, $pos is not meaningful: this is the last position where external scanning restarted. You might want to look to the getLastLexeme() method. Output of the 'end' callback is ignored.
+This method must be called as a super method by grammar using this package as a parent. $self must be a reference to a grammar instantiated via MarpaX::Languages::ECMAScript::AST::Grammar. The callback code will always be called with: per-callback arguments, $source, $pos (i.e. current position), $max (i.e. max position), $impl (i.e. a MarpaX::Languages::ECMAScript::AST::Impl instance). The default and failure callbacks must always return the new position in the stream, and raise a MarpaX::Languages::ECMAScript::AST::Exception::SyntaxError exception if there is an error. In the 'end' and 'failure' callbacks, $pos is not meaningful: this is the last position where external scanning restarted. You might want to look to the getLastLexeme() method. Output of the 'end' callback is ignored.
 
 =cut
 
@@ -183,15 +182,15 @@ sub _callback {
     eval {$line_columnp = lineAndCol($impl)};
     if (! $@) {
       if (defined($originalErrorString) && $originalErrorString) {
-        logCroak("%s\n%s\n\n%s%s", $originalErrorString, $callackErrorString, showLineAndCol(@{$line_columnp}, $source), _context($self, $impl));
+        SyntaxError(error => sprintf("%s\n%s\n\n%s%s", $originalErrorString, $callackErrorString, showLineAndCol(@{$line_columnp}, $source), _context($self, $impl)));
       } else {
-        logCroak("%s\n\n%s%s", $callackErrorString, showLineAndCol(@{$line_columnp}, $source), _context($self, $impl));
+        SyntaxError(error => sprintf("%s\n\n%s%s", $callackErrorString, showLineAndCol(@{$line_columnp}, $source), _context($self, $impl)));
       }
     } else {
       if (defined($originalErrorString) && $originalErrorString) {
-        logCroak("%s\n%s\n%s", $originalErrorString, $callackErrorString, _context($self, $impl));
+        SyntaxError(error => sprintf("%s\n%s\n%s", $originalErrorString, $callackErrorString, _context($self, $impl)));
       } else {
-        logCroak("%s\n%s", $callackErrorString, _context($self, $impl));
+        SyntaxError(error => sprintf("%s\n%s", $callackErrorString, _context($self, $impl)));
       }
     }
   }
@@ -239,7 +238,7 @@ sub parse {
       $pos = _callback($self, $source, $pos, $max, $impl, $failurep, $@, @failureargs);
     } else {
       my $line_columnp = lineAndCol($impl);
-      logCroak("%s\n\n%s%s", $@, showLineAndCol(@{$line_columnp}, $source), _context($self, $impl));
+      SyntaxError(error => sprintf("%s\n\n%s%s", $@, showLineAndCol(@{$line_columnp}, $source), _context($self, $impl)));
     }
   } else {
     $pos = $newpos;
@@ -263,7 +262,7 @@ sub parse {
         $pos = _callback($self, $source, $pos, $max, $impl, $failurep, $@, @failureargs);
       } else {
         my $line_columnp = lineAndCol($impl);
-        logCroak("%s\n\n%s%s", $@, showLineAndCol(@{$line_columnp}, $source), _context($self, $impl));
+        SyntaxError(error => sprintf("%s\n\n%s%s", $@, showLineAndCol(@{$line_columnp}, $source), _context($self, $impl)));
       }
     } else {
       $pos = $newpos;
@@ -282,19 +281,19 @@ sub parse {
 
 =head2 value($self, $impl)
 
-Return the blessed value. $impl is the recognizer instance for the grammar. Will croak if there is more than one parse tree value.
+Return the blessed value. $impl is the recognizer instance for the grammar. Will raise an InternalError exception if there is no parse tree value, or more than one parse tree value.
 
 =cut
 
 sub value {
   my ($self, $impl) = @_;
 
-  my $rc = $impl->value() || logCroak('%s', _show_last_expression($self, $impl));
+  my $rc = $impl->value() || InternalError(error => sprintf('%s', _show_last_expression($self, $impl)));
   if (! defined($rc)) {
-      croak "Undefined parse tree value";
+      InternalError(error => 'Undefined parse tree value');
   }
   if (defined($impl->value())) {
-      croak "More than one parse tree value\n";
+      InternalError(error => 'More than one parse tree value');
   }
   return ${$rc};
 }
