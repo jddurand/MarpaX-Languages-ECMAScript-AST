@@ -110,7 +110,7 @@ sub G1_$ruleId {
 
     my \$rc = '';
 
-    if (! &($g1Callback)(\@{$g1CallbackArgs}, \$rc, $ruleId, \$value, \$index, '$lhs', $rhsJoined)) {
+    if (! $g1Callback(\@{$g1CallbackArgs}, \$rc, $ruleId, \$value, \$index, '$lhs', $rhsJoined)) {
 ";
     foreach (0..$#rhs) {
         printf FILE "        %sif (\$index == $_) {\n", $_ > 0 ? 'els' : '';
@@ -198,7 +198,7 @@ sub lexeme {
 
     my $rc = '';
 
-    if (! &($self->{_lexemeCallback})(@{$self->{_lexemeCallbackArgs}}, \$rc, @_)) {
+    if (! $self->{_lexemeCallback}(@{$self->{_lexemeCallbackArgs}}, \$rc, @_)) {
 
         # my ($name, $ruleId, $value, $index, $lhs, @rhs) = @_;
 
