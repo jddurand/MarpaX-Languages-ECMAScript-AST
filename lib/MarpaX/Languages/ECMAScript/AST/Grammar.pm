@@ -30,7 +30,7 @@ ECMAScript-262-5. The ECMAScript-262, Edition 5, as of L<http://www.ecma-interna
 
 =head1 SUBROUTINES/METHODS
 
-=head2 new($class, $grammarName)
+=head2 new($class, $grammarName, %grammarSpecificOptions)
 
 Instance a new object. Takes the name of the grammar as argument. Remaining arguments are passed to the sub grammar method. Supported grammars are:
 
@@ -45,15 +45,14 @@ ECMAScript-262, Edition 5
 =cut
 
 sub new {
-  my $class = shift;
-  my $grammarName = shift;
+  my ($class, $grammarName, %grammarSpecificOptions) = @_;
 
   my $self = {};
   if (! defined($grammarName)) {
     InternalError(error => 'Usage: new($grammar_Name)');
   } elsif ($grammarName eq 'ECMAScript-262-5') {
     $self->{_grammarAlias} = 'ECMAScript_262_5';
-    $self->{_grammar} = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5->new(@_);
+    $self->{_grammar} = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5->new(%grammarSpecificOptions);
   } else {
     InternalError(error => "Unsupported grammar name $grammarName");
   }

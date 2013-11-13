@@ -99,15 +99,22 @@ sub new {
 
   bless($self, $class);
 
-  $self->_init();
+  if (exists($opts{grammarName})) {
+      delete($opts{grammarName});
+  }
+  if (exists($opts{cache})) {
+      delete($opts{cache});
+  }
+
+  $self->_init(%opts);
 
   return $self;
 }
 
 sub _init {
-    my ($self) = @_;
+    my ($self, %opts) = @_;
 
-    $self->{_grammar} = MarpaX::Languages::ECMAScript::AST::Grammar->new($self->{_grammarName});
+    $self->{_grammar} = MarpaX::Languages::ECMAScript::AST::Grammar->new($self->{_grammarName}, %opts);
 }
 
 # ----------------------------------------------------------------------------------------

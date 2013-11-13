@@ -110,7 +110,7 @@ sub G1_$ruleId {
 
     my \$rc = '';
 
-    if (! $g1Callback(\@{$g1CallbackArgs}, \$rc, $ruleId, \$value, \$index, '$lhs', $rhsJoined)) {
+    if (&{$g1Callback}(\@{$g1CallbackArgs}, \\\$rc, $ruleId, \$value, \$index, '$lhs', $rhsJoined)) {
 ";
     foreach (0..$#rhs) {
         printf FILE "        %sif (\$index == $_) {\n", $_ > 0 ? 'els' : '';
@@ -159,7 +159,7 @@ G1 callback (CODE ref).
 
 =item g1CallbackArgs
 
-G1 callback arguments (ARRAY ref). The g1 callback is called like: &$g1Callback(@{$g1CallbackArgs}, \$rc, $ruleId, $value, $index, $lhs, @rhs), where $value is the AST parse tree value of RHS No $index of this G1 rule number $ruleId, whose full definition is $lhs ::= @rhs. If the callback is defined, this will always be executed first, and it must return a true value putting its result in $rc, otherwise default behaviour applies.
+G1 callback arguments (ARRAY ref). The g1 callback is called like: &$g1Callback(@{$g1CallbackArgs}, \$rc, $ruleId, $value, $index, $lhs, @rhs), where $value is the AST parse tree value of RHS No $index of this G1 rule number $ruleId, whose full definition is $lhs ::= @rhs. If the callback is defined, this will always be executed first, and it must return a true value putting its eventual result in $rc. Only when it returns true, lexemes are processed.
 
 =item lexemeCallback
 
@@ -167,7 +167,7 @@ lexeme callback (CODE ref).
 
 =item lexemeCallbackArgs
 
-Lexeme callback arguments (ARRAY ref). The lexeme callback is called like: &$lexemeCallback(@{$lexemeCallbackArgs}, \$rc, $name, $ruleId, $value, $index, $lhs, @rhs), where $value is the AST parse tree value of RHS No $index of this G1 rule number $ruleId, whose full definition is $lhs ::= @rhs. The RHS being a lexeme, $name contains the lexeme's name. If the callback is defined, this will always be executed first, and it must return a true value putting its result in $rc, otherwise default behaviour applies.
+Lexeme callback arguments (ARRAY ref). The lexeme callback is called like: &$lexemeCallback(@{$lexemeCallbackArgs}, \$rc, $name, $ruleId, $value, $index, $lhs, @rhs), where $value is the AST parse tree value of RHS No $index of this G1 rule number $ruleId, whose full definition is $lhs ::= @rhs. The RHS being a lexeme, $name contains the lexeme's name. If the callback is defined, this will always be executed first, and it must return a true value putting its result in $rc, otherwise default behaviour applies: return the lexeme value as-is.
 
 =back
 
@@ -178,7 +178,7 @@ sub new {
 
     my $self = {
                 _nindent            => 0,
-                _g1Callback         => $options{g1Callback}         || sub { return 0; },
+                _g1Callback         => $options{g1Callback}         || sub { return 1; },
                 _g1CallbackArgs     => $options{g1CallbackArgs}     || [],
                 _lexemeCallback     => $options{lexemeCallback}     || sub { return 0; },
                 _lexemeCallbackArgs => $options{lexemeCallbackArgs} || []
@@ -198,7 +198,7 @@ sub lexeme {
 
     my $rc = '';
 
-    if (! $self->{_lexemeCallback}(@{$self->{_lexemeCallbackArgs}}, \$rc, @_)) {
+    if (! &{$self->{_lexemeCallback}}(@{$self->{_lexemeCallbackArgs}}, \$rc, @_)) {
 
         # my ($name, $ruleId, $value, $index, $lhs, @rhs) = @_;
 

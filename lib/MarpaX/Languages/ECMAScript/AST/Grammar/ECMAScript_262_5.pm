@@ -26,26 +26,26 @@ This modules returns all grammars needed for the ECMAScript 262, Edition 5 gramm
 
 =head1 SUBROUTINES/METHODS
 
-=head2 new()
+=head2 new($class, %transpileOptions)
 
 Instance a new object.
 
 =cut
 
 sub new {
-  my ($class) = @_;
+  my ($class, %transpileOptions) = @_;
 
   my $self  = {};
 
   bless($self, $class);
 
-  $self->_init();
+  $self->_init(%transpileOptions);
 
   return $self;
 }
 
 sub _init {
-    my ($self) = @_;
+    my ($self, %transpileOptions) = @_;
 
     my $grammar = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program->new();
     my $grammar_option = $grammar->grammar_option();
@@ -56,7 +56,7 @@ sub _init {
 	grammar => $grammar,
 	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($grammar_option, $recce_option)
     };
-    $self->{_template} = $TEMPLATE ? MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Template->new() : undef;
+    $self->{_template} = $TEMPLATE ? MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Template->new(%transpileOptions) : undef;
 
 }
 
