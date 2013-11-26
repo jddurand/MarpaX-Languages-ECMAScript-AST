@@ -14,6 +14,7 @@ use parent qw/MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Bas
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Actions;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::RegularExpressionLiteral;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral;
+use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::NumericLiteral;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses;
 use MarpaX::Languages::ECMAScript::AST::Exceptions qw/:all/;
 use Log::Any qw/$log/;
@@ -88,7 +89,9 @@ map {$grammar_source .= uc($_) . " ~ '$_'\n"} @BooleanLiteral;
 #
 our $StringLiteral = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral->new();
 our $RegularExpressionLiteral = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::RegularExpressionLiteral->new();
+our $NumericLiteral = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::NumericLiteral->new();
 $grammar_source .= $StringLiteral->extract;
+$grammar_source .= $NumericLiteral->extract;
 $grammar_source .= $RegularExpressionLiteral->extract;
 
 
@@ -495,15 +498,6 @@ Literal ::=
   | NumericLiteral
   | StringLiteral
   | RegularExpressionLiteral
-
-#
-# NumericLiteral definition as per lexical grammar
-#
-event 'NumericLiteral$' = completed <NumericLiteral>
-NumericLiteral ::=
-    DECIMALLITERAL
-  | HEXINTEGERLITERAL
-  | OCTALINTEGERLITERAL
 
 PrimaryExpression ::=
     THIS
@@ -947,6 +941,8 @@ NullLiteral                           ::= NULL
 BooleanLiteral                        ::= TRUE | FALSE
 StringLiteral                         ::= STRINGLITERAL
 RegularExpressionLiteral              ::= REGULAREXPRESSIONLITERAL
+NumericLiteral                        ::= NUMERICLITERAL
+event 'NumericLiteral$' = completed <NumericLiteral>
 
 # --------------------------------------------------------------------------------------
 #
@@ -1159,58 +1155,6 @@ _HexDigit                              ~ [\p{IsHexDigit}]
 :lexeme ~ <IDENTIFIER>  pause => after event => 'IDENTIFIER$'
 IDENTIFIER                             ~ _IdentifierNameInternal
 
-# --------------
-# DECIMALLITERAL
-# --------------
-DECIMALLITERAL                         ~ _DecimalIntegerLiteral '.' _DecimalDigitsopt _ExponentPartopt
-                                       | '.' _DecimalDigits _ExponentPartopt
-                                       | _DecimalIntegerLiteral _ExponentPartopt
-
-_DecimalDigitsopt                      ~ _DecimalDigits
-_DecimalDigitsopt                      ~
-
-_ExponentPartopt                       ~ _ExponentPart
-_ExponentPartopt                       ~
-
-_DecimalIntegerLiteral                 ~ '0'
-                                       | __NonZeroDigit _DecimalDigitsopt
-
-_DecimalDigits                         ~ __DecimalDigit
-                                       | _DecimalDigits __DecimalDigit
-
-_ExponentPart                          ~ __ExponentIndicator _SignedInteger
-
-_SignedInteger                         ~ _DecimalDigits
-                                       | '+' _DecimalDigits
-                                       | '-' _DecimalDigits
-
-__ExponentIndicator                    ~ [\p{IsExponentIndicator}]
-
-__NonZeroDigit                         ~ [\p{IsNonZeroDigit}]
-
-__DecimalDigit                         ~ [\p{IsDecimalDigit}]
-
-# -----------------
-# HEXINTEGERLITERAL
-# ----------------
-HEXINTEGERLITERAL                      ~ _HexIntegerLiteralInternal
-
-_HexIntegerLiteralInternal             ~ '0x' _HexDigit
-                                       | '0X' _HexDigit
-                                       | _HexIntegerLiteralInternal _HexDigit
-
-# Note: see higher for definition of __HexDigit
-
-# -------------------
-# OCTALINTEGERLITERAL
-# -------------------
-OCTALINTEGERLITERAL                    ~ _OctalIntegerLiteralInternal
-
-_OctalIntegerLiteralInternal           ~ '0' __OctalDigit
-                                       | _OctalIntegerLiteralInternal __OctalDigit
-
-__OctalDigit                           ~ [\p{IsOctalDigit}]
-
 # -----------
 # _WhiteSpace
 # -----------
@@ -1278,6 +1222,11 @@ STRINGLITERAL                          ~ __StringLiteral
 # __RegularExpressionLiteral injected: it is a G1 grammar in RegularExpressionLiteral.pm
 # --------------------------------------------------------------------------------------
 REGULAREXPRESSIONLITERAL               ~ __RegularExpressionLiteral
+
+# --------------------------------------------------------------------------------------
+# __NumericLiteral injected: it is a G1 grammar in NumericLiteral.pm
+# --------------------------------------------------------------------------------------
+NUMERICLITERAL                         ~ __NumericLiteral
 
 # -------------------------------------------
 # Injection of reserved keywords happens here

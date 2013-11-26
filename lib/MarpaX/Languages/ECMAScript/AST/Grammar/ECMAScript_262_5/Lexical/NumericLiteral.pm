@@ -93,11 +93,6 @@ __DATA__
 :default ::= action => [values] bless => ::lhs
 lexeme default = action => [start,length,value]
 
-__NumericLiteral ::=
-    __DecimalLiteral
-  | __HexIntegerLiteral
-  | __OctalIntegerLiteral
-
 #
 # DO NOT REMOVE NOR MODIFY THIS LINE
 #
@@ -106,18 +101,22 @@ __NumericLiteral ::=
 # __xxx\s*::=\s*               are changed to __xxx ~
 #
 
-__DecimalDigitsopt ::= __DecimalDigits
-__DecimalDigitsopt ::=
+__NumericLiteral ::=
+    __DecimalLiteral                action => MV_NumericLiteral_DecimalLiteral
+  | __HexIntegerLiteral             action => MV_NumericLiteral_HexIntegerLiteral
+  | __OctalIntegerLiteral           action => MV_DecimalLiteral_DecimalIntegerLiteral
 
-__ExponentPartopt ::= __ExponentPart
-__ExponentPartopt ::=
-
-__DecimalLiteral ::= __DecimalIntegerLiteral '.' __DecimalDigitsopt __ExponentPartopt
-                 | '.' __DecimalDigits __ExponentPartopt
-                 | __DecimalIntegerLiteral __ExponentPartopt
+__DecimalLiteral ::= __DecimalIntegerLiteral '.' __DecimalDigits              action => DecimalLiteral_DecimalIntegerLiteral_DOT_DecimalDigits
+                 | __DecimalIntegerLiteral '.' __DecimalDigits __ExponentPart
+                 | __DecimalIntegerLiteral '.' __ExponentPart
+                 | '.' __DecimalDigits
+                 | '.' __DecimalDigits __ExponentPart
+                 | __DecimalIntegerLiteral
+                 | __DecimalIntegerLiteral __ExponentPart
 
 __DecimalIntegerLiteral ::= '0'
-                        | ___NonZeroDigit __DecimalDigitsopt
+                        | ___NonZeroDigit
+                        | ___NonZeroDigit __DecimalDigits
 
 __DecimalDigits ::= ___DecimalDigit
                 | __DecimalDigits ___DecimalDigit
