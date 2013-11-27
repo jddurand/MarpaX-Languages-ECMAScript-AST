@@ -106,7 +106,7 @@ __DecimalLiteral ::= __DecimalIntegerLiteral '.' __DecimalDigits              ac
                  | __DecimalIntegerLiteral __ExponentPart                     action => MV_DecimalIntegerLiteral_ExponentPart
 
 __DecimalIntegerLiteral ::= '0'                                               action => MV_DecimalIntegerLiteral_ZERO
-                        | ___NonZeroDigit                                     action => MV_DecimalIntegerLiteral_NonZeroDigit_
+                        | ___NonZeroDigit                                     action => MV_DecimalIntegerLiteral_NonZeroDigit
                         | ___NonZeroDigit __DecimalDigits                     action => MV_DecimalIntegerLiteral_NonZeroDigit_DecimalDigits
 
 __DecimalDigits ::= ___DecimalDigit                                           action => MV_DecimalDigits_DecimalDigit
