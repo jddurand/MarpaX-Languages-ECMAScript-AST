@@ -43,7 +43,7 @@ sub new {
 
     #
     # Prevent injection of this grammar to collide with others:
-    # ___yy is changed to ___StringLiteral___yy
+    # ___yy is changed to ___NumericLiteral___yy
     #
     my $grammar_source = do {local $/; <DATA>};
     $grammar_source =~ s/___/___NumericLiteral___/g;
@@ -61,17 +61,8 @@ sub parse {
     my ($self, $source, $impl) = @_;
     return $self->SUPER($source, $impl,
 	{
-	 #   '_DecimalLiteral$'     => \&_DecimalLiteral,
-	 #   '_HexIntegerLiteral$'  => \&_HexIntegerLiteral,
-	 #   '_OctalIntegerLiteral$'=> \&_OctalIntegerLiteral,
-	 #   '_IdentifierName$'     => \&_IdentifierName
+	    keepOriginalSource => 1
 	});
-}
-
-sub _DecimalLiteral {
-    my ($self, $lexemeHashp, $source, $impl) = @_;
-
-    $self->_NumericLiteralLookhead($lexemeHashp, $source, $impl);
 }
 
 =head1 SEE ALSO
@@ -102,41 +93,41 @@ lexeme default = action => [start,length,value]
 #
 
 __NumericLiteral ::=
-    __DecimalLiteral                action => MV_NumericLiteral_DecimalLiteral
-  | __HexIntegerLiteral             action => MV_NumericLiteral_HexIntegerLiteral
-  | __OctalIntegerLiteral           action => MV_DecimalLiteral_DecimalIntegerLiteral
+    __DecimalLiteral                                                          action => MV_NumericLiteral_DecimalLiteral
+  | __HexIntegerLiteral                                                       action => MV_NumericLiteral_HexIntegerLiteral
+  | __OctalIntegerLiteral                                                     action => MV_DecimalLiteral_DecimalIntegerLiteral
 
-__DecimalLiteral ::= __DecimalIntegerLiteral '.' __DecimalDigits              action => DecimalLiteral_DecimalIntegerLiteral_DOT_DecimalDigits
-                 | __DecimalIntegerLiteral '.' __DecimalDigits __ExponentPart
-                 | __DecimalIntegerLiteral '.' __ExponentPart
-                 | '.' __DecimalDigits
-                 | '.' __DecimalDigits __ExponentPart
-                 | __DecimalIntegerLiteral
-                 | __DecimalIntegerLiteral __ExponentPart
+__DecimalLiteral ::= __DecimalIntegerLiteral '.' __DecimalDigits              action => MV_DecimalLiteral_DecimalIntegerLiteral_DOT_DecimalDigits
+                 | __DecimalIntegerLiteral '.' __DecimalDigits __ExponentPart action => MV_DecimalIntegerLiteral_DOT_DecimalDigits_ExponentPart 
+                 | __DecimalIntegerLiteral '.' __ExponentPart                 action => MV_DecimalIntegerLiteral_DOT_ExponentPart
+                 | '.' __DecimalDigits                                        action => MV_DecimalLiteral_DOT_DecimalDigits
+                 | '.' __DecimalDigits __ExponentPart                         action => MV_DecimalLiteral_DOT_DecimalDigits_ExponentPart
+                 | __DecimalIntegerLiteral                                    action => MV_DecimalLiteral_DecimalIntegerLiteral
+                 | __DecimalIntegerLiteral __ExponentPart                     action => MV_DecimalIntegerLiteral_ExponentPart
 
-__DecimalIntegerLiteral ::= '0'
-                        | ___NonZeroDigit
-                        | ___NonZeroDigit __DecimalDigits
+__DecimalIntegerLiteral ::= '0'                                               action => MV_DecimalIntegerLiteral_ZERO
+                        | ___NonZeroDigit                                     action => MV_DecimalIntegerLiteral_NonZeroDigit_
+                        | ___NonZeroDigit __DecimalDigits                     action => MV_DecimalIntegerLiteral_NonZeroDigit_DecimalDigits
 
-__DecimalDigits ::= ___DecimalDigit
-                | __DecimalDigits ___DecimalDigit
+__DecimalDigits ::= ___DecimalDigit                                           action => MV_DecimalDigits_DecimalDigit
+                | __DecimalDigits ___DecimalDigit                             action => MV_DecimalDigits_DecimalDigits_DecimalDigit
 
-__ExponentPart ::= ___ExponentIndicator __SignedInteger
+__ExponentPart ::= ___ExponentIndicator __SignedInteger                       action => MV_ExponentPart_ExponentIndicator_SignedInteger
 
-__SignedInteger ::= __DecimalDigits
-                | '+' __DecimalDigits
-                | '-' __DecimalDigits
+__SignedInteger ::= __DecimalDigits                                           action => MV_SignedInteger_DecimalDigits
+                | '+' __DecimalDigits                                         action => MV_SignedInteger_PLUS_DecimalDigits
+                | '-' __DecimalDigits                                         action => MV_SignedInteger_MINUS_DecimalDigits
 
-__HexIntegerLiteral ::= __HexIntegerLiteralInternal
+__HexIntegerLiteral ::= __HexIntegerLiteralInternal                           action => MV_HexIntegerLiteral_HexIntegerLiteralInternal
 
-__HexIntegerLiteralInternal ::= '0x' ___HexDigit
-                    | '0X' ___HexDigit
-                    | __HexIntegerLiteralInternal ___HexDigit
+__HexIntegerLiteralInternal ::= '0x' ___HexDigit                              action => MV_HexIntegerLiteralInternal_ZEROx_HexDigit
+                    | '0X' ___HexDigit                                        action => MV_HexIntegerLiteralInternal_ZEROX_HexDigit
+                    | __HexIntegerLiteralInternal ___HexDigit                 action => MV_HexIntegerLiteralInternal_HexIntegerLiteralInternal_HexDigit
 
-__OctalIntegerLiteral ::= __OctalIntegerLiteralInternal
+__OctalIntegerLiteral ::= __OctalIntegerLiteralInternal                       action => MV_OctalIntegerLiteral_OctalIntegerLiteralInternal
 
-__OctalIntegerLiteralInternal ::= '0' ___OctalDigit
-                                | __OctalIntegerLiteralInternal ___OctalDigit
+__OctalIntegerLiteralInternal ::= '0' ___OctalDigit                           action => MV_OctalIntegerLiteralInternal_ZERO_OctalDigit
+                                | __OctalIntegerLiteralInternal ___OctalDigit action => MV_OctalIntegerLiteralInternal_OctalIntegerLiteralInternal_OctalDigit
 
 #
 # The ___ are to prevent errors with eventual duplicate rules when injecting

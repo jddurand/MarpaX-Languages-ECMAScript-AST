@@ -26,4 +26,34 @@ sub new {
     return $self;
 }
 
+=head2 MV_NumericLiteral_DecimalLiteral($self, $DecimalLiteral)
+
+MV of NumericLiteral ::= DecimalLiteral
+
+=cut
+
+sub MV_NumericLiteral_DecimalLiteral {
+    return $_[1];
+}
+
+=head2 MV_NumericLiteral_HexIntegerLiteral($self, $HexIntegerLiteral)
+
+MV of NumericLiteral ::= HexIntegerLiteral
+
+=cut
+
+sub MV_NumericLiteral_HexIntegerLiteral {
+    return $_[1];
+}
+
+=head2 MV_NumericLiteral_OctalIntegerLiteral($self, $OctalIntegerLiteral)
+
+MV of NumericLiteral ::= OctalIntegerLiteral
+
+=cut
+
+sub MV_NumericLiteral_OctalIntegerLiteral {
+    return $_[1];
+}
+
 1;

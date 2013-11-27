@@ -164,6 +164,10 @@ End callback Code Reference
 
 Reference to an array of End callback Code Reference first arguments
 
+=item keepOriginalSource
+
+Because of Automatic Semicolon Insertion that may happen at the end, a space is appended to a copy of the source to be parsed. If a true value, this option disable that append.
+
 =back
 
 This method must be called as a super method by grammar using this package as a parent. $self must be a reference to a grammar instantiated via MarpaX::Languages::ECMAScript::AST::Grammar. The callback code will always be called with: per-callback arguments, $source, $pos (i.e. current position), $max (i.e. max position), $impl (i.e. a MarpaX::Languages::ECMAScript::AST::Impl instance). The default and failure callbacks must always return the new position in the stream, and raise a MarpaX::Languages::ECMAScript::AST::Exception::SyntaxError exception if there is an error. In the 'end' and 'failure' callbacks, $pos is not meaningful: this is the last position where external scanning restarted. You might want to look to the getLastLexeme() method. Output of the 'end' callback is ignored.
