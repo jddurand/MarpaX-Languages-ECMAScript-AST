@@ -95,7 +95,7 @@ lexeme default = action => [start,length,value]
 __NumericLiteral ::=
     __DecimalLiteral                                                          action => MV_NumericLiteral_DecimalLiteral
   | __HexIntegerLiteral                                                       action => MV_NumericLiteral_HexIntegerLiteral
-  | __OctalIntegerLiteral                                                     action => MV_DecimalLiteral_DecimalIntegerLiteral
+  | __OctalIntegerLiteral                                                     action => MV_DecimalLiteral_OctalIntegerLiteral
 
 __DecimalLiteral ::= __DecimalIntegerLiteral '.' __DecimalDigits              action => MV_DecimalLiteral_DecimalIntegerLiteral_DOT_DecimalDigits
                  | __DecimalIntegerLiteral '.' __DecimalDigits __ExponentPart action => MV_DecimalIntegerLiteral_DOT_DecimalDigits_ExponentPart 
