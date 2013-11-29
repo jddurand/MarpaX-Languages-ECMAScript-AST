@@ -120,8 +120,10 @@ sub MV_DecimalLiteral_DecimalIntegerLiteral_DOT_DecimalDigits {
     #
     if ($self->{is_nan}($tmp)) {
 	return $tmp;
+    } elsif ($self->{is_nan}($DecimalIntegerLiteral)) {
+	return $DecimalIntegerLiteral;
     } else {
-	return $DecimalIntegerLiteral + ($DecimalDigits * $tmp);
+	return $DecimalIntegerLiteral + $tmp;
     }
 }
 
