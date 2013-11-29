@@ -941,7 +941,12 @@ NullLiteral                           ::= NULL
 BooleanLiteral                        ::= TRUE | FALSE
 StringLiteral                         ::= STRINGLITERAL
 RegularExpressionLiteral              ::= REGULAREXPRESSIONLITERAL
-NumericLiteral                        ::= NUMERICLITERAL
+NumericLiteral                        ::= DecimalLiteral
+                                        | HexIntegerLiteral
+                                        | OctalIntegerLiteral
+DecimalLiteral                        ::= DECIMALLITERAL
+HexIntegerLiteral                     ::= HEXINTEGERLITERAL
+OctalIntegerLiteral                   ::= OCTALINTEGERLITERAL
 event 'NumericLiteral$' = completed <NumericLiteral>
 
 # --------------------------------------------------------------------------------------
@@ -1224,9 +1229,13 @@ STRINGLITERAL                          ~ __StringLiteral
 REGULAREXPRESSIONLITERAL               ~ __RegularExpressionLiteral
 
 # --------------------------------------------------------------------------------------
-# __NumericLiteral injected: it is a G1 grammar in NumericLiteral.pm
+# __DecimalLiteral      injected: it is a G1 grammar in NumericLiteral.pm
+# __HexIntegerLiteral   injected: it is a G1 grammar in NumericLiteral.pm
+# __OctalIntegerLiteral injected: it is a G1 grammar in NumericLiteral.pm
 # --------------------------------------------------------------------------------------
-NUMERICLITERAL                         ~ __NumericLiteral
+DECIMALLITERAL                         ~ __DecimalLiteral
+HEXINTEGERLITERAL                      ~ __HexIntegerLiteral
+OCTALINTEGERLITERAL                    ~ __OctalIntegerLiteral
 
 # -------------------------------------------
 # Injection of reserved keywords happens here
