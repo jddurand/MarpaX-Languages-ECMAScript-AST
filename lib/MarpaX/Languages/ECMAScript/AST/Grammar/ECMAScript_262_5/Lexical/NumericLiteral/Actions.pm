@@ -2,6 +2,7 @@ use strict;
 use warnings FATAL => 'all';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::NumericLiteral::Actions;
+use Math::BigInt;
 
 # ABSTRACT: ECMAScript 262, Edition 5, lexical decimal grammar actions
 
@@ -13,15 +14,35 @@ This modules give the actions associated to ECMAScript_262_5 lexical numeric gra
 
 =cut
 
-=head2 new($class)
+=head2 new($class, %opts)
 
-Instantiate a new object.
+Instantiate a new object. %opts contains mathematical callback functions, i.e. the values must be CODE references, and can have the following keys:
+
+=over
+
+=item new($class, $string)
+
+Number creation. Defaults to Math::BigInt->new($string).
+
+=item pow($x, $y)
+
+$x**$y callback. Defaults to $x->bpow($y) where $x is a Math::BigInt object.
+
+=item is_nan($x)
+
+NaN test callback on $x. Defaults to $x->is_nan() where $x is a Math::BigInt object.
+
+=back
 
 =cut
 
 sub new {
-    my $class = shift;
-    my $self = {};
+    my ($class, %opts) = @_;
+    my $self = {
+	new    => $opts{new}    || sub {return Math::BigInt->new($_[0])},
+	pow    => $opts{pow}    || sub {return $_[0]->bpow($_[1])},
+	is_nan => $opts{is_nan} || sub {return $_[0]->is_nan()},
+    };
     bless($self, $class);
     return $self;
 }
@@ -44,40 +65,64 @@ sub MV_NumericLiteral_DecimalLiteral {
 
 Action for rule NumericLiteral ::= HexIntegerLiteral
 
+The MV of NumericLiteral :: HexIntegerLiteral is the MV of HexIntegerLiteral.
+
 =cut
 
 sub MV_NumericLiteral_HexIntegerLiteral {
     my ($self, $HexIntegerLiteral) = @_;
+
+    return $HexIntegerLiteral;
 }
 
 =head2 MV_DecimalLiteral_OctalIntegerLiteral($self, $OctalIntegerLiteral)
 
 Action for rule DecimalLiteral ::= OctalIntegerLiteral
 
+The MV of NumericLiteral :: OctalIntegerLiteral is the MV of OctalIntegerLiteral.
+
 =cut
 
 sub MV_DecimalLiteral_OctalIntegerLiteral {
     my ($self, $OctalIntegerLiteral) = @_;
+
+    return $OctalIntegerLiteral;
 }
 
 =head2 MV_DecimalLiteral_DecimalIntegerLiteral_DOT($self, $DecimalIntegerLiteral, $DOT)
 
 Action for rule DecimalLiteral ::= DecimalIntegerLiteral '.'
 
+The MV of DecimalLiteral :: DecimalIntegerLiteral . is the MV of DecimalIntegerLiteral.
+
 =cut
 
 sub MV_DecimalLiteral_DecimalIntegerLiteral_DOT {
     my ($self, $DecimalIntegerLiteral, $DOT) = @_;
+
+    return $DecimalIntegerLiteral;
 }
 
 =head2 MV_DecimalLiteral_DecimalIntegerLiteral_DOT_DecimalDigits($self, $DecimalIntegerLiteral, $DOT, $DecimalDigits)
 
 Action for rule DecimalLiteral ::= DecimalIntegerLiteral '.' DecimalDigits
 
+The MV of DecimalLiteral :: DecimalIntegerLiteral . DecimalDigits is the MV of DecimalIntegerLiteral plus (the MV of DecimalDigits times 10-n), where n is the number of characters in DecimalDigits.
+
 =cut
 
 sub MV_DecimalLiteral_DecimalIntegerLiteral_DOT_DecimalDigits {
     my ($self, $DecimalIntegerLiteral, $DOT, $DecimalDigits) = @_;
+
+    my $tmp = $self->pow(10, -length($DecimalDigits));
+    #
+    # NaN is sticky
+    #
+    if ($self->{is_nan}($tmp)) {
+	return $tmp;
+    } else {
+	return $DecimalIntegerLiteral + ($DecimalDigits * $tmp);
+    }
 }
 
 =head2 MV_DecimalIntegerLiteral_DOT_DecimalDigits_ExponentPart ($self, $DOT, $DecimalDigits, $ExponentPart )
