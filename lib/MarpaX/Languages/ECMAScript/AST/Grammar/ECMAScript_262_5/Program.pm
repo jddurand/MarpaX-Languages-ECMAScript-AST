@@ -152,6 +152,7 @@ sub parse {
                          failureargs => [ $self ],
                          end => \&_endCallback,
                          endargs => [ $self ],
+			 keepOriginalSource => 0,
                         });
 }
 
@@ -168,7 +169,9 @@ sub _eventCallback {
     #
     # Events are always in this order:
     #
+    # ---------------------------------
     # 1. Completion events first (XXX$)
+    # ---------------------------------
     #
     if ($name eq 'Program$') {
 	#
@@ -188,9 +191,6 @@ sub _eventCallback {
         SyntaxError(error => "NumericLiteral $lastNumericLiteral must not be immediately followed by an IdentifierStart or DecimalDigit");
       }
     }
-    # 2. Then nulled events (XXX[])
-    # 3. Then prediction events (^XXX or ^^XXX)
-    #
     elsif ($name eq 'IDENTIFIER$') {
 	my %lastLexeme = ();
 	$self->getLastLexeme(\%lastLexeme, $impl);
@@ -198,6 +198,15 @@ sub _eventCallback {
 	    SyntaxError(error => "Identifier $lastLexeme{value} is a reserved word");
 	}
     }
+    #
+    # ------------------------
+    # 2. nulled events (XXX[])
+    # ------------------------
+    #
+    # ------------------------------------
+    # 3. prediction events (^XXX or ^^XXX)
+    # ------------------------------------
+    #
     elsif ($name eq '^INVISIBLE_SEMICOLON') {
       #
       # In the AST, we explicitely associate the ';' to the missing semicolon
