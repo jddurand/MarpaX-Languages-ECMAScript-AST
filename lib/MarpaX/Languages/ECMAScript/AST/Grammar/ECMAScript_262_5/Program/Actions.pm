@@ -2,6 +2,8 @@ use strict;
 use warnings FATAL => 'all';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Actions;
+use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral;
+our $StringLiteral = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral->new();
 
 # ABSTRACT: ECMAScript 262, Edition 5, lexical expressions grammar actions
 
@@ -54,6 +56,33 @@ sub valuesAndRuleId {
   # place, i.e. Impl.pm.
   #
   return {values => [ @_ ], ruleId => $Marpa::R2::Context::rule};
+}
+
+=head2 StringLiteral($self, $lexemeActionValuep)
+
+StringLiteral action.
+
+=cut
+
+sub StringLiteral {
+    my ($self, $lexemeActionValuep) = @_;
+
+    #
+    # StringLiteral is already in the good lexeme value format: [start,length,value]
+    #
+    # We just re-evaluate the value. Per def there is no need to eval, the lexeme
+    # got matched.
+    #
+    # It is quite consuming to redo a full grammar stuff. So instead let's look at
+    # the differences between a true perl string and a JavaScript string.
+    # The difference is always related with escape sequence thingies, c.f.
+    # StringTerminal/Actions.pm
+    #
+
+    my $impl = MarpaX::Languages::ECMAScript::AST::Impl->new($StringLiteral->grammar_option(), $StringLiteral->recce_option());
+    $lexemeActionValuep->[2] = $StringLiteral->parse($lexemeActionValuep->[2], $impl)->value($impl);
+
+    return $lexemeActionValuep;
 }
 
 1;
