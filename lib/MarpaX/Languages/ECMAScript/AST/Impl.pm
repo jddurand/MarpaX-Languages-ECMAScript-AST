@@ -50,7 +50,7 @@ This modules implements all needed Marpa calls using its Scanless interface. Ple
 
 =head2 new($class, $grammarOptionsHashp, $recceOptionsHashp, $cachedG)
 
-Instantiate a new object. Takes as parameter two references to hashes: the grammar options, the recognizer options. In the recognizer, there is a grammar internal option that will be forced to the grammar object. If the environment variable MARPA_TRACE_TERMINALS is set to a true value, then internal Marpa trace on terminals is activated. If the environment MARPA_TRACE_VALUES is set to a true value, then internal Marpa trace on values is activated. If the environment variable MARPA_TRACE is set to a true value, then both terminals and values internal Marpa traces are activated. $cachedG is an optional parameter that must be a cached value of Marpa::R2::Scanless::G->new($grammarOptionsHashp). If not present, this value can be retreived for further use with $self->grammar method.
+Instantiate a new object. Takes as parameter two references to hashes: the grammar options, the recognizer options. In the recognizer, there is a grammar internal option that will be forced to the grammar object. If the environment variable MARPA_TRACE_TERMINALS is set to a true value, then internal Marpa trace on terminals is activated. If the environment MARPA_TRACE_VALUES is set to a true value, then internal Marpa trace on values is activated. If the environment variable MARPA_TRACE is set to a true value, then both terminals and values internal Marpa traces are activated. $cachedG is an optional parameter that must be a cached value of Marpa::R2::Scanless::G->new($grammarOptionsHashp). If not present, this value can be retrieved for further use with $self->grammar method.
 
 =cut
 
