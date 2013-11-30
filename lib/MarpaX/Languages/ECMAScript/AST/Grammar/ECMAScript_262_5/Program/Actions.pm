@@ -25,7 +25,7 @@ Instantiate a new object.
 
 sub new {
     my $class = shift;
-    my $self = {};
+    my $self = {cachedStringLiteralG => undef};
     bless($self, $class);
     return $self;
 }
@@ -79,7 +79,8 @@ sub StringLiteral {
     # StringTerminal/Actions.pm
     #
 
-    my $impl = MarpaX::Languages::ECMAScript::AST::Impl->new($StringLiteral->grammar_option(), $StringLiteral->recce_option());
+    my $impl = MarpaX::Languages::ECMAScript::AST::Impl->new($StringLiteral->grammar_option(), $StringLiteral->recce_option(), $self->{cachedStringLiteralG});
+    $self->{cachedStringLiteralG} = $impl->grammar;
     $lexemeActionValuep->[2] = $StringLiteral->parse($lexemeActionValuep->[2], $impl)->value($impl);
 
     return $lexemeActionValuep;
