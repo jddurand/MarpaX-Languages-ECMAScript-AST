@@ -50,7 +50,7 @@ sub new {
 
   my $self  = {
       _content => $grammar,
-      _grammar_option => {action_object  => sprintf('%s::%s', $package, 'Actions')},
+      _grammar_option => {bless_package => $package, action_object  => sprintf('%s::%s', $package, 'Actions')},
       _recce_option => {ranking_method => 'high_rule_only'},
       _strict => 0
   };
@@ -60,6 +60,7 @@ sub new {
   #
   my $characterClass = "\\p{MarpaX::Languages::ECMAScript::AST::Grammar::${spec}::CharacterClasses::Is";
   $self->{_content} =~ s/\\p\{Is/$characterClass/g;
+  $self->{_grammar_option}->{source} = \$self->{_content};
 
   bless($self, $class);
 
@@ -142,31 +143,31 @@ Parse the source given as reference to a scalar, an optional reference to a opti
 
 =item callbackargsp
 
-Callbak Code Reference
+Callbak Code Reference. Default is undef.
 
 =item callbackargs
 
-Reference to an array of Callback Code Reference first arguments
+Reference to an array of Callback Code Reference first arguments. Default is [].
 
 =item failure
 
-Failure callback Code Reference
+Failure callback Code Reference. Default is undef.
 
 =item failureargs
 
-Reference to an array of Failure callback Code Reference first arguments
+Reference to an array of Failure callback Code Reference first arguments. Default is [].
 
 =item end
 
-End callback Code Reference
+End callback Code Reference. Default is undef.
 
 =item endargs
 
-Reference to an array of End callback Code Reference first arguments
+Reference to an array of End callback Code Reference first arguments. Default is [].
 
 =item keepOriginalSource
 
-Because of Automatic Semicolon Insertion that may happen at the end, a space is appended to a copy of the source to be parsed. If a true value, this option disable that append.
+Because of Automatic Semicolon Insertion that may happen at the end, a space is appended to a copy of the source to be parsed. If a true value, this option disable that append. Default is true.
 
 =back
 
@@ -215,13 +216,17 @@ sub parse {
   my $endp = $optionsp->{end};
   my $endargsp = $optionsp->{endargs} // [];
   my @endargs = @{$endargsp};
+  my $keepOriginalSource = $optionsp->{keepOriginalSource} // 1;
+
   $start //= 0;
   $length //= -1;
 
   #
   # This will create a new instance of the string
   #
-  $source .= ' ';
+  if (! $keepOriginalSource) {
+      $source .= ' ';
+  }
 
   my $pos = $start;
   my $max = length($source) - $start + $length;
