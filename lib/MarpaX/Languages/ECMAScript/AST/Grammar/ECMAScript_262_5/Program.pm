@@ -948,7 +948,7 @@ INVISIBLE_SEMICOLON ~ _S_ANY _SLT _S_ANY
 
 NullLiteral                           ::= NULL
 BooleanLiteral                        ::= TRUE | FALSE
-StringLiteral                         ::= STRINGLITERAL
+StringLiteral                         ::= STRINGLITERAL           action => StringLiteral
 RegularExpressionLiteral              ::= REGULAREXPRESSIONLITERAL
 NumericLiteral                        ::= DecimalLiteral
                                         | HexIntegerLiteral
