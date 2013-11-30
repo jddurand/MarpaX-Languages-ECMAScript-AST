@@ -2,7 +2,6 @@ use strict;
 use warnings FATAL => 'all';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::NumericLiteral::Actions;
-use Math::BigInt;
 
 # ABSTRACT: ECMAScript 262, Edition 5, lexical decimal grammar actions
 
