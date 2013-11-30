@@ -38,12 +38,14 @@ sub new {
     return $self;
 }
 
-sub _secondArg             { return $_[2]                                     }
-sub _emptyString           { return '';                                       }
-sub _concat                { return join('', @_[1..$#_]);                     }
-sub _OctalEscapeSequence01 { return chr(                         oct($_[1])); }
-sub _OctalEscapeSequence02 { return chr(             8 * $_[1] + oct($_[2])); }
-sub _OctalEscapeSequence03 { return chr(64 * $_[1] + 8 * $_[2] + oct($_[3])); }
+sub _secondArg             { return $_[2] }
+sub _emptyString           { return ''; }
+sub _concat                { return join('', @_[1..$#_]); }
+
+sub _OctalEscapeSequence01 { return chr(                                   oct($_[1])); }
+sub _OctalEscapeSequence02 { return chr(                  8 * oct($_[1]) + oct($_[2])); }
+sub _OctalEscapeSequence03 { return chr(64 * oct($_[1]) + 8 * oct($_[2]) + oct($_[3])); }
+
 sub _SingleEscapeCharacter {
     if    ($_[1] eq 'b')  { return  BS;        }
     elsif ($_[1] eq 't')  { return  HT;        }
@@ -58,6 +60,7 @@ sub _SingleEscapeCharacter {
 	croak "Invalid single escape character: $_[1]";
     }
 }
+
 sub _HexEscapeSequence { return chr(16 * hex($_[1]) + hex($_[2])); }
 sub _UnicodeEscapeSequence { return chr(4096 * hex($_[2]) + 256 * hex($_[3]) + 16 * hex($_[4]) + hex($_[5])); }
 
