@@ -3,6 +3,10 @@ use warnings FATAL => 'all';
 
 package MarpaX::Languages::ECMAScript::AST::Exceptions;
 
+# ABSTRACT: ECMAScript, Exceptions definition
+
+# VERSION
+
 use Exception::Class (
     'MarpaX::Languages::ECMAScript::AST::Exception::InternalError' =>
         { description => 'Internal error',
