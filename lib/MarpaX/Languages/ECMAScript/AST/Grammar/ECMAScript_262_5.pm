@@ -47,14 +47,10 @@ sub new {
 sub _init {
     my ($self, %transpileOptions) = @_;
 
-    my $grammar = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program->new();
-    my $grammar_option = $grammar->grammar_option();
-    $grammar_option->{bless_package} = 'ECMAScript_262_5::AST';
-    $grammar_option->{source} = \$grammar->content();
-    my $recce_option = $grammar->recce_option();
+    my $program = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program->new();
     $self->{_program} = {
-	grammar => $grammar,
-	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($grammar_option, $recce_option)
+	grammar => $program,
+	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($program->grammar_option(), $program->recce_option())
     };
     $self->{_template} = $TEMPLATE ? MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Template->new(%transpileOptions) : undef;
 
