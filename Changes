@@ -1,7 +1,41 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.004 2013-11-10T17:14:49
+0.005 2013-11-30T21:36:50
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Lexical/StringLiteral/Actions.pm; octal actions fixes
+ - AST/Impl.pm: typo in POD
+ - AST/Impl.pm: possibility to cache the Marpa::R2::Scanless::G for speedup
+ - Program/Actions.pm: StringLiteral action
+ - Program.pm: StringLiteral action
+ - Program.pm: keepOriginalSource => 0
+ - Lexical/StringLiteral: actions
+ - Lexical/NumericLiteral/Actions.pm: Removed use Math::BigInt
+ - Grammar/ECMAScript_262_5.pm: Removed non-needed code
+ - Grammar/Base.pm: Fixed default _grammar_option, Say default value for
+   parse() options
+ - Exceptions.pm: Added missing ABSTRACT and VERSION
+ - ECMAScript_262_5 Generic Template for version 0.005
+ - NumericLiteral: actions dev+
+ - NumericLiteral: actions dev+
+ - NumericLiteral: action templates
+ - NumericLiteral: more actions
+ - MV of NumericLiteral: dev+
+ - MV of NumericLiteral: dev+
+ - NumericLiteral actions and injection
+ - Fix transpilation callbacks return value processing
+ - script/generateTemplate.pl: fix callback usage
+ - use Exception::Class
+ - generateTemplate: callback trial t+
+ - Impl: rule_id, rule_expand, symbol_name
+ - AST: Use recommended Marpa methods
+ - Removed non warnings recursion
+
+ [jddurand <jeandamiendurand@free.fr>]
+ - NumericLiteral: dev+
+
+0.004 2013-11-10T17:16:22
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Release of version 0.004
  - perl critic
  - perlcritic.rc
  - Remove Template.pm from allow_dirty

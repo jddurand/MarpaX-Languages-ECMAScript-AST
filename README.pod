@@ -8,7 +8,7 @@ MarpaX::Languages::ECMAScript::AST - Translate a ECMAScript source to an AST
 
 =head1 VERSION
 
-version 0.004
+version 0.005
 
 =head1 SYNOPSIS
 
@@ -113,6 +113,10 @@ L<https://github.com/jddurand/marpax-languages-ecmascript-ast>
 =head1 AUTHOR
 
 Jean-Damien Durand <jeandamiendurand@free.fr>
+
+=head1 CONTRIBUTOR
+
+jddurand <jeandamiendurand@free.fr>
 
 =head1 COPYRIGHT AND LICENSE
 
