@@ -90,8 +90,7 @@ __DATA__
 # tokens, line terminators, comments, or white space.
 #
 :start ::= __StringLiteral
-:default ::= action => [values] bless => ::lhs
-lexeme default = action => [start,length,value]
+:default ::= action => ::first
 
 #
 # DO NOT REMOVE NOR MODIFY THIS LINE
@@ -106,32 +105,31 @@ __StringLiteral ::=
     ___DoubleStringLiteral
   | ___SingleStringLiteral
 
-___DoubleStringLiteral ::= '"' ___DoubleStringCharactersopt '"'
-___SingleStringLiteral ::= ___Quote ___SingleStringCharactersopt ___Quote
+___DoubleStringLiteral ::=
+    '"' ___DoubleStringCharacters '"'                      action => _secondArg
+  | '"' '"'                                                action => _emptyString
 
-___DoubleStringCharacters ::=  ___DoubleStringCharacter ___DoubleStringCharactersopt
-___SingleStringCharacters ::=  ___SingleStringCharacter ___SingleStringCharactersopt
+___SingleStringLiteral ::=
+    ___Quote ___SingleStringCharacters ___Quote            action => _secondArg
+  | ___Quote ___Quote                                      action => _emptyString
 
-___DoubleStringCharactersopt ::= ___DoubleStringCharacters
-___DoubleStringCharactersopt ::=
-
-___SingleStringCharactersopt ::= ___SingleStringCharacters
-___SingleStringCharactersopt ::=
+___DoubleStringCharacters ::=  ___DoubleStringCharacter+   action => _concat
+___SingleStringCharacters ::=  ___SingleStringCharacter+   action => _concat
 
 ___DoubleStringCharacter ::=
     ___SourceCharacterButNotOneOfDquoteOrBackslashOrLineTerminator
-  | '\' ___EscapeSequence
+  | '\' ___EscapeSequence                                  action => _secondArg
   # ' for my editor
   | ___LineContinuation
 
 ___SingleStringCharacter ::=
     ___SourceCharacterButNotOneOfSquoteOrBackslashOrLineTerminator
-  | '\' ___EscapeSequence
+  | '\' ___EscapeSequence                                  action => _secondArg
   # ' for my editor
   | ___LineContinuation
 
 ___LineContinuation ::=
-  '\' ___LineTerminatorSequence
+  '\' ___LineTerminatorSequence                            action => _emptyString
   # ' for my editor
 
 ___EscapeSequence ::=
@@ -141,22 +139,23 @@ ___EscapeSequence ::=
   | ___UnicodeEscapeSequence
 
 ___OctalEscapeSequence ::=
-    ___StringLiteral__OctalDigit
-  | ___ZeroToThree ___StringLiteral__OctalDigit
-  | ___FourToSeven ___StringLiteral__OctalDigit
-  | ___ZeroToThree ___StringLiteral__OctalDigit ___StringLiteral__OctalDigit
+    ___OctalDigit                                                             action => _OctalEscapeSequence01
+  | ___ZeroToThree ___OctalDigit                                              action => _OctalEscapeSequence02
+  | ___FourToSeven ___OctalDigit                                              action => _OctalEscapeSequence02
+  | ___ZeroToThree ___OctalDigit ___OctalDigit                                action => _OctalEscapeSequence03
 
 ___CharacterEscapeSequence ::=
-    ___SingleEscapeCharacter
+    ___SingleEscapeCharacter                                                  action => _SingleEscapeCharacter
   | ___NonEscapeCharacter
 
-___HexEscapeSequence ::= 'x' ___HexDigit ___HexDigit
+___HexEscapeSequence ::= 'x' ___HexDigit ___HexDigit                          action => _HexEscapeSequence
+
+___UnicodeEscapeSequence ::= 'u' ___HexDigit ___HexDigit ___HexDigit ___HexDigit action => _UnicodeEscapeSequence
 
 #
 # The ___ are to prevent errors with eventual duplicate rules when injecting
 # this grammar in main lexical grammar
 #
-___UnicodeEscapeSequence ~ 'u' ___HexDigit ___HexDigit ___HexDigit ___HexDigit
 ___Quote ~ [\p{IsSquote}]
 ___SourceCharacterButNotOneOfDquoteOrBackslashOrLineTerminator ~ [\p{IsSourceCharacterButNotOneOfDquoteOrBackslashOrLineTerminator}]
 ___SourceCharacterButNotOneOfSquoteOrBackslashOrLineTerminator ~ [\p{IsSourceCharacterButNotOneOfSquoteOrBackslashOrLineTerminator}]
@@ -170,6 +169,6 @@ ___ZeroToThree           ~ [\p{IsZeroToThree}]
 ___FourToSeven           ~ [\p{IsFourToSeven}]
 ___NonEscapeCharacter    ~ [\p{IsSourceCharacterButNotOneOfEscapeCharacterOrLineTerminator}]
 ___SingleEscapeCharacter ~ [\p{IsSingleEscapeCharacter}]
-___StringLiteral__OctalDigit             ~ [\p{IsOctalDigit}]
+___OctalDigit            ~ [\p{IsOctalDigit}]
 ___HexDigit              ~ [\p{IsHexDigit}]
 

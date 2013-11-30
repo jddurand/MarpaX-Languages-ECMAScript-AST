@@ -2,6 +2,18 @@ use strict;
 use warnings FATAL => 'all';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral::Actions;
+use Carp qw/croak/;
+use constant {
+    BS        => "\N{U+0008}",
+    HT        => "\N{U+0009}",
+    LF        => "\N{U+000A}",
+    VT        => "\N{U+000B}",
+    FF        => "\N{U+000C}",
+    CR        => "\N{U+000D}",
+    DQUOTE    => "\N{U+0022}",
+    SQUOTE    => "\N{U+0027}",
+    BACKSLASH => "\N{U+005C}"
+};
 
 # ABSTRACT: ECMAScript 262, Edition 5, lexical string grammar actions
 
@@ -25,5 +37,28 @@ sub new {
     bless($self, $class);
     return $self;
 }
+
+sub _secondArg             { return $_[2]                                     }
+sub _emptyString           { return '';                                       }
+sub _concat                { return join('', @_[1..$#_]);                     }
+sub _OctalEscapeSequence01 { return chr(                         oct($_[1])); }
+sub _OctalEscapeSequence02 { return chr(             8 * $_[1] + oct($_[2])); }
+sub _OctalEscapeSequence03 { return chr(64 * $_[1] + 8 * $_[2] + oct($_[3])); }
+sub _SingleEscapeCharacter {
+    if    ($_[1] eq 'b')  { return  BS;        }
+    elsif ($_[1] eq 't')  { return  HT;        }
+    elsif ($_[1] eq 'n')  { return  LF;        }
+    elsif ($_[1] eq 'v')  { return  VT;        }
+    elsif ($_[1] eq 'f')  { return  FF;        }
+    elsif ($_[1] eq 'r')  { return  CR;        }
+    elsif ($_[1] eq '"')  { return  DQUOTE;    }
+    elsif ($_[1] eq '\'') { return  SQUOTE;    }
+    elsif ($_[1] eq '\\') { return  BACKSLASH; }
+    else {
+	croak "Invalid single escape character: $_[1]";
+    }
+}
+sub _HexEscapeSequence { return chr(16 * hex($_[1]) + hex($_[2])); }
+sub _UnicodeEscapeSequence { return chr(4096 * hex($_[2]) + 256 * hex($_[3]) + 16 * hex($_[4]) + hex($_[5])); }
 
 1;
