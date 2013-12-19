@@ -30,6 +30,7 @@ IsDecimalDigit
 IsDollar
 IsDot
 IsDquote
+IseOrE
 Ise
 IsE
 IsEight
@@ -832,6 +833,16 @@ END
 
 sub IsE { return <<END;
 $E
+END
+}
+
+=head2 IseOrE()
+
+=cut
+
+sub IseOrE { return <<END;
++MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::Ise
++MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsE
 END
 }
 
