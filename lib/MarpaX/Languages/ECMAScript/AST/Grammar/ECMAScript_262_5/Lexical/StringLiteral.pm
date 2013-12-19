@@ -51,29 +51,6 @@ sub new {
     return $class->SUPER($grammar_source, __PACKAGE__);
 }
 
-=head2 parse($self, $source)
-
-Parse the source given as reference to a scalar.
-
-=cut
-
-sub parse {
-    my ($self, $source, $impl) = @_;
-    return $self->SUPER($source, $impl,
-	{
-	 #   '_DecimalLiteral$'     => \&_DecimalLiteral,
-	 #   '_HexIntegerLiteral$'  => \&_HexIntegerLiteral,
-	 #   '_OctalIntegerLiteral$'=> \&_OctalIntegerLiteral,
-	 #   '_IdentifierName$'     => \&_IdentifierName
-	});
-}
-
-sub _DecimalLiteral {
-    my ($self, $lexemeHashp, $source, $impl) = @_;
-
-    $self->_NumericLiteralLookhead($lexemeHashp, $source, $impl);
-}
-
 =head1 SEE ALSO
 
 L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base>
