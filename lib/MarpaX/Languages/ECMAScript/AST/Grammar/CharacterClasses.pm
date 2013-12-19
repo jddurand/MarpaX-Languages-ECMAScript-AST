@@ -104,7 +104,10 @@ our $SLASH           = sprintf('%x', ord('/'));
 our $BACKSLASH       = sprintf('%x', ord('\\'));
 our $DQUOTE          = sprintf('%x', ord('"'));
 our $SQUOTE          = sprintf('%x', ord("'"));
+our $a               = sprintf('%x', ord('a'));
 our $b               = sprintf('%x', ord('b'));
+our $c               = sprintf('%x', ord('c'));
+our $d               = sprintf('%x', ord('d'));
 our $e               = sprintf('%x', ord('e'));
 our $f               = sprintf('%x', ord('f'));
 our $n               = sprintf('%x', ord('n'));
@@ -113,9 +116,12 @@ our $t               = sprintf('%x', ord('t'));
 our $u               = sprintf('%x', ord('u'));
 our $v               = sprintf('%x', ord('v'));
 our $x               = sprintf('%x', ord('x'));
+our $A               = sprintf('%x', ord('A'));
+our $B               = sprintf('%x', ord('B'));
+our $C               = sprintf('%x', ord('C'));
+our $D               = sprintf('%x', ord('D'));
 our $E               = sprintf('%x', ord('E'));
-our $EIGHT           = sprintf('%x', ord('8'));
-our $NINE            = sprintf('%x', ord('9'));
+our $F               = sprintf('%x', ord('F'));
 our $LBRACKET        = sprintf('%x', ord('['));
 our $RBRACKET        = sprintf('%x', ord(']'));
 our $LPAREN          = sprintf('%x', ord('('));
@@ -137,6 +143,8 @@ our $FOUR            = sprintf('%x', ord('4'));
 our $FIVE            = sprintf('%x', ord('5'));
 our $SIX             = sprintf('%x', ord('6'));
 our $SEVEN           = sprintf('%x', ord('7'));
+our $EIGHT           = sprintf('%x', ord('8'));
+our $NINE            = sprintf('%x', ord('9'));
 
 =head2 IsWhiteSpace()
 
@@ -439,20 +447,26 @@ END
 }
 
 #
-# Note: PosixDigit is a perl extension
+# Note: PosixDigit is a perl extension, changed to be coherent with RT #91120
 #
 =head2 IsDecimalDigit()
 
 =cut
 
 sub IsDecimalDigit { return <<END;
-+utf8::PosixDigit
+$ZERO
+$ONE
+$TWO
+$THREE
+$FOUR
+$FIVE
+$SIX
+$SEVEN
+$EIGHT
+$NINE
 END
 }
 
-#
-# Note: PosixDigit is a perl extension
-#
 =head2 IsOctalDigit()
 
 =cut
@@ -544,13 +558,35 @@ END
 }
 
 #
-# Note: PosixXDigit is a perl extension
+# Note: PosixXDigit is a perl extension, not available before perl-5.12.5 RT #91120
+#
 =head2 IsHexDigit()
 
 =cut
 
 sub IsHexDigit { return <<END;
-+utf8::PosixXDigit
+$ZERO
+$ONE
+$TWO
+$THREE
+$FOUR
+$FIVE
+$SIX
+$SEVEN
+$EIGHT
+$NINE
+$A
+$B
+$C
+$D
+$E
+$F
+$a
+$b
+$c
+$d
+$e
+$f
 END
 }
 
