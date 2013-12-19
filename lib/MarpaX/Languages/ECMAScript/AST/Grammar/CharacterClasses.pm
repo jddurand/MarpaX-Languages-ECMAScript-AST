@@ -454,16 +454,7 @@ END
 =cut
 
 sub IsDecimalDigit { return <<END;
-$ZERO
-$ONE
-$TWO
-$THREE
-$FOUR
-$FIVE
-$SIX
-$SEVEN
-$EIGHT
-$NINE
+$ZERO\t$NINE
 END
 }
 
@@ -565,28 +556,9 @@ END
 =cut
 
 sub IsHexDigit { return <<END;
-$ZERO
-$ONE
-$TWO
-$THREE
-$FOUR
-$FIVE
-$SIX
-$SEVEN
-$EIGHT
-$NINE
-$A
-$B
-$C
-$D
-$E
-$F
-$a
-$b
-$c
-$d
-$e
-$f
+$ZERO\t$NINE
+$A\t$F
+$a\t$f
 END
 }
 
