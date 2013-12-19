@@ -39,11 +39,9 @@ Instance a new object.
 =cut
 
 #
-# Prevent injection of this grammar to collide with others:
-# ___yy is changed to ___StringNumericLiteral___yy
+# Note that this grammar is NOT supposed to injected in Program
 #
 our $grammar_source = do {local $/; <DATA>};
-$grammar_source =~ s/___/___StringNumericLiteral___/g;
 
 sub new {
     my ($class) = @_;
@@ -63,86 +61,63 @@ __DATA__
 # ECMAScript Script Lexical String Numeric Grammar
 # ================================================
 #
-:start ::= __StringLiteral
+:start ::= StringNumericLiteral
 :default ::= action => ::first
 
-#
-# DO NOT REMOVE NOR MODIFY THIS LINE
-#
-# This grammar is injected in Lexical grammar, with the following modifications:
-# action => xxx              are removed
-# __xxx\s*::=\s*               are changed to __xxx ~
-# ___yy are left as is
-#
+StrWhiteSpaceopt ::= StrWhiteSpace
+StrWhiteSpaceopt ::=
 
-__StringLiteral ::=
-    ___DoubleStringLiteral
-  | ___SingleStringLiteral
+StringNumericLiteral ::=
+    StrWhiteSpaceopt
+  | StrWhiteSpaceopt StrNumericLiteral StrWhiteSpaceopt
 
-___DoubleStringLiteral ::=
-    '"' ___DoubleStringCharacters '"'                      action => _secondArg
-  | '"' '"'                                                action => _emptyString
+StrWhiteSpace ::=
+  StrWhiteSpaceChar StrWhiteSpaceopt
 
-___SingleStringLiteral ::=
-    ___Quote ___SingleStringCharacters ___Quote            action => _secondArg
-  | ___Quote ___Quote                                      action => _emptyString
+StrWhiteSpaceChar ::=
+    _WhiteSpace
+  | _LineTerminator
 
-___DoubleStringCharacters ::=  ___DoubleStringCharacter+   action => _concat
-___SingleStringCharacters ::=  ___SingleStringCharacter+   action => _concat
+StrNumericLiteral ::=
+    StrDecimalLiteral
+  | HexIntegerLiteral
 
-___DoubleStringCharacter ::=
-    ___SourceCharacterButNotOneOfDquoteOrBackslashOrLineTerminator
-  | '\' ___EscapeSequence                                  action => _secondArg
-  # ' for my editor
-  | ___LineContinuation
+StrDecimalLiteral ::=
+    StrUnsignedDecimalLiteral
+  | '+' StrUnsignedDecimalLiteral
+  | '-' StrUnsignedDecimalLiteral
 
-___SingleStringCharacter ::=
-    ___SourceCharacterButNotOneOfSquoteOrBackslashOrLineTerminator
-  | '\' ___EscapeSequence                                  action => _secondArg
-  # ' for my editor
-  | ___LineContinuation
+StrUnsignedDecimalLiteral ::=
+    'Infinity'
+  | DecimalDigits '.' DecimalDigitsopt ExponentPartopt
+  | '.' DecimalDigits ExponentPartopt
+  | DecimalDigits ExponentPartopt
 
-___LineContinuation ::=
-  '\' ___LineTerminatorSequence                            action => _emptyString
-  # ' for my editor
+DecimalDigits ::=
+    DecimalDigit
+  | DecimalDigits DecimalDigit
 
-___EscapeSequence ::=
-    ___CharacterEscapeSequence
-  | ___OctalEscapeSequence
-  | ___HexEscapeSequence
-  | ___UnicodeEscapeSequence
+DecimalDigit ::= _DecimalDigit
 
-___OctalEscapeSequence ::=
-    ___OctalDigit                                                             action => _OctalEscapeSequence01
-  | ___ZeroToThree ___OctalDigit                                              action => _OctalEscapeSequence02
-  | ___FourToSeven ___OctalDigit                                              action => _OctalEscapeSequence02
-  | ___ZeroToThree ___OctalDigit ___OctalDigit                                action => _OctalEscapeSequence03
+ExponentPart ::=
+  ExponentIndicator SignedInteger
 
-___CharacterEscapeSequence ::=
-    ___SingleEscapeCharacter                                                  action => _SingleEscapeCharacter
-  | ___NonEscapeCharacter
+ExponentIndicator ::= _ExponentIndicator
 
-___HexEscapeSequence ::= 'x' ___HexDigit ___HexDigit                          action => _HexEscapeSequence
+SignedInteger ::=
+    DecimalDigits
+  | '+' DecimalDigits
+  | '-' DecimalDigits
 
-___UnicodeEscapeSequence ::= 'u' ___HexDigit ___HexDigit ___HexDigit ___HexDigit action => _UnicodeEscapeSequence
+HexIntegerLiteral ::=
+    '0x' HexDigit
+  | '0X' HexDigit
+  | HexIntegerLiteral HexDigit
 
-#
-# The ___ are to prevent errors with eventual duplicate rules when injecting
-# this grammar in main lexical grammar
-#
-___Quote ~ [\p{IsSquote}]
-___SourceCharacterButNotOneOfDquoteOrBackslashOrLineTerminator ~ [\p{IsSourceCharacterButNotOneOfDquoteOrBackslashOrLineTerminator}]
-___SourceCharacterButNotOneOfSquoteOrBackslashOrLineTerminator ~ [\p{IsSourceCharacterButNotOneOfSquoteOrBackslashOrLineTerminator}]
-___LineTerminatorSequence ~
-      [\p{IsLF}]
-    | [\p{IsCR}] # Note: [lookahead not in [\p{IsLF}] ] is ok because of longest-token implementation
-    | [\p{IsLS}]
-    | [\p{IsPS}]
-    | [\p{IsCR}] [\p{IsLF}]
-___ZeroToThree           ~ [\p{IsZeroToThree}]
-___FourToSeven           ~ [\p{IsFourToSeven}]
-___NonEscapeCharacter    ~ [\p{IsSourceCharacterButNotOneOfEscapeCharacterOrLineTerminator}]
-___SingleEscapeCharacter ~ [\p{IsSingleEscapeCharacter}]
-___OctalDigit            ~ [\p{IsOctalDigit}]
-___HexDigit              ~ [\p{IsHexDigit}]
+HexDigit ::= _HexDigit
 
+_WhiteSpace        ~ [\p{IsWhiteSpace}]
+_LineTerminator    ~ [\p{IsLineTerminator}]
+_DecimalDigit      ~ [\p{IsDecimalDigit}]
+_ExponentIndicator ~ [\p{IseOrE}]
+_HexDigit          ~ [\p{IsHexDigit}]
