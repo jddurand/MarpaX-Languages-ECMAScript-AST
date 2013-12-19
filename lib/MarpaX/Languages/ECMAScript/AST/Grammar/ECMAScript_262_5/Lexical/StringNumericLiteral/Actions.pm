@@ -15,13 +15,13 @@ use constant {
     BACKSLASH => "\N{U+005C}"
 };
 
-# ABSTRACT: ECMAScript 262, Edition 5, lexical string grammar actions
+# ABSTRACT: ECMAScript 262, Edition 5, lexical string numeric grammar actions
 
 # VERSION
 
 =head1 DESCRIPTION
 
-This modules give the actions associated to ECMAScript_262_5 lexical string grammar.
+This modules give the actions associated to ECMAScript_262_5 lexical string numeric grammar.
 
 =cut
 
