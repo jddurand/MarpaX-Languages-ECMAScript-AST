@@ -6,6 +6,7 @@ use parent qw/MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Bas
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringNumericLiteral::Actions;
 use Carp qw/croak/;
 use Log::Any qw/$log/;
+use Scalar::Util qw/blessed/;
 use SUPER;
 
 # ABSTRACT: ECMAScript-262, Edition 5, lexical string numeric grammar written in Marpa BNF
@@ -32,9 +33,29 @@ This modules returns describes the ECMAScript 262, Edition 5 lexical string nume
 
 =head1 SUBROUTINES/METHODS
 
-=head2 new()
+=head2 new($semantics_package)
 
-Instance a new object.
+As per Marpa::R2, The semantics package is used when resolving action names to fully qualified Perl names. This package must support the following methods:
+
+=over
+
+=item new($string)
+
+creates an instance of how the host represent the number quoted in $string. Instance is represented as $obj in the next sections. String is guaranteed to be one of '0'...'15', or 'Infinity'. No notion of sign here, the host can assume we always mean a positive value.
+
+=item $obj->mul($objmul)
+
+$obj * $objmul.
+
+=item $obj->sign($sign)
+
+Set the sign of host number. Sign can be '+' or '-'.
+
+=item $obj->round()
+
+Rounding.
+
+=back
 
 =cut
 
@@ -44,9 +65,32 @@ Instance a new object.
 our $grammar_source = do {local $/; <DATA>};
 
 sub new {
-    my ($class) = @_;
+    my ($class, $hashp) = @_;
 
-    return $class->SUPER($grammar_source, __PACKAGE__);
+    if (! defined($hashp) || ref($hashp) ne 'HASH') {
+      croak 'A reference to a HASH is required as first parameter';
+    }
+    if (! defined($hashp->{obj}) || ! blessed($hashp->{obj})) {
+      croak '$hashp->{obj} must be blessed';
+    }
+    if (! $hashp->{obj}->can('int')) {
+      croak '$hashp->{obj} must have the int method';
+    }
+    if (! $hashp->{obj}->can('mul')) {
+      croak '$hashp->{obj} must have the mul method';
+    }
+    if (! $hashp->{obj}->can('sign')) {
+      croak '$hashp->{obj} must have the sign method';
+    }
+    if (! $hashp->{obj}->can('round')) {
+      croak '$hashp->{obj} must have the round method';
+    }
+
+    my $self = $class->SUPER($grammar_source, __PACKAGE__);
+
+    $self->{_hashp} = $hashp;
+
+    return $self;
 }
 
 =head1 SEE ALSO

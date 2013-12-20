@@ -3,17 +3,6 @@ use warnings FATAL => 'all';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringNumericLiteral::Actions;
 use Carp qw/croak/;
-use constant {
-    BS        => "\N{U+0008}",
-    HT        => "\N{U+0009}",
-    LF        => "\N{U+000A}",
-    VT        => "\N{U+000B}",
-    FF        => "\N{U+000C}",
-    CR        => "\N{U+000D}",
-    DQUOTE    => "\N{U+0022}",
-    SQUOTE    => "\N{U+0027}",
-    BACKSLASH => "\N{U+005C}"
-};
 
 # ABSTRACT: ECMAScript 262, Edition 5, lexical string numeric grammar actions
 
