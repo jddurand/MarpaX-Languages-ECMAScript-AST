@@ -27,9 +27,9 @@ else c = d" => undef,
 (d + e).print()"
 );
 
+my $ecmaAst = MarpaX::Languages::ECMAScript::AST->new();
 foreach (keys %asi) {
     my $ecmaSourceCode = $_;
-    my $ecmaAst = MarpaX::Languages::ECMAScript::AST->new();
     my $value;
     eval {$value = $ecmaAst->parse($ecmaSourceCode)};
     ok(defined($asi{$_}) ? defined($value) : ! defined($value), (defined($value) ? 'defined' : "<undef>"));
