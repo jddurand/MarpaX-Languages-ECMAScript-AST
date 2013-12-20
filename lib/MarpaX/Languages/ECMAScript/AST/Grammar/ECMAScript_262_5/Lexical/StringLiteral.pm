@@ -51,6 +51,18 @@ sub new {
     return $class->SUPER($grammar_source, __PACKAGE__);
 }
 
+=head2 original_content()
+
+Class method returning the grammar content as found in this module.
+
+=cut
+
+sub original_content {
+    return $grammar_source;
+}
+
+#
+
 =head1 SEE ALSO
 
 L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base>
