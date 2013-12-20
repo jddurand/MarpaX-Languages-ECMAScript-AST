@@ -11,6 +11,7 @@ use warnings FATAL => 'all';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program;
 use parent qw/MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base/;
+use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Singleton;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Actions;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::RegularExpressionLiteral;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral;
@@ -94,6 +95,15 @@ $grammar_source .= $StringLiteral->extract;
 $grammar_source .= $NumericLiteral->extract;
 $grammar_source .= $RegularExpressionLiteral->extract;
 
+our $singleton = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Singleton->instance(
+    MarpaX::Languages::ECMAScript::AST::Impl->new
+    (
+     __PACKAGE__->make_grammar_option(__PACKAGE__, 'ECMAScript-262-5', $grammar_source),
+     undef,                                   # $recceOptionsHashp
+     undef,                                   # $cachedG
+     1                                        # $noR
+    )->grammar
+    );
 
 #
 # For convenience in the IDENTIFIER$ lexeme callback, we merge Keyword, FutureReservedWord, NullLiteral, BooleanLiteral into
@@ -133,6 +143,16 @@ sub new {
     my $self = $class->SUPER($grammar_source, __PACKAGE__);
 
     return $self;
+}
+
+=head2 G()
+
+Cached Marpa::R2::Scanless::G compiled grammar.
+
+=cut
+
+sub G {
+    return $singleton->G;
 }
 
 =head2 parse($self, $source)

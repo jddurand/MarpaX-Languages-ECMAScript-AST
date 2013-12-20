@@ -3,7 +3,9 @@ use warnings FATAL => 'all';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Actions;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral;
+
 our $StringLiteral = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral->new();
+our $StringLiteralImpl = MarpaX::Languages::ECMAScript::AST::Impl->new($StringLiteral->grammar_option(), $StringLiteral->recce_option(), undef, 1);
 
 # ABSTRACT: ECMAScript 262, Edition 5, lexical expressions grammar actions
 
@@ -25,7 +27,7 @@ Instantiate a new object.
 
 sub new {
     my $class = shift;
-    my $self = {cachedStringLiteralG => undef};
+    my $self = {};
     bless($self, $class);
     return $self;
 }
@@ -79,9 +81,7 @@ sub StringLiteral {
     # StringTerminal/Actions.pm
     #
 
-    my $impl = MarpaX::Languages::ECMAScript::AST::Impl->new($StringLiteral->grammar_option(), $StringLiteral->recce_option(), $self->{cachedStringLiteralG});
-    $self->{cachedStringLiteralG} = $impl->grammar;
-    $lexemeActionValuep->[2] = $StringLiteral->parse($lexemeActionValuep->[2], $impl)->value($impl);
+    $lexemeActionValuep->[2] = $StringLiteral->parse($lexemeActionValuep->[2], $StringLiteralImpl)->value($StringLiteralImpl);
 
     return $lexemeActionValuep;
 }

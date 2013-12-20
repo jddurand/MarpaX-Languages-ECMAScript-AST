@@ -4,7 +4,7 @@ use warnings FATAL => 'all';
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5;
 use MarpaX::Languages::ECMAScript::AST::Impl;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program;
-our $TEMPLATE = eval 'use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Template; 1;' || 0;
+use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Template;
 
 # ABSTRACT: ECMAScript-262, Edition 5, grammar
 
@@ -50,9 +50,9 @@ sub _init {
     my $program = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program->new();
     $self->{_program} = {
 	grammar => $program,
-	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($program->grammar_option(), $program->recce_option())
+	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($program->grammar_option(), $program->recce_option(), $program->G, 1)
     };
-    $self->{_template} = $TEMPLATE ? MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Template->new(%transpileOptions) : undef;
+    $self->{_template} = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Template->new(%transpileOptions);
 
 }
 
