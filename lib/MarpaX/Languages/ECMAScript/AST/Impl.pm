@@ -48,18 +48,19 @@ This modules implements all needed Marpa calls using its Scanless interface. Ple
 
 =head1 SUBROUTINES/METHODS
 
-=head2 new($class, $grammarOptionsHashp, $recceOptionsHashp, $cachedG)
+=head2 new($class, $grammarOptionsHashp, $recceOptionsHashp, $cachedG, $noR)
 
-Instantiate a new object. Takes as parameter two references to hashes: the grammar options, the recognizer options. In the recognizer, there is a grammar internal option that will be forced to the grammar object. If the environment variable MARPA_TRACE_TERMINALS is set to a true value, then internal Marpa trace on terminals is activated. If the environment MARPA_TRACE_VALUES is set to a true value, then internal Marpa trace on values is activated. If the environment variable MARPA_TRACE is set to a true value, then both terminals and values internal Marpa traces are activated. $cachedG is an optional parameter that must be a cached value of Marpa::R2::Scanless::G->new($grammarOptionsHashp). If not present, this value can be retrieved for further use with $self->grammar method.
+Instantiate a new object. Takes as parameter two references to hashes: the grammar options, the recognizer options. In the recognizer, there is a grammar internal option that will be forced to the grammar object. If the environment variable MARPA_TRACE_TERMINALS is set to a true value, then internal Marpa trace on terminals is activated. If the environment MARPA_TRACE_VALUES is set to a true value, then internal Marpa trace on values is activated. If the environment variable MARPA_TRACE is set to a true value, then both terminals and values internal Marpa traces are activated. $cachedG is an optional parameter that must be a cached value of Marpa::R2::Scanless::G->new($grammarOptionsHashp). If not present, this value can be retrieved for further use with $self->grammar method. As a special case, if the optional $noR is true, no Marpa::R2::Scanless:G recognizer will be created. This can be used to generate a Marpa::R2::Scanless:G only and cache it. Default $noR is false. When $noR is true, $recceOptionsHashp is nevertheless kept for further see (see method R()).
 
 =cut
 
 sub new {
-
-  my ($class, $grammarOptionsHashp, $recceOptionsHashp, $cachedG) = @_;
+  my ($class, $grammarOptionsHashp, $recceOptionsHashp, $cachedG, $noR) = @_;
 
   my $self  = {};
   $self->{grammar} = $cachedG || Marpa::R2::Scanless::G->new($grammarOptionsHashp);
+
+  $noR //= 0;
   if (defined($recceOptionsHashp)) {
       $recceOptionsHashp->{grammar} = $self->{grammar};
   } else {
@@ -68,10 +69,38 @@ sub new {
   $recceOptionsHashp->{trace_terminals} = $ENV{MARPA_TRACE_TERMINALS} || $ENV{MARPA_TRACE} || 0;
   $recceOptionsHashp->{trace_values} = $ENV{MARPA_TRACE_VALUES} || $ENV{MARPA_TRACE} || 0;
   $recceOptionsHashp->{trace_file_handle} = $MARPA_TRACE_FILE_HANDLE;
-  $self->{recce} = Marpa::R2::Scanless::R->new($recceOptionsHashp);
+  #
+  # Save recceOptionsHashp for further use
+  #
+  $self->{_recceOptionsHashp} = $recceOptionsHashp;
+
   bless($self, $class);
 
+  if (! $noR) {
+      $self->make_R;
+  }
+
   return $self;
+}
+
+=head2 make_R($self)
+
+Creates a Marpa::R2::Scanless::R recognizer object and store it together with the grammar.
+
+=cut
+
+sub make_R {
+    $_[0]->{recce} = Marpa::R2::Scanless::R->new($_[0]->{_recceOptionsHashp});
+}
+
+=head2 destroy_R($self)
+
+Destroy an eventual Marpa::R2::Scanless::R recognizer object stored it together with the grammar.
+
+=cut
+
+sub destroy_R {
+    $_[0]->{recce} = undef;
 }
 
 =head2 value($self)
@@ -272,6 +301,16 @@ Returns a Marpa::R2::Scanless::G object of this grammar.
 
 sub grammar {
   return $_[0]->{grammar};
+}
+
+=head2 G($self)
+
+Alias of the grammar() method.
+
+=cut
+
+sub G {
+  return $_[0]->grammar;
 }
 
 =head2 recce($self)

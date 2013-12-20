@@ -35,32 +35,25 @@ This modules returns a base package for all the ECMAScript grammars written in M
 
 =head1 SUBROUTINES/METHODS
 
-=head2 new($grammar, $package, $spec)
+=head2 new($grammar_content, $package, $spec)
 
-Instance a new object. Takes a grammar, a package name and an ECMAScript specification as required parameters.
+Instance a new object. Takes a grammar content $grammar_content, a package name $package and an ECMAScript specification $spec as required parameters.
 
 =cut
 
 sub new {
-  my ($class, $grammar, $package, $spec) = @_;
+  my ($class, $grammar_content, $package, $spec) = @_;
 
-  InternalError(error => 'Missing grammar') if (! defined($grammar));
+  InternalError(error => 'Missing grammar') if (! defined($grammar_content));
   InternalError(error => 'Missing package name') if (! defined($package));
   InternalError(error => 'Missing ECMAScript specification') if (! defined($spec));
 
   my $self  = {
-      _content => $grammar,
-      _grammar_option => {bless_package => $package, action_object  => sprintf('%s::%s', $package, 'Actions')},
-      _recce_option => {ranking_method => 'high_rule_only'},
+      _content => $class->make_content($spec, $grammar_content),
+      _grammar_option => $class->make_grammar_option($package, $spec, $grammar_content),
+      _recce_option => $class->make_recce_option,
       _strict => 0
   };
-  #
-  # Too painful to write MarpaX::Languages::ECMAScript::AST::Grammar::${spec}::CharacterClasses::IsSomething
-  # so I change it on-the-fly here
-  #
-  my $characterClass = "\\p{MarpaX::Languages::ECMAScript::AST::Grammar::${spec}::CharacterClasses::Is";
-  $self->{_content} =~ s/\\p\{Is/$characterClass/g;
-  $self->{_grammar_option}->{source} = \$self->{_content};
 
   bless($self, $class);
 
@@ -92,6 +85,29 @@ sub content {
     return $self->{_content};
 }
 
+=head2 make_content($class, $spec, $original_content)
+
+Class method that return the default content of the grammar writen for specification $spec and based on $original_content. Grammars in the ECMA script typically use Posix user-defined classes without the full classname; this method is making sure full classname is used.
+
+=cut
+
+sub make_content {
+    my ($class, $spec, $original_content) = @_;
+
+    #
+    # Too painful to write MarpaX::Languages::ECMAScript::AST::Grammar::${spec}::CharacterClasses::IsSomething
+    # so I change it on-the-fly here
+    #
+    if ($spec eq 'ECMAScript-262-5') {
+	$spec = 'ECMAScript_262_5';
+    }
+    my $characterClass = "\\p{MarpaX::Languages::ECMAScript::AST::Grammar::${spec}::CharacterClasses::Is";
+    my $content = $original_content;
+    $content =~ s/\\p\{Is/$characterClass/g;
+
+    return $content;
+}
+
 =head2 extract($self)
 
 Returns the part of the grammar that can be safely extracted and injected in another.
@@ -111,6 +127,18 @@ sub extract {
     }
 
     return $rc;
+}
+
+=head2 make_grammar_option($class, $package, $spec, $grammar_content)
+
+Class method that returns default grammar options for a given package $package, ECMA specification $spec, and grammar content $grammar_content. Default $package is the class name used for this call.
+
+=cut
+
+sub make_grammar_option {
+    my ($class, $package, $spec, $grammar_content) = @_;
+    $package //= $class;
+    return {bless_package => $class, action_object  => sprintf('%s::%s', $package, 'Actions'), source => \$class->make_content($spec, $grammar_content)};
 }
 
 =head2 grammar_option($self)
@@ -133,6 +161,17 @@ Returns recommended option for Marpa::R2::Scanless::R->new(), returned as a refe
 sub recce_option {
     my ($self) = @_;
     return $self->{_recce_option};
+}
+
+=head2 make_recce_option($class, $package)
+
+Class method that returns default recce options.
+
+=cut
+
+sub make_recce_option {
+    my ($class) = @_;
+    return {ranking_method => 'high_rule_only'};
 }
 
 =head2 parse($self, $source, [$optionsp], [$start], [$length])
@@ -171,7 +210,7 @@ Because of Automatic Semicolon Insertion that may happen at the end, a space is 
 
 =back
 
-This method must be called as a super method by grammar using this package as a parent. $self must be a reference to a grammar instantiated via MarpaX::Languages::ECMAScript::AST::Grammar. The callback code will always be called with: per-callback arguments, $source, $pos (i.e. current position), $max (i.e. max position), $impl (i.e. a MarpaX::Languages::ECMAScript::AST::Impl instance). The default and failure callbacks must always return the new position in the stream, and raise a MarpaX::Languages::ECMAScript::AST::Exception::SyntaxError exception if there is an error. In the 'end' and 'failure' callbacks, $pos is not meaningful: this is the last position where external scanning restarted. You might want to look to the getLastLexeme() method. Output of the 'end' callback is ignored.
+This method must be called as a super method by grammar using this package as a parent. $self must be a reference to a grammar instantiated via MarpaX::Languages::ECMAScript::AST::Grammar. The callback code will always be called with: per-callback arguments, $source, $pos (i.e. current position), $max (i.e. max position), $impl (i.e. a MarpaX::Languages::ECMAScript::AST::Impl instance). The default and failure callbacks must always return the new position in the stream, and raise a MarpaX::Languages::ECMAScript::AST::Exception::SyntaxError exception if there is an error. In the 'end' and 'failure' callbacks, $pos is not meaningful: this is the last position where external scanning restarted. You might want to look to the getLastLexeme() method. Output of the 'end' callback is ignored. Please note that this method explicitely creates a recognizer using $impl->make_R(), destroyed in case of error.
 
 =cut
 
@@ -185,17 +224,22 @@ sub _callback {
     my $callackErrorString = $@;
     my $line_columnp;
     eval {$line_columnp = lineAndCol($impl)};
+    my $context = _context($self, $impl);
+    #
+    # Now we can destroy the recognizer
+    #
+    $impl->destroy_R;
     if (! $@) {
       if (defined($originalErrorString) && $originalErrorString) {
-        SyntaxError(error => sprintf("%s\n%s\n\n%s%s", $originalErrorString, $callackErrorString, showLineAndCol(@{$line_columnp}, $source), _context($self, $impl)));
+        SyntaxError(error => sprintf("%s\n%s\n\n%s%s", $originalErrorString, $callackErrorString, showLineAndCol(@{$line_columnp}, $source), $context));
       } else {
-        SyntaxError(error => sprintf("%s\n\n%s%s", $callackErrorString, showLineAndCol(@{$line_columnp}, $source), _context($self, $impl)));
+        SyntaxError(error => sprintf("%s\n\n%s%s", $callackErrorString, showLineAndCol(@{$line_columnp}, $source), $context));
       }
     } else {
       if (defined($originalErrorString) && $originalErrorString) {
-        SyntaxError(error => sprintf("%s\n%s\n%s", $originalErrorString, $callackErrorString, _context($self, $impl)));
+        SyntaxError(error => sprintf("%s\n%s\n%s", $originalErrorString, $callackErrorString, $context));
       } else {
-        SyntaxError(error => sprintf("%s\n%s", $callackErrorString, _context($self, $impl)));
+        SyntaxError(error => sprintf("%s\n%s", $callackErrorString, $context));
       }
     }
   }
@@ -225,6 +269,9 @@ sub parse {
   # This will create a new instance of the string
   #
   if (! $keepOriginalSource) {
+      #
+      # Space for an eventual last and inserted semicolon
+      #
       $source .= ' ';
   }
 
@@ -233,8 +280,9 @@ sub parse {
   my $stop;
   my $newpos;
   #
-  # Space for an eventual last and inserted semicolon
+  # Create a recognizer
   #
+  $impl->make_R;
   #
   # Lexer can fail
   #
@@ -247,7 +295,9 @@ sub parse {
       $pos = _callback($self, $source, $pos, $max, $impl, $failurep, $@, @failureargs);
     } else {
       my $line_columnp = lineAndCol($impl);
-      SyntaxError(error => sprintf("%s\n\n%s%s", $@, showLineAndCol(@{$line_columnp}, $source), _context($self, $impl)));
+      my $context = _context($self, $impl);
+      $impl->destroy_R;
+      SyntaxError(error => sprintf("%s\n\n%s%s", $@, showLineAndCol(@{$line_columnp}, $source), $context));
     }
   } else {
     $pos = $newpos;
@@ -271,7 +321,9 @@ sub parse {
         $pos = _callback($self, $source, $pos, $max, $impl, $failurep, $@, @failureargs);
       } else {
         my $line_columnp = lineAndCol($impl);
-        SyntaxError(error => sprintf("%s\n\n%s%s", $@, showLineAndCol(@{$line_columnp}, $source), _context($self, $impl)));
+	my $context = _context($self, $impl);
+	$impl->destroy_R;
+        SyntaxError(error => sprintf("%s\n\n%s%s", $@, showLineAndCol(@{$line_columnp}, $source), $context));
       }
     } else {
       $pos = $newpos;
@@ -290,20 +342,24 @@ sub parse {
 
 =head2 value($self, $impl)
 
-Return the blessed value. $impl is the recognizer instance for the grammar. Will raise an InternalError exception if there is no parse tree value, or more than one parse tree value.
+Return the blessed value. $impl is the recognizer instance for the grammar. Will raise an InternalError exception if there is no parse tree value, or more than one parse tree value. Please note that this method explicity destroys the recognizer using $impl->destroy_R;
 
 =cut
 
 sub value {
   my ($self, $impl) = @_;
 
-  my $rc = $impl->value() || InternalError(error => sprintf('%s', _show_last_expression($self, $impl)));
+  my $rc = $impl->value() || do {$impl->destroy_R; InternalError(error => sprintf('%s', _show_last_expression($self, $impl)))};
   if (! defined($rc)) {
+      $impl->destroy_R;
       InternalError(error => 'Undefined parse tree value');
   }
   if (defined($impl->value())) {
+      $impl->destroy_R;
       InternalError(error => 'More than one parse tree value');
   }
+  $impl->destroy_R;
+
   return ${$rc};
 }
 
