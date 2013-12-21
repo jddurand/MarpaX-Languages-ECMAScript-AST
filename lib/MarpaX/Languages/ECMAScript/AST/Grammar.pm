@@ -81,7 +81,7 @@ A MarpaX::Languages::ECMAScript::AST::Impl object
 
 sub program {
     my ($self) = @_;
-    return $self->{_grammar}->program();
+    return $self->{_grammar}->program;
 }
 
 =head2 grammarAlias($self)
@@ -103,7 +103,18 @@ Returns the generic template associated to grammarName.
 
 sub template {
     my ($self) = @_;
-    return $self->{_grammar}->template();
+    return $self->{_grammar}->template;
+}
+
+=head2 stringNumericLiteral($self)
+
+Returns the generic stringNumericLiteral associated to grammarName.
+
+=cut
+
+sub stringNumericLiteral {
+    my ($self) = @_;
+    return $self->{_grammar}->stringNumericLiteral;
 }
 
 =head1 SEE ALSO

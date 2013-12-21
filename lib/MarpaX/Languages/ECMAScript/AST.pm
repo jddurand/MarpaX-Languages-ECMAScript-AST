@@ -307,6 +307,20 @@ sub template {
   return $self->{_grammar}->template;
 }
 
+# ----------------------------------------------------------------------------------------
+
+=head2 stringNumericLiteral($self)
+
+Return the generic stringNumericLiteral for this grammar.
+
+=cut
+
+sub stringNumericLiteral {
+  my ($self) = @_;
+
+  return $self->{_grammar}->stringNumericLiteral;
+}
+
 =head1 SEE ALSO
 
 L<Log::Any>, L<Marpa::R2>, L<Digest::MD4>, L<CHI::Driver::File>
