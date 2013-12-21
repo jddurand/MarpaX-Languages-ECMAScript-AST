@@ -18,9 +18,9 @@ Generated generic template.
 
 =head1 SUBROUTINES/METHODS
 
-=head2 new($class, %options)
+=head2 new($class, $optionsp)
 
-Instantiate a new object.  Takes as optional argument a hash that may contain the following key/values:
+Instantiate a new object.  Takes as optional argument a reference to a hash that may contain the following key/values:
 
 =over
 
@@ -45,14 +45,16 @@ Lexeme callback arguments (ARRAY ref). The lexeme callback is called like: &$lex
 =cut
 
 sub new {
-    my ($class, %options) = @_;
+    my ($class, $optionsp) = @_;
+
+    $optionsp //= {};
 
     my $self = {
                 _nindent            => 0,
-                _g1Callback         => $options{g1Callback}         || sub { return 1; },
-                _g1CallbackArgs     => $options{g1CallbackArgs}     || [],
-                _lexemeCallback     => $options{lexemeCallback}     || sub { return 0; },
-                _lexemeCallbackArgs => $options{lexemeCallbackArgs} || []
+                _g1Callback         => exists($optionsp->{g1Callback})         ? $optionsp->{g1Callback}         : sub { return 1; },
+                _g1CallbackArgs     => exists($optionsp->{g1CallbackArgs})     ? $optionsp->{g1CallbackArgs}     : [],
+                _lexemeCallback     => exists($optionsp->{lexemeCallback})     ? $optionsp->{lexemeCallback}     : sub { return 0; },
+                _lexemeCallbackArgs => exists($optionsp->{lexemeCallbackArgs}) ? $optionsp->{lexemeCallbackArgs} : []
                };
     bless($self, $class);
     return $self;
