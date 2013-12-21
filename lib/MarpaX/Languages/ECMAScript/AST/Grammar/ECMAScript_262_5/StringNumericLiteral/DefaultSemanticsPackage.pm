@@ -1,7 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringNumericLiteral::DefaultSemanticsPackage;
+package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::DefaultSemanticsPackage;
 
 # ABSTRACT: ECMAScript 262, Edition 5, lexical string numeric grammar default semantics package
 
@@ -52,6 +52,7 @@ sub sign {
     if ($sign eq '-') {
 	$self->{_number} *= -1;
     }
+    $self->{_number};
 }
 
 =cut
@@ -64,9 +65,20 @@ Round $self.
 
 sub round {
     my ($self) = @_;
-    return;
+    $self->{_number};
 }
 
+=cut
 
+=head2 pzero($self)
+
+Positive zero.
+
+=cut
+
+sub pzero {
+    my ($self) = @_;
+    $self->{_number} = 0;
+}
 
 1;
