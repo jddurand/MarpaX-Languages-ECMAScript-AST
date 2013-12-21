@@ -78,7 +78,7 @@ sub new {
     my $class = shift;
     my $semantics_package = shift;
 
-    $semantics_package //= 'MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringNumericLiteral::DefaultSemanticsPackage';
+    $semantics_package //= __PACKAGE__ . '::DefaultSemanticsPackage';
 
     my $self = $class->SUPER($grammar_source, __PACKAGE__);
 
