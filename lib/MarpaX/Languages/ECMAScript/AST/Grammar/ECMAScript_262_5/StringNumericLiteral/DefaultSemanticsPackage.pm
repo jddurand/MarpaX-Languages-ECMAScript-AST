@@ -36,7 +36,7 @@ Multiply $self by $objmul.
 
 sub mul {
     my ($self, $objmul) = @_;
-    $self->{_number} *= $obj->{_number};
+    $self->{_number} *= $objmul->{_number};
 }
 
 =cut
