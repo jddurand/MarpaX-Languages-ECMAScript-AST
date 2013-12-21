@@ -4,7 +4,7 @@ use warnings FATAL => 'all';
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral;
 use parent qw/MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base/;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::Singleton;
-use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::Actions;
+use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::DefaultSemanticsPackage;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses;
 use SUPER;
 use Carp qw/croak/;
@@ -32,7 +32,7 @@ This modules returns describes the ECMAScript 262, Edition 5 string numeric lite
 =cut
 
 #
-# Note that this grammar is NOT supposed to injected in Program
+# Note that this grammar is NOT supposed to be injected in Program
 #
 our $grammar_source = do {local $/; <DATA>};
 
@@ -48,7 +48,13 @@ our $singleton = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::
 
 =head1 SUBROUTINES/METHODS
 
-=head2 new($semantics_package)
+=head2 new($optionsp)
+
+$optionsp is a reference to hash that may contain the following key/value pair:
+
+=over
+
+=item semantics_package
 
 As per Marpa::R2, The semantics package is used when resolving action names to fully qualified Perl names. This package must support the following methods:
 
@@ -70,15 +76,22 @@ Set the sign of host number. Sign can be '+' or '-'.
 
 Rounding.
 
+=item $obj->pzero()
+
+Positive zero.
+
+=back
+
 =back
 
 =cut
 
 sub new {
-    my $class = shift;
-    my $semantics_package = shift;
+    my ($class, $optionsp) = @_;
 
-    $semantics_package //= __PACKAGE__ . '::DefaultSemanticsPackage';
+    $optionsp //= {};
+
+    my $semantics_package = exists($optionsp->{semantics_package}) ? $optionsp->{semantics_package} : __PACKAGE__ . '::DefaultSemanticsPackage';
 
     my $self = $class->SUPER($grammar_source, __PACKAGE__);
 
@@ -90,7 +103,7 @@ sub new {
     return $self;
 }
 
-=head2 recce_option($class, $package)
+=head2 recce_option($self, $package)
 
 Returns recce options.
 
@@ -103,6 +116,21 @@ sub recce_option {
     $recce_option->{semantics_package} = $self->{_semantics_package};
 
     return $recce_option;
+}
+
+=head2 make_grammar_option($class, $package)
+
+Returns default grammar options.
+
+=cut
+
+sub make_grammar_option {
+    my ($class) = @_;
+    my $grammar_option = super();
+    
+    delete($grammar_option->{action_object});
+
+    return $grammar_option;
 }
 
 =head2 G()
@@ -128,7 +156,7 @@ __DATA__
 # ================================================
 #
 :start ::= StringNumericLiteral
-:default ::= action => ::first
+:default ::= action => [values] bless => ::lhs
 
 StrWhiteSpaceopt ::= StrWhiteSpace
 StrWhiteSpaceopt ::=
