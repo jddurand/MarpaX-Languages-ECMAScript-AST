@@ -90,7 +90,8 @@ Creates a Marpa::R2::Scanless::R recognizer object and store it together with th
 =cut
 
 sub make_R {
-    $_[0]->{recce} = Marpa::R2::Scanless::R->new($_[0]->{_recceOptionsHashp});
+    my %recceOptionsHash = %{$_[0]->{_recceOptionsHashp}};
+    $_[0]->{recce} = Marpa::R2::Scanless::R->new(\%recceOptionsHash);
 }
 
 =head2 destroy_R($self)
