@@ -58,7 +58,12 @@ sub new {
   my ($class, $grammarOptionsHashp, $recceOptionsHashp, $cachedG, $noR) = @_;
 
   my $self  = {};
-  $self->{grammar} = $cachedG || Marpa::R2::Scanless::G->new($grammarOptionsHashp);
+  if ($cachedG) {
+      $self->{grammar} = $cachedG;
+  } else {
+      my %grammarOptionsHash = %{$grammarOptionsHashp};
+      $self->{grammar} = $cachedG || Marpa::R2::Scanless::G->new(\%grammarOptionsHash);
+  }
 
   $noR //= 0;
   if (defined($recceOptionsHashp)) {
