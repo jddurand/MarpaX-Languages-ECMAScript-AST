@@ -211,13 +211,12 @@ __DATA__
 # ================================================
 #
 :start ::= StringNumericLiteral
-:default ::= action => [values]
 
 StrWhiteSpaceopt ::= StrWhiteSpace
 StrWhiteSpaceopt ::=
 
-StringNumericLiteral ::=                                   action => value
-StringNumericLiteral ::= StrWhiteSpace                     action => value
+StringNumericLiteral ::=                                   action => pos_zero
+StringNumericLiteral ::= StrWhiteSpace                     action => pos_zero
 StringNumericLiteral ::= 
     StrWhiteSpaceopt StrNumericLiteral StrWhiteSpaceopt    action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_secondArg
 
@@ -234,8 +233,8 @@ StrNumericLiteral ::=
 
 StrDecimalLiteral ::=
     StrUnsignedDecimalLiteral                              action => ::first
-  | '+' StrUnsignedDecimalLiteral                          action => ::first
-  | '-' StrUnsignedDecimalLiteral                          action => neg
+  | '+' StrUnsignedDecimalLiteral                          action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_secondArg
+  | '-' StrUnsignedDecimalLiteral                          action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_neg
 
 StrUnsignedDecimalLiteral ::=
     'Infinity'                                             action => pos_infinity
