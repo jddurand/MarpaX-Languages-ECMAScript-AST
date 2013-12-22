@@ -57,13 +57,7 @@ Instantiate a new object. Takes as parameter two references to hashes: the gramm
 sub new {
   my ($class, $grammarOptionsHashp, $recceOptionsHashp, $cachedG, $noR) = @_;
 
-  my $self  = {};
-  if ($cachedG) {
-      $self->{grammar} = $cachedG;
-  } else {
-      my %grammarOptionsHash = %{$grammarOptionsHashp};
-      $self->{grammar} = $cachedG || Marpa::R2::Scanless::G->new(\%grammarOptionsHash);
-  }
+  my $self->{grammar} = $cachedG || Marpa::R2::Scanless::G->new($grammarOptionsHashp);
 
   $noR //= 0;
   if (defined($recceOptionsHashp)) {
@@ -95,8 +89,7 @@ Creates a Marpa::R2::Scanless::R recognizer object and store it together with th
 =cut
 
 sub make_R {
-    my %recceOptionsHash = %{$_[0]->{_recceOptionsHashp}};
-    $_[0]->{recce} = Marpa::R2::Scanless::R->new(\%recceOptionsHash);
+    $_[0]->{recce} = Marpa::R2::Scanless::R->new($_[0]->{_recceOptionsHashp});
 }
 
 =head2 destroy_R($self)

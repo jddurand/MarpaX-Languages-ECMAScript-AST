@@ -8,6 +8,7 @@ use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumeric
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses;
 use SUPER;
 use Carp qw/croak/;
+use Scalar::Util qw/blessed/;
 
 # ABSTRACT: ECMAScript-262, Edition 5, string numeric literal grammar written in Marpa BNF
 
@@ -56,31 +57,7 @@ $optionsp is a reference to hash that may contain the following key/value pair:
 
 =item semantics_package
 
-As per Marpa::R2, The semantics package is used when resolving action names to fully qualified Perl names. This package must support the following methods:
-
-=over
-
-=item new($string)
-
-creates an instance of how the host represent the number quoted in $string. Instance is represented as $obj in the next sections. String is guaranteed to be one of '0'...'15', or 'Infinity'. No notion of sign here, the host can assume we always mean a positive value.
-
-=item $obj->mul($objmul)
-
-$obj * $objmul.
-
-=item $obj->sign($sign)
-
-Set the sign of host number. Sign can be '+' or '-'.
-
-=item $obj->round()
-
-Rounding.
-
-=item $obj->pzero()
-
-Positive zero.
-
-=back
+As per Marpa::R2, The semantics package is used when resolving action names to fully qualified Perl names. This package must support and behave as documented in the DefaultSemanticsPackage (c.f. SEE ALSO).
 
 =back
 
@@ -145,9 +122,87 @@ sub G {
 
 =head1 SEE ALSO
 
+L<Data::Float>
+
 L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base>
 
+L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::DefaultSemanticsPackage>
+
 =cut
+
+sub _secondArg {
+    return $_[2];
+}
+
+#
+# Note that HexIntegerLiteral output is a HexDigit modified
+#
+sub _HexIntegerLiteral_HexDigit {
+    my $sixteen = blessed($_[0])->new->positive_int("16");
+
+    return $_[1]->mul($sixteen)->add($_[2]);
+}
+
+#
+# Note that DecimalDigits output is a DecimalDigit modified
+#
+sub _DecimalDigits_DecimalDigit {
+    my $ten = blessed($_[0])->new->positive_int("10");
+    $_[1]->length($_[1]->length + 1);
+    return $_[1]->mul($ten)->add($_[2]);
+}
+
+sub _Dot_DecimalDigits_ExponentPart {
+    my $n = blessed($_[0])->new->positive_int($_[2]->length);
+    my $tenpowexponentminusn = blessed($_[0])->new->pow($_[3]->sub($n));
+
+    return $_[2]->mul($tenpowexponentminusn);
+}
+
+sub _DecimalDigits_Dot_DecimalDigits_ExponentPart {
+    #
+    # Done using polish logic -;
+    #
+    return $_[1]->add(
+	_DecimalDigits_ExponentPart(
+	    $_[0],
+	    _Dot_DecimalDigits($_[0], '.', $_[3]),
+	    $_[4])
+	);
+}
+
+sub _DecimalDigits_Dot_ExponentPart {
+    my $tenpowexponent = blessed($_[0])->new->pow($_[3]);
+    return $_[1]->mul($tenpowexponent);
+}
+
+sub _DecimalDigits_Dot_DecimalDigits {
+    return $_[1]->add(_Dot_DecimalDigits($_[0], '.', $_[3]));
+}
+
+sub _Dot_DecimalDigits {
+    my $n = blessed($_[0])->new->positive_int($_[2]->length);
+    my $tenpowminusn = blessed($_[0])->new->pow($n->neg);
+    return $_[2]->mul($tenpowminusn);
+}
+
+sub _DecimalDigits_ExponentPart {
+    my $tenpowexponent = blessed($_[0])->new->pow($_[2]);
+
+    return $_[1]->mul($tenpowexponent);
+}
+
+sub _HexDigit {
+    return blessed($_[0])->new->positive_hex("$_[1]");
+}
+
+sub _DecimalDigit {
+    return blessed($_[0])->new->positive_int("$_[1]");
+}
+
+sub _neg {
+    $_[2]->neg();
+}
 
 1;
 __DATA__
@@ -156,65 +211,65 @@ __DATA__
 # ================================================
 #
 :start ::= StringNumericLiteral
-:default ::= action => [values] bless => ::lhs
+:default ::= action => [values]
 
 StrWhiteSpaceopt ::= StrWhiteSpace
 StrWhiteSpaceopt ::=
 
-StringNumericLiteral ::=
-    StrWhiteSpaceopt
-  | StrWhiteSpaceopt StrNumericLiteral StrWhiteSpaceopt
+StringNumericLiteral ::=                                   action => value
+StringNumericLiteral ::= StrWhiteSpace                     action => value
+StringNumericLiteral ::= 
+    StrWhiteSpaceopt StrNumericLiteral StrWhiteSpaceopt    action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_secondArg
 
 StrWhiteSpace ::=
-  StrWhiteSpaceChar StrWhiteSpaceopt
+  StrWhiteSpaceChar StrWhiteSpaceopt                       action => ::undef
 
 StrWhiteSpaceChar ::=
-    _WhiteSpace
-  | _LineTerminator
+    _WhiteSpace                                            action => ::undef
+  | _LineTerminator                                        action => ::undef
 
 StrNumericLiteral ::=
-    StrDecimalLiteral
-  | HexIntegerLiteral
+    StrDecimalLiteral                                      action => ::first
+  | HexIntegerLiteral                                      action => ::first
 
 StrDecimalLiteral ::=
-    StrUnsignedDecimalLiteral
-  | '+' StrUnsignedDecimalLiteral
-  | '-' StrUnsignedDecimalLiteral
+    StrUnsignedDecimalLiteral                              action => ::first
+  | '+' StrUnsignedDecimalLiteral                          action => ::first
+  | '-' StrUnsignedDecimalLiteral                          action => neg
 
 StrUnsignedDecimalLiteral ::=
-    'Infinity'
-  | DecimalDigits '.' DecimalDigitsopt ExponentPartopt
-  | '.' DecimalDigits ExponentPartopt
-  | DecimalDigits ExponentPartopt
-
-DecimalDigitsopt ::= DecimalDigits
-DecimalDigitsopt ::=
+    'Infinity'                                             action => pos_infinity
+  | DecimalDigits '.'                                      action => ::first
+  | DecimalDigits '.' DecimalDigits                        action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_DecimalDigits_Dot_DecimalDigits
+  | DecimalDigits '.' ExponentPart                         action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_DecimalDigits_Dot_ExponentPart
+  | DecimalDigits '.' DecimalDigits ExponentPart           action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_DecimalDigits_Dot_DecimalDigits_ExponentPart
+  | '.' DecimalDigits                                      action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_Dot_DecimalDigits
+  | '.' DecimalDigits ExponentPart                         action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_Dot_DecimalDigits_ExponentPart
+  | DecimalDigits                                          action => ::first
+  | DecimalDigits ExponentPart                             action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_DecimalDigits_ExponentPart
 
 DecimalDigits ::=
-    DecimalDigit
-  | DecimalDigits DecimalDigit
+    DecimalDigit                                           action => ::first
+  | DecimalDigits DecimalDigit                             action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_DecimalDigits_DecimalDigit
 
-DecimalDigit ::= _DecimalDigit
-
-ExponentPartopt ::= ExponentPart
-ExponentPartopt ::=
+DecimalDigit ::= _DecimalDigit                             action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_DecimalDigit
 
 ExponentPart ::=
-  ExponentIndicator SignedInteger
+  ExponentIndicator SignedInteger                          action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_secondArg
 
-ExponentIndicator ::= _ExponentIndicator
+ExponentIndicator ::= _ExponentIndicator                   action => ::first
 
 SignedInteger ::=
-    DecimalDigits
-  | '+' DecimalDigits
-  | '-' DecimalDigits
+    DecimalDigits                                          action => ::first
+  | '+' DecimalDigits                                      action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_secondArg
+  | '-' DecimalDigits                                      action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_neg
 
 HexIntegerLiteral ::=
-    '0x' HexDigit
-  | '0X' HexDigit
-  | HexIntegerLiteral HexDigit
+    '0x' HexDigit                                          action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_secondArg
+  | '0X' HexDigit                                          action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_secondArg
+  | HexIntegerLiteral HexDigit                             action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_HexIntegerLiteral_HexDigit
 
-HexDigit ::= _HexDigit
+HexDigit ::= _HexDigit                                     action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_HexDigit
 
 _WhiteSpace        ~ [\p{IsWhiteSpace}]
 _LineTerminator    ~ [\p{IsLineTerminator}]

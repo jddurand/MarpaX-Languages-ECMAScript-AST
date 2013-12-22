@@ -2,6 +2,7 @@
 use strict;
 use warnings FATAL => 'all';
 use Test::More;
+use Data::Float qw//;
 
 BEGIN {
     use_ok( 'MarpaX::Languages::ECMAScript::AST' ) || print "Bail out!\n";
@@ -9,10 +10,34 @@ BEGIN {
 
 my $ecmaAst = MarpaX::Languages::ECMAScript::AST->new();
 my $stringNumericLiteral = $ecmaAst->stringNumericLiteral;
-my $parse = $stringNumericLiteral->{grammar}->parse(" 1.0 ",
-						  $stringNumericLiteral->{impl});
-my $value = $stringNumericLiteral->{grammar}->value($stringNumericLiteral->{impl});
-use Data::Dumper;
-print STDERR Dumper($value);
 
-done_testing(1);
+my %DATA = (
+    'ff'         => sub {ok(Data::Float::float_is_nan(shift))},
+    '09'         => sub {is(shift, 9)},
+    '123.85'     => sub {is(shift, 123.85)},
+    '0123.85'    => sub {is(shift, 123.85)},
+    '0123.085'   => sub {is(shift, 123.085)},
+    '0123.0850'  => sub {is(shift, 123.0850)},
+    '$123.85'    => sub {ok(Data::Float::float_is_nan(shift))},
+    'three'      => sub {ok(Data::Float::float_is_nan(shift))},
+    '0xFF'       => sub {is(shift, 255)},
+    '3.14'       => sub {is(shift, 3.14)},
+    '0.0314E+02' => sub {is(shift, 3.14)},
+    '.0314E+02'  => sub {is(shift, 3.14)},
+    '314.E-2'    => sub {is(shift, 3.14)},
+    '314.E-0002' => sub {is(shift, 3.14)},
+    '00314.E-02' => sub {is(shift, 3.14)},
+    " 1.0 " => sub {is(shift, 1)},
+    );
+foreach (keys %DATA) {
+    my $value;
+    eval{
+	my $parse = $stringNumericLiteral->{grammar}->parse("$_",
+							    $stringNumericLiteral->{impl});
+	$value = $stringNumericLiteral->{grammar}->value($stringNumericLiteral->{impl});
+    };
+    $value = $@ ? Data::Float::nan : $value->value;
+    $DATA{$_}($value);
+}
+
+done_testing(1 + scalar(keys %DATA));
