@@ -14,6 +14,10 @@ my $stringNumericLiteral = $ecmaAst->stringNumericLiteral;
 my %DATA = (
     'ff'         => sub {ok(Data::Float::float_is_nan(shift))},
     '09'         => sub {is(shift, 9)},
+    '+09'        => sub {is(shift, 9)},
+    '-000000009' => sub {is(shift, -9)},
+    '          ' => sub {ok(Data::Float::float_is_zero(shift))},
+    "    \n    " => sub {ok(Data::Float::float_is_zero(shift))},
     '123.85'     => sub {is(shift, 123.85)},
     '0123.85'    => sub {is(shift, 123.85)},
     '0123.085'   => sub {is(shift, 123.085)},
@@ -27,16 +31,21 @@ my %DATA = (
     '314.E-2'    => sub {is(shift, 3.14)},
     '314.E-0002' => sub {is(shift, 3.14)},
     '00314.E-02' => sub {is(shift, 3.14)},
-    " 1.0 " => sub {is(shift, 1)},
+    " 1.0 "      => sub {is(shift, 1)},
+    ""           => sub {ok(Data::Float::float_is_zero(shift))},
     );
 foreach (keys %DATA) {
     my $value;
-    eval{
-	my $parse = $stringNumericLiteral->{grammar}->parse("$_",
-							    $stringNumericLiteral->{impl});
-	$value = $stringNumericLiteral->{grammar}->value($stringNumericLiteral->{impl});
-    };
-    $value = $@ ? Data::Float::nan : $value->value;
+    if (length("$_") <= 0) {
+	$value = Data::Float::pos_zero;
+    } else {
+	eval{
+	    my $parse = $stringNumericLiteral->{grammar}->parse("$_",
+								$stringNumericLiteral->{impl});
+	    $value = $stringNumericLiteral->{grammar}->value($stringNumericLiteral->{impl});
+	};
+	$value = $@ ? Data::Float::nan : $value->value;
+    }
     $DATA{$_}($value);
 }
 
