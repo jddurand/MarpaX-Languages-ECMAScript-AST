@@ -20,7 +20,7 @@ Generated generic template.
 
 =head2 new($class, $optionsp)
 
-Instantiate a new object.  Takes as optional argument a reference to a hash that may contain the following key/values:
+Instantiate a new object. Takes as optional argument a reference to a hash that may contain the following key/values:
 
 =over
 
