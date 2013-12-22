@@ -27,9 +27,9 @@ This modules returns all grammars needed for the ECMAScript 262, Edition 5 gramm
 
 =head1 SUBROUTINES/METHODS
 
-=head2 new($class, $optionsp)
+=head2 new($class, %opts)
 
-Instance a new object.Takes as optional argument a reference to a hash that may contain the following key/values:
+Instance a new object.Takes as optional argument a a hash that may contain the following key/values:
 
 =over
 
@@ -74,21 +74,19 @@ Semantic package providing host implementation of a Number.
 =cut
 
 sub new {
-  my ($class, $optionsp) = @_;
+  my ($class, %opts) = @_;
 
   my $self  = {};
 
   bless($self, $class);
 
-  $self->_init($optionsp);
+  $self->_init(%opts);
 
   return $self;
 }
 
 sub _init {
-    my ($self, $optionsp) = @_;
-
-    $optionsp //= {};
+    my ($self, %opts) = @_;
 
     my $program = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program->new();
     $self->{_program} = {
@@ -96,14 +94,14 @@ sub _init {
 	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($program->grammar_option(), $program->recce_option(), $program->G, 1)
     };
 
-    my $stringNumericLiteralOptionsp = exists($optionsp->{StringNumericLiteral}) ? $optionsp->{StringNumericLiteral} : undef;
+    my $stringNumericLiteralOptionsp = exists($opts{StringNumericLiteral}) ? $opts{StringNumericLiteral} : undef;
     my $stringNumericLiteral = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral->new($stringNumericLiteralOptionsp);
     $self->{_stringNumericLiteral} = {
 	grammar => $stringNumericLiteral,
 	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($stringNumericLiteral->grammar_option(), $stringNumericLiteral->recce_option(), $stringNumericLiteral->G, 1)
     };
 
-    my $templateOptionsp = exists($optionsp->{Template}) ? $optionsp->{Template} : undef;
+    my $templateOptionsp = exists($opts{Template}) ? $opts{Template} : undef;
     $self->{_template} = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Template->new($templateOptionsp);
 
 }
