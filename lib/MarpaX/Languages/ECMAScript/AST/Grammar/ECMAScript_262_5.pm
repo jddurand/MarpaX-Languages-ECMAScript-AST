@@ -29,7 +29,7 @@ This modules returns all grammars needed for the ECMAScript 262, Edition 5 gramm
 
 =head2 new($class, %opts)
 
-Instance a new object.Takes as optional argument a a hash that may contain the following key/values:
+Instance a new object. Takes as optional argument a hash that may contain the following key/values:
 
 =over
 
@@ -57,7 +57,7 @@ Lexeme callback arguments (ARRAY ref). The lexeme callback is called like: &$lex
 
 =back
 
-=over StringNumericLiteral
+=item StringNumericLiteral
 
 Reference to hash containing options for MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral. These options can be:
 
