@@ -236,19 +236,19 @@ IdentityEscape ::=
        [\p[IsIdentityEscape}]
 
 DecimalEscape ::=
-    _DecimalIntegerLiteral # Lookahead not in decimal digit is automatic
+    DecimalIntegerLiteral # Lookahead not in decimal digit is automatic
 
-_DecimalIntegerLiteral ~
+DecimalIntegerLiteral ::=
     '0'
-  | __NonZeroDigit
-  | __NonZeroDigit _DecimalDigits
+  | _NonZeroDigit
+  | _NonZeroDigit DecimalDigits
 
-_DecimalDigits ~
-    __DecimalDigit
-  | _DecimalDigits __DecimalDigit
+DecimalDigits ::=
+    _DecimalDigit
+  | DecimalDigits _DecimalDigit
 
-__NonZeroDigit      ~ [\p{IsNonZeroDigit}]
-__DecimalDigit      ~ [\p{IsDecimalDigit}]
+_NonZeroDigit      ~ [\p{IsNonZeroDigit}]
+_DecimalDigit      ~ [\p{IsDecimalDigit}]
 
 CharacterClassEscape ::=
       [dDsSwW]
@@ -267,12 +267,12 @@ NonemptyClassRanges ::=
     | ClassAtom '-' ClassAtom ClassRanges
 
 NonemptyClassRangesNoDash ::=
-    |  ClassAtom
+      ClassAtom
     | ClassAtomNoDash NonemptyClassRangesNoDash
     | ClassAtomNoDash '-' ClassAtom ClassRanges
 
 ClassAtom ::=
-    | '-'
+      '-'
     | ClassAtomNoDash
 
 ClassAtomNoDash ::=
@@ -281,6 +281,13 @@ ClassAtomNoDash ::=
 
 ClassEscape ::=
       DecimalEscape
-    | b
+    | 'b'
     | CharacterEscape
     | CharacterClassEscape
+
+HexEscapeSequence ::= 'x' _HexDigit _HexDigit
+
+UnicodeEscapeSequence ::= 'u' _HexDigit _HexDigit _HexDigit _HexDigit
+
+_HexDigit              ~ [\p{IsHexDigit}]
+
