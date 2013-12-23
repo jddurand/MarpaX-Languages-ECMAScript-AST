@@ -39,6 +39,7 @@ IsExponentIndicator
 Isf
 IsFF
 IsHexDigit
+IsIdentityEscape
 IsLbracket
 IsLcurly
 IsLF
@@ -83,6 +84,7 @@ IsStar
 Ist
 IsTAB
 Isu
+IsUnderscore
 IsUnicodeCombiningMark
 IsUnicodeConnectorPunctuation
 IsUnicodeDigit
@@ -131,6 +133,7 @@ our $LCURLY          = sprintf('%x', ord('{'));
 our $RCURLY          = sprintf('%x', ord('}'));
 our $CARET           = sprintf('%x', ord('^'));
 our $DOLLAR          = sprintf('%x', ord('$'));
+our $UNDERSCORE      = sprintf('%x', ord('_'));
 our $DOT             = sprintf('%x', ord('.'));
 our $PLUS            = sprintf('%x', ord('+'));
 our $QUESTION_MARK   = sprintf('%x', ord('?'));
@@ -563,6 +566,23 @@ $a\t$f
 END
 }
 
+=head2 IsIdentityEscape()
+
+=cut
+
+sub IsIdentityEscape { return <<END;
++MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsSourceCharacter
+-MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsUnicodeLetter
+-MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsDollar
+-MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsUnderscore
+-MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsUnicodeCombiningMark
+-MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsUnicodeDigit
+-MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsUnicodeConnectorPunctuation
++MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsZWNJ
++MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsZWJ
+END
+}
+
 =head2 IsExponentIndicator()
 
 =cut
@@ -625,6 +645,15 @@ END
 
 sub Isu { return <<END;
 $u
+END
+}
+
+=head2 IsUnderscore()
+
+=cut
+
+sub IsUnderscore { return <<END;
+$UNDERSCORE
 END
 }
 
