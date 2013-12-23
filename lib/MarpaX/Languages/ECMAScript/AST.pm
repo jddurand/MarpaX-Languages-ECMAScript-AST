@@ -81,6 +81,22 @@ Name of a grammar. Default is 'ECMAScript-262-5'.
 
 Produced AST can be cached: very often the same ECMAScript is used again and again, so there is no need to always compute it at each call. The cache key is the buffer MD4 checksum, eventual collisions being handled. The cache location is the my_dist_data directory provided by File::HomeDir package. Default is a false value.
 
+=item ANYTHINGELSE
+
+Any other option that will be specific to the ECMAScript specific implementation. In practice these are:
+
+=over
+
+=item Template
+
+Reference to a hash for template options. C.f. per-ECMAScript documentation.
+
+=item StringNumericLiteral
+
+Reference to a hash for StringNumericLiteral grammar options. C.f. per-ECMAScript documentation.
+
+=back
+
 =back
 
 =cut
@@ -323,7 +339,15 @@ sub stringNumericLiteral {
 
 =head1 SEE ALSO
 
-L<Log::Any>, L<Marpa::R2>, L<Digest::MD4>, L<CHI::Driver::File>
+L<Log::Any>
+
+L<Marpa::R2>
+
+L<Digest::MD4>
+
+L<CHI::Driver::File>
+
+L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5>
 
 =cut
 
