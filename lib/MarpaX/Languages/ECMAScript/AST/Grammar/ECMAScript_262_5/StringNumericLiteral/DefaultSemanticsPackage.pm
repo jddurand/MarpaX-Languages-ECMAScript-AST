@@ -144,17 +144,6 @@ sub sub {
     return $_[0];
 }
 
-=head2 copy($self, $orig)
-
-Copy the value of $orig in $self. Returns $self.
-
-=cut
-
-sub set {
-    $_[0]->{_number} = $_[1]->{_number};
-    return $_[0];
-}
-
 =head2 value($self, $host_value?)
 
 Getter/setter of host value in $self. Returns host value.
