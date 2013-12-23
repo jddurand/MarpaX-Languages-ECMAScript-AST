@@ -166,7 +166,7 @@ sub stringNumericLiteral {
     return $self->{_stringNumericLiteral};
 }
 
-=head 1 SEE ALSO
+=head1 SEE ALSO
 
 L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral>
 

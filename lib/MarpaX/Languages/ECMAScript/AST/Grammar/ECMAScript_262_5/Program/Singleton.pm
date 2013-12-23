@@ -20,6 +20,14 @@ sub _new_instance {
     return $self;
 }
 
+=head1 SUBROUTINES/METHODS
+
+=head2 G()
+
+Return cached grammar.
+
+=cut
+
 sub G {
     my ($self) = @_;
     return $self->{_G};
