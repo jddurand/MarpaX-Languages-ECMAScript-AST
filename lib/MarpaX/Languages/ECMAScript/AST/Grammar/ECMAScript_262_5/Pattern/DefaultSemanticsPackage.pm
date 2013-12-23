@@ -1,36 +1,26 @@
 use strict;
 use warnings FATAL => 'all';
 
-package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::Singleton;
-use base 'Class::Singleton';
+package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::DefaultSemanticsPackage;
 
-# ABSTRACT: ECMAScript-262, Edition 5, singleton for pattern grammar
+# ABSTRACT: ECMAScript 262, Edition 5, pattern grammar default semantics package
 
 # VERSION
 
 =head1 DESCRIPTION
 
-This modules is a singleton used for caching the compiled Marpa grammar of a Program LHS, as per ECMAScript 262, Edition 5.
+This modules provide a default semantics package for the actions associated to ECMAScript_262_5 lexical string numeric grammar.
 
 =cut
 
-sub _new_instance {
-    my ($class, $G) = @_;
-    my $self  = bless {_G => $G }, $class;
-    return $self;
-}
+=head2 new($class)
 
-=head1 SUBROUTINES/METHODS
-
-=head2 G()
-
-Return cached grammar.
+Instantiate a new object.
 
 =cut
 
-sub G {
-    my ($self) = @_;
-    return $self->{_G};
+sub new {
+    return bless({}, $_[0]);
 }
 
 1;
