@@ -5,6 +5,7 @@ package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5;
 use MarpaX::Languages::ECMAScript::AST::Impl;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral;
+use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Template;
 
 # ABSTRACT: ECMAScript-262, Edition 5, grammar
@@ -69,6 +70,18 @@ Semantic package providing host implementation of a Number.
 
 =back
 
+=item Pattern
+
+Reference to hash containing options for MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern. These options can be:
+
+=over
+
+=item semantics_package
+
+Semantic package providing host implementation of a Pattern.
+
+=back
+
 =back
 
 =cut
@@ -99,6 +112,13 @@ sub _init {
     $self->{_stringNumericLiteral} = {
 	grammar => $stringNumericLiteral,
 	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($stringNumericLiteral->grammar_option(), $stringNumericLiteral->recce_option(), $stringNumericLiteral->G, 1)
+    };
+
+    my $patternOptionsp = exists($opts{Pattern}) ? $opts{Pattern} : undef;
+    my $pattern = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern->new($patternOptionsp);
+    $self->{_pattern} = {
+	grammar => $pattern,
+	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($pattern->grammar_option(), $pattern->recce_option(), $pattern->G, 1)
     };
 
     my $templateOptionsp = exists($opts{Template}) ? $opts{Template} : undef;
@@ -166,9 +186,35 @@ sub stringNumericLiteral {
     return $self->{_stringNumericLiteral};
 }
 
+=head2 pattern()
+
+Returns the Pattern grammar as a hash reference that is
+
+=over
+
+=item grammar
+
+A MarpaX::Languages::ECMAScript::AST::Grammar::Base object
+
+=item impl
+
+A MarpaX::Languages::ECMAScript::AST::Impl object
+
+=back
+
+=cut
+
+sub pattern {
+    my ($self) = @_;
+
+    return $self->{_pattern};
+}
+
 =head1 SEE ALSO
 
 L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral>
+
+L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern>
 
 L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Template>
 
