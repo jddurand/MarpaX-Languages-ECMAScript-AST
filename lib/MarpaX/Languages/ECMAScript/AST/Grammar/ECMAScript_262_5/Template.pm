@@ -1409,7 +1409,7 @@ sub G1_49 {
 
 =head2 G1_50($self, $value, $index)
 
-Transpilation of G1 rule No 50, i.e. PostfixExpression ::= LeftHandSideExpression PLUSPLUS_POSTFIX
+Transpilation of G1 rule No 50, i.e. PostfixExpression ::= LeftHandSideExpression PLUSPLUSPOSTFIX
 
 $value is the value of RHS No $index (starting at 0).
 
@@ -1420,11 +1420,11 @@ sub G1_50 {
 
     my $rc = '';
 
-    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 50, $value, $index, 'PostfixExpression', 'LeftHandSideExpression', 'PLUSPLUS_POSTFIX')) {
+    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 50, $value, $index, 'PostfixExpression', 'LeftHandSideExpression', 'PLUSPLUSPOSTFIX')) {
         if ($index == 0) {
         }
         elsif ($index == 1) {
-            $rc = $self->lexeme('PLUSPLUS_POSTFIX', 50, $value, 1, 'PostfixExpression', 'LeftHandSideExpression', 'PLUSPLUS_POSTFIX');
+            $rc = $self->lexeme('PLUSPLUSPOSTFIX', 50, $value, 1, 'PostfixExpression', 'LeftHandSideExpression', 'PLUSPLUSPOSTFIX');
         }
     }
 
@@ -1434,7 +1434,7 @@ sub G1_50 {
 
 =head2 G1_51($self, $value, $index)
 
-Transpilation of G1 rule No 51, i.e. PostfixExpression ::= LeftHandSideExpression MINUSMINUS_POSTFIX
+Transpilation of G1 rule No 51, i.e. PostfixExpression ::= LeftHandSideExpression MINUSMINUSPOSTFIX
 
 $value is the value of RHS No $index (starting at 0).
 
@@ -1445,11 +1445,11 @@ sub G1_51 {
 
     my $rc = '';
 
-    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 51, $value, $index, 'PostfixExpression', 'LeftHandSideExpression', 'MINUSMINUS_POSTFIX')) {
+    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 51, $value, $index, 'PostfixExpression', 'LeftHandSideExpression', 'MINUSMINUSPOSTFIX')) {
         if ($index == 0) {
         }
         elsif ($index == 1) {
-            $rc = $self->lexeme('MINUSMINUS_POSTFIX', 51, $value, 1, 'PostfixExpression', 'LeftHandSideExpression', 'MINUSMINUS_POSTFIX');
+            $rc = $self->lexeme('MINUSMINUSPOSTFIX', 51, $value, 1, 'PostfixExpression', 'LeftHandSideExpression', 'MINUSMINUSPOSTFIX');
         }
     }
 
@@ -3101,7 +3101,7 @@ sub G1_116 {
 
 =head2 G1_117($self, $value, $index)
 
-Transpilation of G1 rule No 117, i.e. ConditionalExpression ::= LogicalORExpression QUESTION_MARK AssignmentExpression COLON AssignmentExpression
+Transpilation of G1 rule No 117, i.e. ConditionalExpression ::= LogicalORExpression QUESTIONMARK AssignmentExpression COLON AssignmentExpression
 
 $value is the value of RHS No $index (starting at 0).
 
@@ -3112,16 +3112,16 @@ sub G1_117 {
 
     my $rc = '';
 
-    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 117, $value, $index, 'ConditionalExpression', 'LogicalORExpression', 'QUESTION_MARK', 'AssignmentExpression', 'COLON', 'AssignmentExpression')) {
+    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 117, $value, $index, 'ConditionalExpression', 'LogicalORExpression', 'QUESTIONMARK', 'AssignmentExpression', 'COLON', 'AssignmentExpression')) {
         if ($index == 0) {
         }
         elsif ($index == 1) {
-            $rc = $self->lexeme('QUESTION_MARK', 117, $value, 1, 'ConditionalExpression', 'LogicalORExpression', 'QUESTION_MARK', 'AssignmentExpression', 'COLON', 'AssignmentExpression');
+            $rc = $self->lexeme('QUESTIONMARK', 117, $value, 1, 'ConditionalExpression', 'LogicalORExpression', 'QUESTIONMARK', 'AssignmentExpression', 'COLON', 'AssignmentExpression');
         }
         elsif ($index == 2) {
         }
         elsif ($index == 3) {
-            $rc = $self->lexeme('COLON', 117, $value, 3, 'ConditionalExpression', 'LogicalORExpression', 'QUESTION_MARK', 'AssignmentExpression', 'COLON', 'AssignmentExpression');
+            $rc = $self->lexeme('COLON', 117, $value, 3, 'ConditionalExpression', 'LogicalORExpression', 'QUESTIONMARK', 'AssignmentExpression', 'COLON', 'AssignmentExpression');
         }
         elsif ($index == 4) {
         }
@@ -3155,7 +3155,7 @@ sub G1_118 {
 
 =head2 G1_119($self, $value, $index)
 
-Transpilation of G1 rule No 119, i.e. ConditionalExpressionNoIn ::= LogicalORExpressionNoIn QUESTION_MARK AssignmentExpression COLON AssignmentExpressionNoIn
+Transpilation of G1 rule No 119, i.e. ConditionalExpressionNoIn ::= LogicalORExpressionNoIn QUESTIONMARK AssignmentExpression COLON AssignmentExpressionNoIn
 
 $value is the value of RHS No $index (starting at 0).
 
@@ -3166,16 +3166,16 @@ sub G1_119 {
 
     my $rc = '';
 
-    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 119, $value, $index, 'ConditionalExpressionNoIn', 'LogicalORExpressionNoIn', 'QUESTION_MARK', 'AssignmentExpression', 'COLON', 'AssignmentExpressionNoIn')) {
+    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 119, $value, $index, 'ConditionalExpressionNoIn', 'LogicalORExpressionNoIn', 'QUESTIONMARK', 'AssignmentExpression', 'COLON', 'AssignmentExpressionNoIn')) {
         if ($index == 0) {
         }
         elsif ($index == 1) {
-            $rc = $self->lexeme('QUESTION_MARK', 119, $value, 1, 'ConditionalExpressionNoIn', 'LogicalORExpressionNoIn', 'QUESTION_MARK', 'AssignmentExpression', 'COLON', 'AssignmentExpressionNoIn');
+            $rc = $self->lexeme('QUESTIONMARK', 119, $value, 1, 'ConditionalExpressionNoIn', 'LogicalORExpressionNoIn', 'QUESTIONMARK', 'AssignmentExpression', 'COLON', 'AssignmentExpressionNoIn');
         }
         elsif ($index == 2) {
         }
         elsif ($index == 3) {
-            $rc = $self->lexeme('COLON', 119, $value, 3, 'ConditionalExpressionNoIn', 'LogicalORExpressionNoIn', 'QUESTION_MARK', 'AssignmentExpression', 'COLON', 'AssignmentExpressionNoIn');
+            $rc = $self->lexeme('COLON', 119, $value, 3, 'ConditionalExpressionNoIn', 'LogicalORExpressionNoIn', 'QUESTIONMARK', 'AssignmentExpression', 'COLON', 'AssignmentExpressionNoIn');
         }
         elsif ($index == 4) {
         }
@@ -4402,7 +4402,7 @@ sub G1_171 {
 
 =head2 G1_172($self, $value, $index)
 
-Transpilation of G1 rule No 172, i.e. EmptyStatement ::= VISIBLE_SEMICOLON
+Transpilation of G1 rule No 172, i.e. EmptyStatement ::= VISIBLESEMICOLON
 
 $value is the value of RHS No $index (starting at 0).
 
@@ -4413,9 +4413,9 @@ sub G1_172 {
 
     my $rc = '';
 
-    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 172, $value, $index, 'EmptyStatement', 'VISIBLE_SEMICOLON')) {
+    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 172, $value, $index, 'EmptyStatement', 'VISIBLESEMICOLON')) {
         if ($index == 0) {
-            $rc = $self->lexeme('VISIBLE_SEMICOLON', 172, $value, 0, 'EmptyStatement', 'VISIBLE_SEMICOLON');
+            $rc = $self->lexeme('VISIBLESEMICOLON', 172, $value, 0, 'EmptyStatement', 'VISIBLESEMICOLON');
         }
     }
 
@@ -4677,7 +4677,7 @@ sub G1_181 {
 
 =head2 G1_182($self, $value, $index)
 
-Transpilation of G1 rule No 182, i.e. IterationStatement ::= FOR LPAREN ExpressionNoInopt VISIBLE_SEMICOLON Expressionopt VISIBLE_SEMICOLON Expressionopt RPAREN Statement
+Transpilation of G1 rule No 182, i.e. IterationStatement ::= FOR LPAREN ExpressionNoInopt VISIBLESEMICOLON Expressionopt VISIBLESEMICOLON Expressionopt RPAREN Statement
 
 $value is the value of RHS No $index (starting at 0).
 
@@ -4688,27 +4688,27 @@ sub G1_182 {
 
     my $rc = '';
 
-    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 182, $value, $index, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement')) {
+    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 182, $value, $index, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLESEMICOLON', 'Expressionopt', 'VISIBLESEMICOLON', 'Expressionopt', 'RPAREN', 'Statement')) {
         if ($index == 0) {
-            $rc = $self->lexeme('FOR', 182, $value, 0, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+            $rc = $self->lexeme('FOR', 182, $value, 0, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLESEMICOLON', 'Expressionopt', 'VISIBLESEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
         }
         elsif ($index == 1) {
-            $rc = $self->lexeme('LPAREN', 182, $value, 1, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+            $rc = $self->lexeme('LPAREN', 182, $value, 1, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLESEMICOLON', 'Expressionopt', 'VISIBLESEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
         }
         elsif ($index == 2) {
         }
         elsif ($index == 3) {
-            $rc = $self->lexeme('VISIBLE_SEMICOLON', 182, $value, 3, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+            $rc = $self->lexeme('VISIBLESEMICOLON', 182, $value, 3, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLESEMICOLON', 'Expressionopt', 'VISIBLESEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
         }
         elsif ($index == 4) {
         }
         elsif ($index == 5) {
-            $rc = $self->lexeme('VISIBLE_SEMICOLON', 182, $value, 5, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+            $rc = $self->lexeme('VISIBLESEMICOLON', 182, $value, 5, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLESEMICOLON', 'Expressionopt', 'VISIBLESEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
         }
         elsif ($index == 6) {
         }
         elsif ($index == 7) {
-            $rc = $self->lexeme('RPAREN', 182, $value, 7, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+            $rc = $self->lexeme('RPAREN', 182, $value, 7, 'IterationStatement', 'FOR', 'LPAREN', 'ExpressionNoInopt', 'VISIBLESEMICOLON', 'Expressionopt', 'VISIBLESEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
         }
         elsif ($index == 8) {
         }
@@ -4720,7 +4720,7 @@ sub G1_182 {
 
 =head2 G1_183($self, $value, $index)
 
-Transpilation of G1 rule No 183, i.e. IterationStatement ::= FOR LPAREN VAR VariableDeclarationListNoIn VISIBLE_SEMICOLON Expressionopt VISIBLE_SEMICOLON Expressionopt RPAREN Statement
+Transpilation of G1 rule No 183, i.e. IterationStatement ::= FOR LPAREN VAR VariableDeclarationListNoIn VISIBLESEMICOLON Expressionopt VISIBLESEMICOLON Expressionopt RPAREN Statement
 
 $value is the value of RHS No $index (starting at 0).
 
@@ -4731,30 +4731,30 @@ sub G1_183 {
 
     my $rc = '';
 
-    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 183, $value, $index, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement')) {
+    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 183, $value, $index, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLESEMICOLON', 'Expressionopt', 'VISIBLESEMICOLON', 'Expressionopt', 'RPAREN', 'Statement')) {
         if ($index == 0) {
-            $rc = $self->lexeme('FOR', 183, $value, 0, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+            $rc = $self->lexeme('FOR', 183, $value, 0, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLESEMICOLON', 'Expressionopt', 'VISIBLESEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
         }
         elsif ($index == 1) {
-            $rc = $self->lexeme('LPAREN', 183, $value, 1, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+            $rc = $self->lexeme('LPAREN', 183, $value, 1, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLESEMICOLON', 'Expressionopt', 'VISIBLESEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
         }
         elsif ($index == 2) {
-            $rc = $self->lexeme('VAR', 183, $value, 2, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+            $rc = $self->lexeme('VAR', 183, $value, 2, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLESEMICOLON', 'Expressionopt', 'VISIBLESEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
         }
         elsif ($index == 3) {
         }
         elsif ($index == 4) {
-            $rc = $self->lexeme('VISIBLE_SEMICOLON', 183, $value, 4, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+            $rc = $self->lexeme('VISIBLESEMICOLON', 183, $value, 4, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLESEMICOLON', 'Expressionopt', 'VISIBLESEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
         }
         elsif ($index == 5) {
         }
         elsif ($index == 6) {
-            $rc = $self->lexeme('VISIBLE_SEMICOLON', 183, $value, 6, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+            $rc = $self->lexeme('VISIBLESEMICOLON', 183, $value, 6, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLESEMICOLON', 'Expressionopt', 'VISIBLESEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
         }
         elsif ($index == 7) {
         }
         elsif ($index == 8) {
-            $rc = $self->lexeme('RPAREN', 183, $value, 8, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLE_SEMICOLON', 'Expressionopt', 'VISIBLE_SEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
+            $rc = $self->lexeme('RPAREN', 183, $value, 8, 'IterationStatement', 'FOR', 'LPAREN', 'VAR', 'VariableDeclarationListNoIn', 'VISIBLESEMICOLON', 'Expressionopt', 'VISIBLESEMICOLON', 'Expressionopt', 'RPAREN', 'Statement');
         }
         elsif ($index == 9) {
         }
@@ -4871,7 +4871,7 @@ sub G1_186 {
 
 =head2 G1_187($self, $value, $index)
 
-Transpilation of G1 rule No 187, i.e. ContinueStatement ::= CONTINUE INVISIBLE_SEMICOLON
+Transpilation of G1 rule No 187, i.e. ContinueStatement ::= CONTINUE INVISIBLESEMICOLON
 
 $value is the value of RHS No $index (starting at 0).
 
@@ -4882,12 +4882,12 @@ sub G1_187 {
 
     my $rc = '';
 
-    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 187, $value, $index, 'ContinueStatement', 'CONTINUE', 'INVISIBLE_SEMICOLON')) {
+    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 187, $value, $index, 'ContinueStatement', 'CONTINUE', 'INVISIBLESEMICOLON')) {
         if ($index == 0) {
-            $rc = $self->lexeme('CONTINUE', 187, $value, 0, 'ContinueStatement', 'CONTINUE', 'INVISIBLE_SEMICOLON');
+            $rc = $self->lexeme('CONTINUE', 187, $value, 0, 'ContinueStatement', 'CONTINUE', 'INVISIBLESEMICOLON');
         }
         elsif ($index == 1) {
-            $rc = $self->lexeme('INVISIBLE_SEMICOLON', 187, $value, 1, 'ContinueStatement', 'CONTINUE', 'INVISIBLE_SEMICOLON');
+            $rc = $self->lexeme('INVISIBLESEMICOLON', 187, $value, 1, 'ContinueStatement', 'CONTINUE', 'INVISIBLESEMICOLON');
         }
     }
 
@@ -4952,7 +4952,7 @@ sub G1_189 {
 
 =head2 G1_190($self, $value, $index)
 
-Transpilation of G1 rule No 190, i.e. BreakStatement ::= BREAK INVISIBLE_SEMICOLON
+Transpilation of G1 rule No 190, i.e. BreakStatement ::= BREAK INVISIBLESEMICOLON
 
 $value is the value of RHS No $index (starting at 0).
 
@@ -4963,12 +4963,12 @@ sub G1_190 {
 
     my $rc = '';
 
-    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 190, $value, $index, 'BreakStatement', 'BREAK', 'INVISIBLE_SEMICOLON')) {
+    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 190, $value, $index, 'BreakStatement', 'BREAK', 'INVISIBLESEMICOLON')) {
         if ($index == 0) {
-            $rc = $self->lexeme('BREAK', 190, $value, 0, 'BreakStatement', 'BREAK', 'INVISIBLE_SEMICOLON');
+            $rc = $self->lexeme('BREAK', 190, $value, 0, 'BreakStatement', 'BREAK', 'INVISIBLESEMICOLON');
         }
         elsif ($index == 1) {
-            $rc = $self->lexeme('INVISIBLE_SEMICOLON', 190, $value, 1, 'BreakStatement', 'BREAK', 'INVISIBLE_SEMICOLON');
+            $rc = $self->lexeme('INVISIBLESEMICOLON', 190, $value, 1, 'BreakStatement', 'BREAK', 'INVISIBLESEMICOLON');
         }
     }
 
@@ -5033,7 +5033,7 @@ sub G1_192 {
 
 =head2 G1_193($self, $value, $index)
 
-Transpilation of G1 rule No 193, i.e. ReturnStatement ::= RETURN INVISIBLE_SEMICOLON
+Transpilation of G1 rule No 193, i.e. ReturnStatement ::= RETURN INVISIBLESEMICOLON
 
 $value is the value of RHS No $index (starting at 0).
 
@@ -5044,12 +5044,12 @@ sub G1_193 {
 
     my $rc = '';
 
-    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 193, $value, $index, 'ReturnStatement', 'RETURN', 'INVISIBLE_SEMICOLON')) {
+    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 193, $value, $index, 'ReturnStatement', 'RETURN', 'INVISIBLESEMICOLON')) {
         if ($index == 0) {
-            $rc = $self->lexeme('RETURN', 193, $value, 0, 'ReturnStatement', 'RETURN', 'INVISIBLE_SEMICOLON');
+            $rc = $self->lexeme('RETURN', 193, $value, 0, 'ReturnStatement', 'RETURN', 'INVISIBLESEMICOLON');
         }
         elsif ($index == 1) {
-            $rc = $self->lexeme('INVISIBLE_SEMICOLON', 193, $value, 1, 'ReturnStatement', 'RETURN', 'INVISIBLE_SEMICOLON');
+            $rc = $self->lexeme('INVISIBLESEMICOLON', 193, $value, 1, 'ReturnStatement', 'RETURN', 'INVISIBLESEMICOLON');
         }
     }
 
