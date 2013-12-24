@@ -36,7 +36,7 @@ our $CURRENTVERSION;
 
 =head1 DESCRIPTION
 
-This module translates ECMAScript source into an AST tree. To assist further process of the AST tree, the nodes of the AST are blessed according to the ECMAScript grammar you have selected. (The default is 'ECMAScript-262-5'.) If you want to enable logging, be aware that this module is using Log::Any.
+This module translates ECMAScript source into an AST tree. If you want to enable logging, be aware that this module is using Log::Any.
 
 =head1 SYNOPSIS
 
@@ -94,6 +94,10 @@ Reference to a hash for template options. C.f. per-ECMAScript documentation.
 =item StringNumericLiteral
 
 Reference to a hash for StringNumericLiteral grammar options. C.f. per-ECMAScript documentation.
+
+=item Pattern
+
+Reference to a hash for Pattern grammar options. C.f. per-ECMAScript documentation.
 
 =back
 
@@ -198,7 +202,19 @@ sub templatePath {
 
 =head2 parse($self, $source)
 
-Get and AST from the ECMAScript source, pointed by $source. This method will call all the intermediary steps (lexical, transformation, evaluation) necessary to produce the AST.
+Get an AST from the ECMAScript source, pointed by $source. This method will call all the intermediary steps (lexical, transformation, evaluation) necessary to produce the AST. An AST is a reference to nested arrays, containing either:
+
+=over
+
+=item valuesAndRuleId
+
+An entry describing a G1 rule (i.e. a non-terminal) is a reference to an array. The array contains the values of the right-hand side of the rule, followed by the rule Id.
+
+=item startAndLengthAndValue
+
+An entry describing a lexeme (i.e. a terminal) is a reference to an array. The array contains the start location in the stream, length and lexeme as perl's utf8 string.
+
+=back
 
 =cut
 
@@ -335,6 +351,18 @@ sub stringNumericLiteral {
   my ($self) = @_;
 
   return $self->{_grammar}->stringNumericLiteral;
+}
+
+=head2 pattern($self)
+
+Return the generic Pattern for this grammar.
+
+=cut
+
+sub pattern {
+  my ($self) = @_;
+
+  return $self->{_grammar}->pattern;
 }
 
 =head1 SEE ALSO
