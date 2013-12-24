@@ -139,6 +139,8 @@ __DATA__
 # =================================
 #
 :start ::= Pattern
+:default ::= action => [values]
+lexeme default = action => [start,length,value]
 
 Pattern ::=
       Disjunction
@@ -233,7 +235,7 @@ ControlLetter ::=
 #    | <ZWNJ>
 
 IdentityEscape ::=
-       [\p[IsIdentityEscape}]
+       [\p{IsIdentityEscape}]
 
 DecimalEscape ::=
     DecimalIntegerLiteral # Lookahead not in decimal digit is automatic
