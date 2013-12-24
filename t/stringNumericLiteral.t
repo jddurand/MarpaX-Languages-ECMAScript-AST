@@ -44,7 +44,7 @@ foreach (keys %DATA) {
 								$stringNumericLiteral->{impl});
 	    $value = $stringNumericLiteral->{grammar}->value($stringNumericLiteral->{impl});
 	};
-	$value = $@ ? Data::Float::nan : $value->value;
+	$value = $@ ? Data::Float::nan : $value->hostValue;
     }
     $DATA{$_}($value);
 }

@@ -144,13 +144,13 @@ sub sub {
     return $_[0];
 }
 
-=head2 value($self, $host_value?)
+=head2 hostValue($self, $host_value?)
 
 Getter/setter of host value in $self. Returns host value.
 
 =cut
 
-sub value {
+sub hostValue {
     if ($#_ > 0) {
 	$_[0]->{_number} = $_[1];
     }
@@ -159,7 +159,7 @@ sub value {
 
 =head2 length($self, $length?)
 
-Getter/setter of number of characters used to represent the host value. Used only in case of decimal digits.
+Getter/setter of number of characters used to represent the host value length. Used only in case of decimal digits.
 
 =cut
 
