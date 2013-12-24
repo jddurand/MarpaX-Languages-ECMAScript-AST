@@ -117,6 +117,17 @@ sub stringNumericLiteral {
     return $self->{_grammar}->stringNumericLiteral;
 }
 
+=head2 pattern($self)
+
+Returns the generic pattern associated to grammarName.
+
+=cut
+
+sub pattern {
+    my ($self) = @_;
+    return $self->{_grammar}->pattern;
+}
+
 =head1 SEE ALSO
 
 L<Marpa::R2>
