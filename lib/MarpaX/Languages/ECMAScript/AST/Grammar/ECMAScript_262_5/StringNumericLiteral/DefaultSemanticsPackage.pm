@@ -16,7 +16,7 @@ This modules provide a default semantics package for the actions associated to E
 
 =head2 new($class)
 
-Instantiate a new object, initialized to positive zero.
+Instantiate a new object, initialized to positive zero, and undefined length.
 
 =cut
 
