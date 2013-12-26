@@ -14,7 +14,11 @@ use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Template;
 
 =head1 DESCRIPTION
 
-This modules returns all grammars needed for the ECMAScript 262, Edition 5 grammars written in Marpa BNF, as of L<http://www.ecma-international.org/publications/standards/Ecma-262.htm>.
+This modules returns all grammars needed for the ECMAScript 262, Edition 5 grammars written in Marpa BNF, as of L<http://www.ecma-international.org/publications/standards/Ecma-262.htm>. ONLY the Program grammar provides an AST. The StringNumericLiteral and Pattern grammars, if needed by another engine but a perl executable, will have to be provided expicitely. StringNumericLiteral and Pattern parse tree values presented here are meaningful only for a perl engine.
+
+From a perl engine point of view, there two main notion of numbers: native (i.e. the ones in the math library with which perl was build), and the Math::Big* family. Therefore the parse tree value of the StringNumericLiteral is abstracted to handle both cases.
+
+The Pattern parse tree value provides an anoynmous subroutine to be used directly as a Regexp.prototype.exec call.
 
 =head1 SYNOPSIS
 
