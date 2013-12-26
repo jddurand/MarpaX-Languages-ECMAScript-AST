@@ -9,7 +9,7 @@ package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::
 
 =head1 DESCRIPTION
 
-This modules provide a default semantics package for the actions associated to ECMAScript_262_5 lexical string numeric grammar.
+This modules provide a default semantics package for the actions associated to ECMAScript_262_5 pattern grammar.
 
 =cut
 
