@@ -63,7 +63,6 @@ sub positive_hex { super }
 sub neg          { super }
 sub add          { super }
 sub sub          { super }
-sub set          { super }
 sub value        { super }
 sub length       { super }
 
