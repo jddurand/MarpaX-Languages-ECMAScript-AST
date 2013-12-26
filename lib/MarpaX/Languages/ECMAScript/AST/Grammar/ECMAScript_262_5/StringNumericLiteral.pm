@@ -154,7 +154,7 @@ sub _DecimalDigits_DecimalDigit {
 
 sub _Dot_DecimalDigits_ExponentPart {
     my $n = blessed($_[0])->new->positive_int($_[2]->length);
-    my $tenpowexponentminusn = blessed($_[0])->new->pow($_[3]->sub($n));
+    my $tenpowexponentminusn = blessed($_[0])->new->positive_int("10")->pow($_[3]->sub($n));
 
     return $_[2]->mul($tenpowexponentminusn);
 }
@@ -172,7 +172,7 @@ sub _DecimalDigits_Dot_DecimalDigits_ExponentPart {
 }
 
 sub _DecimalDigits_Dot_ExponentPart {
-    my $tenpowexponent = blessed($_[0])->new->pow($_[3]);
+    my $tenpowexponent = blessed($_[0])->new->positive_int("10")->pow($_[3]);
     return $_[1]->mul($tenpowexponent);
 }
 
@@ -182,12 +182,12 @@ sub _DecimalDigits_Dot_DecimalDigits {
 
 sub _Dot_DecimalDigits {
     my $n = blessed($_[0])->new->positive_int($_[2]->length);
-    my $tenpowminusn = blessed($_[0])->new->pow($n->neg);
+    my $tenpowminusn = blessed($_[0])->new->positive_int("10")->pow($n->neg);
     return $_[2]->mul($tenpowminusn);
 }
 
 sub _DecimalDigits_ExponentPart {
-    my $tenpowexponent = blessed($_[0])->new->pow($_[2]);
+    my $tenpowexponent = blessed($_[0])->new->positive_int("10")->pow($_[2]);
 
     return $_[1]->mul($tenpowexponent);
 }
