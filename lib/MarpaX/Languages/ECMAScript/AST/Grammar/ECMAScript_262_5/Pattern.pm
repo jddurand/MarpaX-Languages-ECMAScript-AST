@@ -128,8 +128,19 @@ L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::Defaul
 
 =cut
 
-sub _secondArg {
-    return $_[2];
+sub _Pattern_Disjunction {
+  my $matcher = $_[0]->evaluate($_[1]);
+  return $_[0]->pattern_closure($m);
+}
+
+sub _Disjunction_Alternative {
+  return $_[0]->evaluate($_[1]);
+}
+
+sub _Disjunction_Alternative_OR_Disjunction {
+  my $m1 = $_[0]->evaluate($_[1]);
+  my $m2 = $_[0]->evaluate($_[2]);
+  
 }
 
 1;
@@ -143,11 +154,11 @@ __DATA__
 lexeme default = action => [start,length,value]
 
 Pattern ::=
-      Disjunction
+      Disjunction                       action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Pattern_Disjunction
 
 Disjunction ::=
-      Alternative
-    | Alternative '|' Disjunction
+      Alternative                       action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Disjunction_Alternative
+    | Alternative '|' Disjunction       action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Disjunction_Alternative_OR_Disjunction
 
 Alternative ::=
 Alternative ::= Alternative Term
