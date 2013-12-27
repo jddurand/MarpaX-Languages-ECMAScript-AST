@@ -129,18 +129,80 @@ L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::Defaul
 =cut
 
 sub _Pattern_Disjunction {
-  my $matcher = $_[0]->evaluate($_[1]);
-  return $_[0]->pattern_closure($m);
+    my ($self, $disjunction) = @_;
+
+    my $matcher = $self->evaluate($disjunction);
+    return $self->pattern_closure($matcher);
 }
 
 sub _Disjunction_Alternative {
-  return $_[0]->evaluate($_[1]);
+    my ($self, $alternative) = @_;
+    return $self->evaluate($alternative);
 }
 
 sub _Disjunction_Alternative_OR_Disjunction {
-  my $m1 = $_[0]->evaluate($_[1]);
-  my $m2 = $_[0]->evaluate($_[2]);
-  
+    my ($self, $alternative, $disjunction) = @_;
+
+    my $m1 = $self->evaluate($alternative);
+    my $m2 = $self->evaluate($disjunction);
+
+    return sub {
+	my ($x, $c) = @_;
+	return &$m1($x, $c) || &$m2($x, $c);
+    };
+}
+
+sub _Alternative {
+    my ($self) = @_;
+
+    return sub {
+	my ($x, $c) = @_;
+	return &$c($x);
+    };
+}
+
+sub _Alternative_Alternative_Term {
+    my ($self, $alternative, $term) = @_;
+
+    my $m1 = $self->evaluate($alternative);
+    my $m2 = $self->evaluate($term);
+
+  return sub {
+      my ($x, $c) = @_;
+      my $d = sub {
+	  my ($y) = @_;
+	  return &$m2($y, $c);
+      };
+      return &$m1($x, $d);
+  };
+}
+
+sub _Term_Assertion {
+    my ($self, $assertion) = @_;
+
+    return sub {
+	my ($x, $c) = @_;
+
+	my $t = $self->evaluate($assertion);
+	my $r = &$t($x);
+	if (! $r) {
+	    return undef;
+	}
+	return &$c($x);
+    };
+}
+
+sub _Term_Atom {
+    my ($self, $atom) = @_;
+
+    return $self->evaluate($atom);
+}
+
+sub _Term_Atom_Quantifier {
+    my ($self, $atom, $quantifier) = @_;
+
+    my $m = $self->evaluate($atom);
+    my ($min, $max, $greedy) = $self->evaluate($quantifier);
 }
 
 1;
@@ -160,13 +222,13 @@ Disjunction ::=
       Alternative                       action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Disjunction_Alternative
     | Alternative '|' Disjunction       action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Disjunction_Alternative_OR_Disjunction
 
-Alternative ::=
-Alternative ::= Alternative Term
+Alternative ::=                         action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Alternative
+Alternative ::= Alternative Term        action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Alternative_Alternative_Term
 
 Term ::=
-      Assertion
-    | Atom
-    | Atom Quantifier
+      Assertion                         action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Term_Assertion
+    | Atom                              action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Term_Atom
+    | Atom Quantifier                   action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Term_Atom_Quantifier
 
 Assertion ::=
       '^'

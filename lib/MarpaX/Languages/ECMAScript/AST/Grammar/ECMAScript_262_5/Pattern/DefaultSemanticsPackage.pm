@@ -68,15 +68,15 @@ sub pattern_closure {
   my ($self, $m) = @_;
 
   return sub {
-    my ($str, $index) = @_;
-    my $inputLength = length($str);
-    my $c = sub {
-      my ($state) = @_;
-      return $state;
-    };
-    my $cap = [ $self->undefined x $self->nCapturingParens ];
-    my $x = ($index, $cap);
-    return $m($x, $c);
+      my ($str, $index) = @_;
+      my $inputLength = length($str);
+      my $c = sub {
+	  my ($state) = @_;
+	  return $state;
+      };
+      my $cap = [ (undef) x $self->nCapturingParens ];
+      my $x = [$index, $cap];
+      return &$m($x, $c);
   };
 }
 
