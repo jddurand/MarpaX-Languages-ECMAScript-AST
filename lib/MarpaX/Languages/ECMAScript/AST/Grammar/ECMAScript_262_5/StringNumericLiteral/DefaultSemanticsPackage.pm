@@ -81,7 +81,7 @@ sub host_pow {
 
 =head2 host_int($self, $string)
 
-Host implementation of $self setted to positive integer represented in $string. Returns $self.
+Host implementation of $self setted to positive integer represented in $string, length initialized to the number of characters in $string. Returns $self.
 
 =cut
 
