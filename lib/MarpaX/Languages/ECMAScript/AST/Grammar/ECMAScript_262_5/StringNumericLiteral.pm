@@ -134,74 +134,85 @@ sub _secondArg {
     return $_[2];
 }
 
+sub _value {
+    return _secondArg(@_)->host_round->host_value;
+}
+
+sub _value_zero {
+    return $_[0]->host_pos_zero->host_value;
+}
+
+sub _Infinity {
+    return $_[0]->host_pos_inf;
+}
+
 #
 # Note that HexIntegerLiteral output is a HexDigit modified
 #
 sub _HexIntegerLiteral_HexDigit {
-    my $sixteen = blessed($_[0])->new->positive_int("16");
+    my $sixteen = $_[0]->host_class->new->host_int("16");
 
-    return $_[1]->mul($sixteen)->add($_[2]);
+    return $_[1]->host_mul($sixteen)->host_add($_[2]);
 }
 
 #
 # Note that DecimalDigits output is a DecimalDigit modified
 #
 sub _DecimalDigits_DecimalDigit {
-    my $ten = blessed($_[0])->new->positive_int("10");
-    $_[1]->length($_[1]->length + 1);
-    return $_[1]->mul($ten)->add($_[2]);
+    my $ten = $_[0]->host_class->new->host_int("10");
+    return $_[1]->host_mul($ten)->host_add($_[2])->host_inc_length;
 }
 
 sub _Dot_DecimalDigits_ExponentPart {
-    my $n = blessed($_[0])->new->positive_int($_[2]->length);
-    my $tenpowexponentminusn = blessed($_[0])->new->positive_int("10")->pow($_[3]->sub($n));
+    my $n = $_[2]->host_new_from_length;
+    my $tenpowexponentminusn = $_[0]->host_class->new->host_int("10")->host_pow($_[3]->host_sub($n));
 
-    return $_[2]->mul($tenpowexponentminusn);
+    return $_[2]->host_mul($tenpowexponentminusn);
 }
 
 sub _DecimalDigits_Dot_DecimalDigits_ExponentPart {
     #
     # Done using polish logic -;
     #
-    return $_[1]->add(
+    return $_[1]->host_add(
 	_DecimalDigits_ExponentPart(
 	    $_[0],
-	    _Dot_DecimalDigits($_[0], '.', $_[3]),
+            _Dot_DecimalDigits($_[0], '.', $_[3]),
 	    $_[4])
 	);
 }
 
 sub _DecimalDigits_Dot_ExponentPart {
-    my $tenpowexponent = blessed($_[0])->new->positive_int("10")->pow($_[3]);
-    return $_[1]->mul($tenpowexponent);
+    my $tenpowexponent = $_[0]->host_class->new->host_int("10")->host_pow($_[3]);
+    return $_[1]->host_mul($tenpowexponent);
 }
 
 sub _DecimalDigits_Dot_DecimalDigits {
-    return $_[1]->add(_Dot_DecimalDigits($_[0], '.', $_[3]));
+    return $_[1]->host_add(_Dot_DecimalDigits($_[0], '.', $_[3]));
 }
 
 sub _Dot_DecimalDigits {
-    my $n = blessed($_[0])->new->positive_int($_[2]->length);
-    my $tenpowminusn = blessed($_[0])->new->positive_int("10")->pow($n->neg);
-    return $_[2]->mul($tenpowminusn);
+    my $n = $_[2]->host_new_from_length;
+    my $tenpowminusn = $_[0]->host_class->new->host_int("10")->host_pow($n->host_neg);
+    return $_[2]->host_mul($tenpowminusn);
 }
 
 sub _DecimalDigits_ExponentPart {
-    my $tenpowexponent = blessed($_[0])->new->positive_int("10")->pow($_[2]);
+    my $tenpowexponent = $_[0]->host_class->new->host_int("10")->host_pow($_[2]);
 
-    return $_[1]->mul($tenpowexponent);
+    return $_[1]->host_mul($tenpowexponent);
 }
 
 sub _HexDigit {
-    return blessed($_[0])->new->positive_hex("$_[1]");
+    return $_[0]->host_class->new->host_hex("$_[1]");
 }
 
 sub _DecimalDigit {
-    return blessed($_[0])->new->positive_int("$_[1]");
+    return $_[0]->host_class->new->host_int("$_[1]");
 }
 
 sub _neg {
-    $_[2]->neg();
+  return $_[2]->host_neg;
 }
 
 1;
@@ -215,10 +226,10 @@ __DATA__
 StrWhiteSpaceopt ::= StrWhiteSpace
 StrWhiteSpaceopt ::=
 
-StringNumericLiteral ::=                                   action => pos_zero
-StringNumericLiteral ::= StrWhiteSpace                     action => pos_zero
+StringNumericLiteral ::=                                   action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_value_zero
+StringNumericLiteral ::= StrWhiteSpace                     action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_value_zero
 StringNumericLiteral ::= 
-    StrWhiteSpaceopt StrNumericLiteral StrWhiteSpaceopt    action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_secondArg
+    StrWhiteSpaceopt StrNumericLiteral StrWhiteSpaceopt    action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_value
 
 StrWhiteSpace ::=
   StrWhiteSpaceChar StrWhiteSpaceopt                       action => ::undef
@@ -237,7 +248,7 @@ StrDecimalLiteral ::=
   | '-' StrUnsignedDecimalLiteral                          action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_neg
 
 StrUnsignedDecimalLiteral ::=
-    'Infinity'                                             action => pos_infinity
+    'Infinity'                                             action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_Infinity
   | DecimalDigits '.'                                      action => ::first
   | DecimalDigits '.' DecimalDigits                        action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_DecimalDigits_Dot_DecimalDigits
   | DecimalDigits '.' ExponentPart                         action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_DecimalDigits_Dot_ExponentPart
