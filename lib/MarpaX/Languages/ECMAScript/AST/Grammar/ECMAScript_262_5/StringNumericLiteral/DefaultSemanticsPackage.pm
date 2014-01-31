@@ -48,7 +48,7 @@ sub host_round {
 
 =head2 host_pos_zero($self)
 
-Host implementation of $self setted to positive zero. Returns $self.
+Host implementation of $self setted to positive zero, defaulting to Data::Float::pos_zero. Returns $self.
 
 =cut
 
@@ -59,7 +59,7 @@ sub host_pos_zero {
 
 =head2 host_pos_inf($self)
 
-Host implementation of $self setted to positive infinity. Return $self.
+Host implementation of $self setted to positive infinity, defaulting to Data::Float::pos_infinity. Return $self.
 
 =cut
 
