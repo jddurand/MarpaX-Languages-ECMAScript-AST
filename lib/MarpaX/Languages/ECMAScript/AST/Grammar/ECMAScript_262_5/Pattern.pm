@@ -120,6 +120,50 @@ sub G {
     return $singleton->G;
 }
 
+=head2 parse($self, $source, $impl)
+
+Parse the source given as $source using implementation $impl.
+
+=cut
+
+sub parse {
+    my ($self, $source, $impl) = @_;
+    $self->{programCompleted} = 0;
+    return $self->SUPER($source, $impl,
+                        {
+                         callback => \&_eventCallback,
+                         callbackargs => [ $self ],
+                        });
+}
+
+sub _eventCallback {
+  my ($self, $source, $pos, $max, $impl) = @_;
+
+  #
+  # $pos is the exact position where SLIF stopped because of an event
+  #
+  my $rc = $pos;
+
+  foreach (@{$impl->events()}) {
+    my ($name) = @{$_};
+    #
+    # Events are always in this order:
+    #
+    # ---------------------------------
+    # 1. Completion events first (XXX$)
+    # ---------------------------------
+    #
+    if ($name eq 'LPAREN_ATOM_DISJUNCTION$') {
+      push(@{$self->{_lparen}}, $pos);
+    }
+    elsif ($name eq 'RPAREN_ATOM_DISJUNCTION$') {
+      push(@{$self->{_rparen}}, $pos);
+    }
+  }
+
+  return $rc;
+}
+
 =head1 SEE ALSO
 
 L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base>
@@ -131,7 +175,7 @@ L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::Defaul
 sub _Pattern_Disjunction {
     my ($self, $disjunction) = @_;
 
-    my $m = $self->evaluate($disjunction);
+    my $m = $self->host_eval($disjunction);
 
     return sub {
       my ($str, $index) = @_;
@@ -143,7 +187,7 @@ sub _Pattern_Disjunction {
         my ($state) = @_;
         return $state;
       };
-      my $cap = [ ($self->undefined) x $self->nCapturingParens ];
+      my $cap = [ ($self->host_undef) x $self->nCapturingParens ];
       my $x = [$index, $cap];
       return &$m($x, $c);
     };
@@ -151,19 +195,19 @@ sub _Pattern_Disjunction {
 
 sub _Disjunction_Alternative {
     my ($self, $alternative) = @_;
-    return $self->evaluate($alternative);
+    return $self->host_eval($alternative);
 }
 
 sub _Disjunction_Alternative_OR_Disjunction {
     my ($self, $alternative, $disjunction) = @_;
 
-    my $m1 = $self->evaluate($alternative);
-    my $m2 = $self->evaluate($disjunction);
+    my $m1 = $self->host_eval($alternative);
+    my $m2 = $self->host_eval($disjunction);
 
     return sub {
 	my ($x, $c) = @_;
 	my $r = &$m1($x, $c);
-        if ($self->isFailure($r) != $self->true) {
+        if ($self->host_isFailure($r) != $self->host_true) {
           return $r;
         }
         return &$m2($x, $c);
@@ -182,8 +226,8 @@ sub _Alternative {
 sub _Alternative_Alternative_Term {
     my ($self, $alternative, $term) = @_;
 
-    my $m1 = $self->evaluate($alternative);
-    my $m2 = $self->evaluate($term);
+    my $m1 = $self->host_eval($alternative);
+    my $m2 = $self->host_eval($term);
 
   return sub {
       my ($x, $c) = @_;
@@ -201,10 +245,10 @@ sub _Term_Assertion {
     return sub {
 	my ($x, $c) = @_;
 
-	my $t = $self->evaluate($assertion);
+	my $t = $self->host_eval($assertion);
 	my $r = &$t($x);
-	if ($self->isFalse($r)) {
-	    return $self->failure;
+	if ($self->host_isFalse($r)) {
+	    return $self->host_failure;
 	}
 	return &$c($x);
     };
@@ -213,17 +257,62 @@ sub _Term_Assertion {
 sub _Term_Atom {
     my ($self, $atom) = @_;
 
-    return $self->evaluate($atom);
+    return $self->host_eval($atom);
+}
+
+sub _repeatMatcher {
+  my ($self, $m, $min, $max, $greedy, $x, $c, $parenIndex, $parenCount) = @_;
+
+  if ($max == 0) {
+    return &$c($x);
+  }
+  my $d = sub {
+    my ($y) = @_;
+    if ($min == 0 && $y->[-1] == $x->[-1]) {
+      return $self->host_failure;
+    }
+    my $min2 = ($min == 0) ? 0 : ($min - 1);
+    my $max2 = $self->host_isInf($max) ? $self->host_pos_inf : ($max - 1);
+    return $self->_repeatMatcher($m, $min2, $max2, $greedy, $y, $c, $parenIndex, $parenCount);
+  };
+  my @cap = @{$x->[1]};
+  foreach my $k (($parenIndex+1)..($parenIndex+$parenCount)) {
+    $cap[$k] = $self->host_undef;
+  }
+  my $e = $x->[-1];
+  my $xr = [$e, \@cap ];
+  if ($min != 0) {
+    return &$m($xr, $d);
+  }
+  if ($self->host_isFalse($greedy)) {
+    my $z = &$c($x);
+    if (! $self->host_isFailure($z)) {
+      return $z;
+    }
+    return &$m($xr, $d);
+  }
+  my $z = &$m($xr, $d);
+  if (! $self->host_isFailure($z)) {
+    return $z;
+  }
+  return &$c($x);
 }
 
 sub _Term_Atom_Quantifier {
     my ($self, $atom, $quantifier) = @_;
 
-    my $m = $self->evaluate($atom);
-    my ($min, $max, $greedy) = $self->evaluate($quantifier);
-    if ($self->isFinite($max) && $self->isLt($max, $min)) {
+    my $m = $self->host_eval($atom);
+    my ($min, $max, $greedy) = $self->host_eval($quantifier);
+    if ($self->host_isFinite($max) && $self->host_isLt($max, $min)) {
       $self->syntaxError("$max < $min");
     }
+    my ($start, $end) = Marpa::R2::Context::location();
+    my $parenIndex = $self->parenIndex($start);
+    my $parentCount = $self->parenCount($start, $end);
+
+    return sub {
+      my ($x, $c) = @_;
+    };
 }
 
 1;
@@ -276,7 +365,7 @@ Atom ::=
     | '.'
     | '\' AtomEscape
     | CharacterClass
-    | '(' Disjunction ')'
+    | LPAREN_ATOM_DISJUNCTION Disjunction RPAREN_ATOM_DISJUNCTION
     | '(?:' Disjunction ')'
 
 PatternCharacter ::=
@@ -386,4 +475,10 @@ HexEscapeSequence ::= 'x' _HexDigit _HexDigit
 UnicodeEscapeSequence ::= 'u' _HexDigit _HexDigit _HexDigit _HexDigit
 
 _HexDigit              ~ [\p{IsHexDigit}]
+
+:lexeme ~ <LPAREN_ATOM_DISJUNCTION> pause => after event => 'LPAREN_ATOM_DISJUNCTION$'
+LPAREN_ATOM_DISJUNCTION ~ '('
+:lexeme ~ <RPAREN_ATOM_DISJUNCTION> pause => after event => 'RPAREN_ATOM_DISJUNCTION$'
+RPAREN_ATOM_DISJUNCTION ~ ')'
+
 

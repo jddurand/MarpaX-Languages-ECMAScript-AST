@@ -2,7 +2,7 @@ use strict;
 use warnings FATAL => 'all';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::DefaultSemanticsPackage;
-use Data::Float qw/float_is_finite/;
+use Data::Float qw//;
 use MarpaX::Languages::ECMAScript::AST::Exceptions qw/:all/;
 
 # ABSTRACT: ECMAScript 262, Edition 5, pattern grammar default semantics package
@@ -13,8 +13,6 @@ use MarpaX::Languages::ECMAScript::AST::Exceptions qw/:all/;
 
 This modules provide default host implementation for the actions associated to ECMAScript_262_5 pattern grammar.
 
-=cut
-
 =head2 new($class)
 
 Instantiate a new object.
@@ -23,83 +21,150 @@ Instantiate a new object.
 
 sub new {
     return bless({
-                  _input            => undef,
+                  _lparen           => [],
+                  _rparen           => [],
                   _nCapturingParens => 0,
                   _ignoreCase       => 0,
                   _multiline        => 0,
                  }, $_[0]);
 }
 
-=head2 evaluate($self, $hostContent)
+=head2 lparen($self)
+
+Returns an array reference of all left parenthesis of atom's disjunctions.
+
+=cut
+
+sub lparen {
+  my ($self) = @_;
+  return $self->{_lparen};
+}
+
+=head2 parenIndex($self, $pos)
+
+Returns the number of left capturing parentheses in the entire regular expression that occur to the left of $pos, not including $pos.
+
+=cut
+
+sub parenIndex {
+  my ($self, $pos) = @_;
+  return grep {$_ < $pos} @{$self->{_lparen}};
+}
+
+=head2 parenCount($self, $pos1, $pos2)
+
+Returns the number of left capturing parentheses in the entire regular expression that occur between $pos1 and $pos2, both inclusive.
+
+=cut
+
+sub parenCount {
+  my ($self, $pos1, $pos2) = @_;
+  return grep {$_ >= $pos1 && $_ <= $pos2} @{$self->{_lparen}};
+}
+
+=head2 rparen($self)
+
+Returns an array reference of all right parenthesis of atom's disjunctions.
+
+=cut
+
+sub rparen {
+  my ($self) = @_;
+  return $self->{_rparen};
+}
+
+=head2 host_eval($self, $hostContent)
 
 Evaluates and returns what is in $hostContent. Typically used to return a Matcher. Defaults to eval on the arguments.
 
 =cut
 
-sub evaluate {
+sub host_eval {
   return eval{@_};
 }
 
-=head2 true($self)
+=head2 host_true($self)
 
 Returns how the host represent true. Defaults to 1.
 
 =cut
 
-sub true {
+sub host_true {
   return 1;
 }
 
-=head2 false($self)
+=head2 host_isTrue($self, $value)
+
+Returns something that will always evaluate to a true value for the host if $value is the host representation of true. Defaults to 1, 0 otherwise.
+
+=cut
+
+sub host_isTrue {
+  my ($self, $value) = @_;
+  return $value ? 1 : 0;
+}
+
+=head2 host_false($self)
 
 Returns how the host represent false. Defaults to 0.
 
 =cut
 
-sub false {
+sub host_false {
   return 0;
 }
 
-=head2 success($self)
+=head2 host_isFalse($self, $value)
+
+Returns something that will always evaluate to a true value for the host if $value is the host representation of false. Defaults to 1, 0 otherwise.
+
+=cut
+
+sub host_isFalse {
+  my ($self, $value) = @_;
+  return (! $value) ? 1 : 0;
+}
+
+=head2 host_success($self)
 
 Returns how the host represent success. Defaults to 1.
 
 =cut
 
-sub success {
+sub host_success {
   return 1;
 }
 
-=head2 isSuccess($self, $value)
+=head2 host_isSuccess($self, $value)
 
-Returns true() if $value is the host representation of success, returns false() otherwise.
+Returns host_isTrue() if $value is the host representation of host_success, returns host_isFalse() otherwise.
 
 =cut
 
-sub isSuccess {
+sub host_isSuccess {
   my ($self, $value) = @_;
-  return $value ? $self->true : $self->false;
+  return $value ? $self->host_isTrue : $self->host_isFalse;
 }
 
-=head2 failure($self)
+=head2 host_failure($self)
 
 Returns how the host represent failure. Defaults to 0.
 
 =cut
 
-sub failure {
+sub host_failure {
   return 0;
 }
 
-=head2 isFailure($self, $value)
+=head2 host_isFailure($self, $value)
 
-Returns true() if $value is the host representation of failure, returns false() otherwise.
+Returns host_isTrue() if $value is the host representation of host_failure, returns host_isFalse() otherwise.
 
 =cut
 
-sub isFailure {
+sub host_isFailure {
   my ($self, $value) = @_;
-  return (! $value) ? $self->true : $self->false;
+  return (! $value) ? $self->host_isTrue : $self->host_isFalse;
 }
 
 =head2 nCapturingParens($self, $nCapturingParens?)
@@ -115,49 +180,69 @@ sub nCapturingParens {
   return $_[0]->{_nCapturingParens};
 }
 
-=head2 undefined($self)
+=head2 host_undef($self)
 
-Returns how the host represent the undefined.
+Returns how the host represent the undefined value.
 
 =cut
 
-sub undefined {
+sub host_undef {
   return undef;
 }
 
-=head2 isUndefined($self, $value)
+=head2 host_isUndef($self, $value)
 
-Returns true() if $value is the host representation of undefined, returns false() otherwise.
+Returns host_isTrue() if $value is the host representation of undefined, returns host_isFalse() otherwise.
 
 =cut
 
-sub isUndefined {
+sub host_isUndef {
   my ($self, $value) = @_;
-  return (! defined($value)) ? $self->true : $self->false;
+  return (! defined($value)) ? $self->host_isTrue : $self->host_isFalse;
 }
 
-=cut
+=head2 host_pos_inf($self)
 
-=head2 isFinite($self, $value)
-
-Returns true() if $value is finite, returns false() otherwise. Finite test defaults to Data::Float::float_is_finite.
+Host implementation of positive infinity, defaulting to Data::Float::pos_infinity. Return $self.
 
 =cut
 
-sub isFinite {
-  my ($self, $value) = @_;
-  return float_is_finite($value) ? $self->true : $self->false;
+sub host_pos_inf {
+    $_[0]->{_number} = Data::Float::pos_infinity;
+    return $_[0];
 }
 
-=head2 isLt($self, $v1, v2)
+=head2 host_isInf($self)
 
-Returns true() if $v1 is lower than $v2, returns false() otherwise. Lower than defaults $v1 < $v2.
+Returns host_isTrue() if $value is infinite (negative or positive), returns host_isFalse() otherwise. Finite test defaults to Data::Float::float_is_infinite.
 
 =cut
 
-sub isLt {
+sub host_isInf {
+  my ($self, $value) = @_;
+  return Data::Float::float_is_infinite($value) ? $self->host_isTrue : $self->host_isFalse;
+}
+
+=head2 host_isFinite($self, $value)
+
+Returns host_isTrue() if $value is finite, returns host_isFalse() otherwise. Finite test defaults to Data::Float::float_is_finite.
+
+=cut
+
+sub host_isFinite {
+  my ($self, $value) = @_;
+  return Data::Float::float_is_finite($value) ? $self->host_isTrue : $self->host_isFalse;
+}
+
+=head2 host_isLt($self, $v1, v2)
+
+Returns host_isTrue() if $v1 is lower than $v2, returns host_isFalse() otherwise. Lower than defaults $v1 < $v2.
+
+=cut
+
+sub host_isLt {
   my ($self, $v1, $v2) = @_;
-  return ($v1 < $v2) ? $self->true : $self->false;
+  return ($v1 < $v2) ? $self->host_isTrue : $self->host_isFalse;
 }
 
 =head2 syntaxError($self, $msg)
