@@ -131,8 +131,22 @@ L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::Defaul
 sub _Pattern_Disjunction {
     my ($self, $disjunction) = @_;
 
-    my $matcher = $self->evaluate($disjunction);
-    return $self->pattern_closure($matcher);
+    my $m = $self->evaluate($disjunction);
+
+    return sub {
+      my ($str, $index) = @_;
+
+      my $input = $str;
+      my $inputLength = length($str);
+
+      my $c = sub {
+        my ($state) = @_;
+        return $state;
+      };
+      my $cap = [ ($self->undefined) x $self->nCapturingParens ];
+      my $x = [$index, $cap];
+      return &$m($x, $c);
+    };
 }
 
 sub _Disjunction_Alternative {
@@ -148,7 +162,11 @@ sub _Disjunction_Alternative_OR_Disjunction {
 
     return sub {
 	my ($x, $c) = @_;
-	return &$m1($x, $c) || &$m2($x, $c);
+	my $r = &$m1($x, $c);
+        if ($self->isFailure($r) != $self->true) {
+          return $r;
+        }
+        return &$m2($x, $c);
     };
 }
 
@@ -185,8 +203,8 @@ sub _Term_Assertion {
 
 	my $t = $self->evaluate($assertion);
 	my $r = &$t($x);
-	if (! $r) {
-	    return undef;
+	if ($self->isFalse($r)) {
+	    return $self->failure;
 	}
 	return &$c($x);
     };
@@ -203,6 +221,9 @@ sub _Term_Atom_Quantifier {
 
     my $m = $self->evaluate($atom);
     my ($min, $max, $greedy) = $self->evaluate($quantifier);
+    if ($self->isFinite($max) && $self->isLt($max, $min)) {
+      $self->syntaxError("$max < $min");
+    }
 }
 
 1;
