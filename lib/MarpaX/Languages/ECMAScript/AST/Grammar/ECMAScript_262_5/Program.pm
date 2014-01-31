@@ -155,9 +155,9 @@ sub G {
     return $singleton->G;
 }
 
-=head2 parse($self, $source)
+=head2 parse($self, $source, $impl)
 
-Parse the source given as $source.
+Parse the source given as $source using implementation $impl.
 
 =cut
 
