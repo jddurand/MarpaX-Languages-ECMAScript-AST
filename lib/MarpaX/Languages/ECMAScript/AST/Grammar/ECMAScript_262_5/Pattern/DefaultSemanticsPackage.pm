@@ -2,8 +2,8 @@ use strict;
 use warnings FATAL => 'all';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::DefaultSemanticsPackage;
-use Data::Float qw//;
 use MarpaX::Languages::ECMAScript::AST::Exceptions qw/:all/;
+use List::Compare::Functional 0.21 qw/get_union_ref/;
 
 # ABSTRACT: ECMAScript 262, Edition 5, pattern grammar default semantics package
 
@@ -229,7 +229,7 @@ sub _Term_Atom_Quantifier {
     my $m = &$atom;
     my ($min, $max, $greedy) = &$quantifier;
     if (defined($max) && $max < $min) {
-      $self->syntaxError("$max < $min");
+      SyntaxError("$max < $min");
     }
     my $hashp = _parenIndexAndCount();
 
@@ -607,7 +607,7 @@ sub _AtomEscape_DecimalEscape {
     }
     my $n = $E;
     if ($n == 0 || $n > $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::nCapturingParens) {
-	$self->syntaxError("backtrack number $n must be > 0 and <= $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::nCapturingParens");
+	SyntaxError("backtrack number $n must be > 0 and <= $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::nCapturingParens");
     }
     return sub {
 	my ($x, $c) = @_;
@@ -754,6 +754,204 @@ sub _ClassRanges_NonemptyClassRanges {
     my ($self, $nonemptyClassRanges) = @_;
 
     return &$nonemptyClassRanges;
+}
+
+sub _NonemptyClassRanges_ClassAtom {
+    my ($self, $classAtom) = @_;
+
+    return &$classAtom;
+}
+
+sub _rangeComplement {
+    my ($A) = @_;
+
+    my ($Anegation, $Arange) = @{$A};
+
+    my %hash = map {$_ => 1} @{$Arange};
+
+    return [ $Anegation ? 0 : 1, [ grep {! exists($hash{$_})} (1.65535) ] ];
+  
+}
+
+sub _charsetUnion {
+    my ($A, $B) = @_;
+
+    my ($Anegation, $Arange) = @{$A};
+    my ($Bnegation, $Brange) = @{$A};
+
+    my $lc = List::Compare->new('--unsorted', '--accelerated', $Arange, $Brange);
+
+    if ($Anegation == $Bnegation) {
+	#
+	# If A and B have the same negation, then this really is a normal union
+	#
+	return [ $Anegation, get_union_ref('--unsorted', [ $Arange, $Brange ]) ];
+    } else {
+	#
+	# If not A and B have the same negation, then this really is a normal union.
+	# We choose the one with the smallest number of elements
+	#
+	my $Aelements = $#{$A->[1]};
+	my $Belements = $#{$B->[1]};
+	#
+	# 65534 because this is the maximum index in JavaScript, limited explicitely to UCS-2
+	#
+	my $AelementsRevert = 65534 - $#{$A->[1]};
+	my $BelementsRevert = 65534 - $#{$B->[1]};
+
+	if (($Aelements + $BelementsRevert) <= ($AelementsRevert + $Belements)) {
+	    #
+	    # We take the union of A and reverted B
+	    #
+	    return _charsetUnion($A, _rangeComplement($B));
+	} else {
+	    #
+	    # We take the union of reverted A and B
+	    #
+	    return _charsetUnion(_rangeComplement($A), $B);
+	}
+    }
+}
+
+sub _NonemptyClassRanges_ClassAtom_NonemptyClassRangesNoDash {
+    my ($self, $classAtom, $nonemptyClassRangesNoDash) = @_;
+
+    my $A = &$classAtom;
+    my $B = &$nonemptyClassRangesNoDash;
+    return _charsetUnion($A, $B);
+}
+
+sub _characterRange {
+    my ($A, $B) = @_;
+
+    my ($Anegation, $Arange) = @{$A};
+    my ($Bnegation, $Brange) = @{$A};
+
+    if ($Anegation != $Bnegation) {
+	# We choose the one with the smallest number of elements
+	#
+	my $Aelements = $#{$A->[1]};
+	my $Belements = $#{$B->[1]};
+	#
+	# 65534 because this is the maximum index in JavaScript, limited explicitely to UCS-2
+	#
+	my $AelementsRevert = 65534 - $#{$A->[1]};
+	my $BelementsRevert = 65534 - $#{$B->[1]};
+
+	if ($AelementsRevert <= $BelementsRevert) {
+	    #
+	    # We take the reverted A
+	    #
+	    ($Anegation, $Arange) = _rangeComplement($A);
+	} else {
+	    #
+	    # We take the reverted B
+	    #
+	    ($Bnegation, $Brange) = _rangeComplement($B);
+	}
+    }
+
+    if ($#{$Arange} != 0 || $#{$Brange} != 0) {
+	SyntaxError("Doing characterRange requires both charsets to have exactly one element");
+    }
+    my $a = $Arange->[0];
+    my $b = $Brange->[0];
+    my $i = ord($a);
+    my $j = ord($b);
+    if ($i > $j) {
+	SyntaxError("Doing characterRange requires first char '$a' to be <= second char '$b'");
+    }
+
+    return [$Anegation, [ map {chr($_)} ($i..$j) ]];
+
+}
+
+sub _NonemptyClassRanges_ClassAtom_ClassAtom_ClassRanges {
+    my ($self, $classAtom1, undef, $classAtom2, $classRanges) = @_;
+
+    my $A = &$classAtom1;
+    my $B = &$classAtom2;
+    my $C = &$classRanges;
+    my $D = _characterRange($A, $B);
+    return _charsetUnion($D, $C);
+}
+
+sub _NonemptyClassRangesNoDash_ClassAtom {
+    my ($self, $classAtom) = @_;
+
+    return &$classAtom;
+}
+
+sub _NonemptyClassRangesNoDash_ClassAtomNoDash_NonemptyClassRangesNoDash {
+    my ($self, $classAtomNoDash, $nonemptyClassRangesNoDash) = @_;
+
+    my $A = &$classAtomNoDash;
+    my $B = &$nonemptyClassRangesNoDash;
+    return _charsetUnion($A, $B);
+}
+
+sub _NonemptyClassRangesNoDash_ClassAtomNoDash_ClassAtom_ClassRanges {
+    my ($self, $classAtomNoDash, undef, $classAtom, $classRanges) = @_;
+
+    my $A = &$classAtomNoDash;
+    my $B = &$classAtom;
+    my $C = &$classRanges;
+    my $D = _characterRange($A, $B);
+    return _charsetUnion($D, $C);
+}
+
+sub _ClassAtom_Dash {
+    my ($self, undef) = @_;
+
+    return [0, [ '-' ]];
+}
+
+sub _ClassAtom_ClassAtomNoDash {
+    my ($self, $classAtomNoDash) = @_;
+
+    return &$classAtomNoDash;
+}
+
+sub _ClassAtomNoDash_OneChar {
+    my ($self, $oneChar) = @_;
+
+    return [0, [ $oneChar ]];
+}
+
+sub _ClassAtomNoDash_ClassEscape {
+    my ($self, undef, $classEscape) = @_;
+
+    return &$classEscape;
+}
+
+sub _ClassEscape_DecimalEscape {
+    my ($self, $decimalEscape) = @_;
+
+    my $E = &$decimalEscape;
+
+    my $ch = eval {chr($E)};
+    if ($@) {
+	SyntaxError("Decimal Escape is not a valid character");
+    }
+    return [0, [ $ch ]];
+}
+
+sub _ClassEscape_b {
+    my ($self, undef) = @_;
+
+    return [0, MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::BS() ];
+}
+
+sub _ClassEscape_CharacterEscape {
+    my ($self, $characterEscape) = @_;
+
+    return [0, [ &$characterEscape ]];
+}
+
+sub _ClassEscape_CharacterClassEscape {
+    my ($self, $characterClassEscape) = @_;
+
+    return &$characterClassEscape;
 }
 
 1;

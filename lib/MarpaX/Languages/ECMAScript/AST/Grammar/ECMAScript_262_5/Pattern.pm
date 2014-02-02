@@ -176,9 +176,9 @@ This method is explicitely setting a localized MarpaX::Languages::ECMAScript::AS
 sub value {
   my ($self, $impl) = @_;
 
-  local MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::lparen $self->{_lparen};
+  local $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::lparen = $self->{_lparen};
 
-  return $self->SUPER($self, $impl);
+  return $self->SUPER($impl);
 }
 
 =head1 SEE ALSO
@@ -322,28 +322,28 @@ ClassRanges ::=
   NonemptyClassRanges                               action => _ClassRanges_NonemptyClassRanges
 
 NonemptyClassRanges ::=
-      ClassAtom
-    | ClassAtom NonemptyClassRangesNoDash
-    | ClassAtom '-' ClassAtom ClassRanges
+      ClassAtom                                     action => _NonemptyClassRanges_ClassAtom
+    | ClassAtom NonemptyClassRangesNoDash           action => _NonemptyClassRanges_ClassAtom_NonemptyClassRangesNoDash
+    | ClassAtom '-' ClassAtom ClassRanges           action => _NonemptyClassRanges_ClassAtom_ClassAtom_ClassRanges
 
 NonemptyClassRangesNoDash ::=
-      ClassAtom
-    | ClassAtomNoDash NonemptyClassRangesNoDash
-    | ClassAtomNoDash '-' ClassAtom ClassRanges
+      ClassAtom                                     action => _NonemptyClassRangesNoDash_ClassAtom
+    | ClassAtomNoDash NonemptyClassRangesNoDash     action => _NonemptyClassRangesNoDash_ClassAtomNoDash_NonemptyClassRangesNoDash
+    | ClassAtomNoDash '-' ClassAtom ClassRanges     action => _NonemptyClassRangesNoDash_ClassAtomNoDash_ClassAtom_ClassRanges
 
 ClassAtom ::=
-      '-'
-    | ClassAtomNoDash
+      '-'                                           action => _ClassAtom_Dash
+    | ClassAtomNoDash                               action => _ClassAtom_ClassAtomNoDash
 
 ClassAtomNoDash ::=
-      [\p{IsSourceCharacterButNotOneOfBackslashOrRbracketorMinus}]
-    | '\' ClassEscape
+      [\p{IsSourceCharacterButNotOneOfBackslashOrRbracketorMinus}]  action => _ClassAtomNoDash_OneChar
+    | '\' ClassEscape                                               action => _ClassAtomNoDash_ClassEscape
 
 ClassEscape ::=
-      DecimalEscape
-    | 'b'
-    | CharacterEscape
-    | CharacterClassEscape
+      DecimalEscape                                 action => _ClassEscape_DecimalEscape
+    | 'b'                                           action => _ClassEscape_b
+    | CharacterEscape                               action => _ClassEscape_CharacterEscape
+    | CharacterClassEscape                          action => _ClassEscape_CharacterClassEscape
 
 HexEscapeSequence ::= 'x' _HexDigit _HexDigit                         action => _HexEscapeSequence
 
