@@ -28,13 +28,18 @@ my $ecmaAst = MarpaX::Languages::ECMAScript::AST->new();
 my $pattern = $ecmaAst->pattern;
 
 my %DATA = (
-    # reg                         str multiline ignoreCase  value
-    'a|ab'                 => [ 'abc',       0,         0,  [1, [] ] ],
-    '((a)|(ab))((c)|(bc))' => [ 'abc',       0,         0,  [3, ['a','a',undef,'bc',undef,'bc'] ] ],
-    'a[a-z]{2,4}'          => [ 'abcdefghi', 0,         0,  [5, [] ] ],
-    '(a[a-z]{2,4})'        => [ 'abcdefghi', 0,         0,  [5, ['abcde'] ] ],
-    'a[a-z]{2,4}?'         => [ 'abcdefghi', 0,         0,  [3, [] ] ],
-    '(a[a-z]{2,4}?)'       => [ 'abcdefghi', 0,         0,  [3, ['abc'] ] ],
+    # reg                         str multiline ignoreCase   value
+    #                                                        [lastPos, [ @matches ] ]
+    'a|ab'                 => [ 'abc',        0,         0,  [ 1, [] ] ],
+    '((a)|(ab))((c)|(bc))' => [ 'abc',        0,         0,  [ 3, ['a','a',undef,'bc',undef,'bc'] ] ],
+    'a[a-z]{2,4}'          => [ 'abcdefghi',  0,         0,  [ 5, [] ] ],
+    '(a[a-z]{2,4})'        => [ 'abcdefghi',  0,         0,  [ 5, ['abcde'] ] ],
+    'a[a-z]{2,4}?'         => [ 'abcdefghi',  0,         0,  [ 3, [] ] ],
+    '(a[a-z]{2,4}?)'       => [ 'abcdefghi',  0,         0,  [ 3, ['abc'] ] ],
+    '(aa|aabaac|ba|b|c)*'  => [ 'aabaac',     0,         0,  [ 4, ['ba'] ] ],
+    '(z)((a+)?(b+)?(c))*'  => [ 'zaacbbbcac', 0,         0,  [10, ['z', 'ac', 'a', undef, 'c'] ] ],
+    '(a*)*'                => [ 'b',          0,         0,  [0, [undef] ] ],
+    '(a*)b\1+'             => [ '"baaaac',    0,         0,  [1, [''] ] ],
     );
 my $ntest = 0;
 foreach (keys %DATA) {
