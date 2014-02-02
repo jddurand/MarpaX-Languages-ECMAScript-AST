@@ -17,7 +17,7 @@ This modules provide a default semantics package for the actions associated to E
 
 =head2 new($class)
 
-Instantiate a new object, initialized to positive zero for host value, and positive zero for length.
+Instantiate a new object that has two members: number initialized to host's positive zero, and length initalized to host's positive zero.
 
 =cut
 
