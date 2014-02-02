@@ -63,11 +63,6 @@ sub new {
 
 our @LINETERMINATOR = @{MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::LineTerminator()};
 our @WHITESPACE = @{MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::WhiteSpace()};
-#
-# Just because I believe it is quicker to test on ord than on char
-#
-our @ORDLINETERMINATOR = map {ord($_)} @LINETERMINATOR;
-print STDERR "WhiteSpace ordinals: " . join(', ', map{sprintf("0x%04x", ord($_))}@WHITESPACE) . "\n";
 
 sub _Pattern_Disjunction {
     my ($self, $disjunction) = @_;
@@ -258,8 +253,8 @@ sub _Assertion_Caret {
 	if (! $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::multiline) {
 	    return 0;
 	}
-	my $oc = ord(substr($MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::input, $e, 1));
-	if (grep {$oc == $_} @ORDLINETERMINATOR) {
+	my $c = substr($MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::input, $e, 1);
+	if (grep {$c == $_} @LINETERMINATOR) {
 	    return 1;
 	}
 	#
@@ -285,8 +280,8 @@ sub _Assertion_Dollar {
 	if (! $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::multiline) {
 	    return 0;
 	}
-	my $oc = ord(substr($MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::input, $e, 1));
-	if (grep {$oc == $_} @ORDLINETERMINATOR) {
+	my $c = substr($MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::input, $e, 1);
+	if (grep {$c == $_} @LINETERMINATOR) {
 	    return 1;
 	}
 	#
@@ -657,19 +652,19 @@ sub _CharacterEscape_ControlEscape {
     my ($self, $controlEscape) = @_;
 
     if ($controlEscape eq 't') {
-	return "\N{U+0009}";
+	return MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::TAB()->[0];
     }
     elsif ($controlEscape eq 'n') {
-	return "\N{U+000A}";
+	return MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::LF()->[0];
     }
     elsif ($controlEscape eq 'v') {
-	return "\N{U+000B}";
+	return MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::VT()->[0];
     }
     elsif ($controlEscape eq 'f') {
-	return "\N{U+000C}";
+	return MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::FF()->[0];
     }
     elsif ($controlEscape eq 'r') {
-	return "\N{U+000D}";
+	return MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::CR()->[0];
     }
 }
 
