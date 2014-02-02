@@ -23,6 +23,7 @@ This modules defines generic user-defined character classes for ECMAScript. Ther
 
 our @EXPORT_OK = qw/
 BOM
+BS
 CR
 FF
 Isb
@@ -241,6 +242,14 @@ Return an array reference of characters composing BOM
 =cut
 
 sub BOM { return [ "\N{U+FEFF}" ] }
+
+=head2 BS()
+
+Return an array reference of characters composing BS
+
+=cut
+
+sub BS { return [ "\N{U+0008}" ] }
 
 =head2 IsTAB()
 
