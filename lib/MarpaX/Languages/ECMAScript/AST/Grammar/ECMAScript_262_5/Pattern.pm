@@ -76,6 +76,10 @@ sub new {
     # Add semantics package to self
     #
     $self->{_semantics_package} = $semantics_package;
+    #
+    # Add tracking of disjunction positions
+    #
+    $self->{_lparen} = [];
 
     return $self;
 }
@@ -156,12 +160,25 @@ sub _eventCallback {
     if ($name eq 'LPAREN_ATOM_DISJUNCTION$') {
       push(@{$self->{_lparen}}, $pos);
     }
-    elsif ($name eq 'RPAREN_ATOM_DISJUNCTION$') {
-      push(@{$self->{_rparen}}, $pos);
-    }
   }
 
   return $rc;
+}
+
+=head2 value($self, $impl)
+
+Return the parse tree (unique) value. $impl is the recognizer instance for the grammar. Will raise an InternalError exception if there is no parse tree value, or more than one parse tree value. Please note that this method explicity destroys the recognizer using $impl->destroy_R. Value itself is an AST where every string is a perl string. This a subclass of MarpaX::Languages::ECMAScript::AST::Grammar::Base::value() because the position of disjunction left parenthesis is localized, so that value() will see them.
+
+This method is explicitely setting a localized MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::lparen variable that is an array reference of all disjunctions left parenthesis locations in the regular expression perl string.
+
+=cut
+
+sub value {
+  my ($self, $impl) = @_;
+
+  local MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::lparen $self->{_lparen};
+
+  return $self->SUPER($self, $impl);
 }
 
 =head1 SEE ALSO
@@ -172,148 +189,6 @@ L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::Defaul
 
 =cut
 
-sub _Pattern_Disjunction {
-    my ($self, $disjunction) = @_;
-
-    my $m = $self->host_eval($disjunction);
-
-    return sub {
-      my ($str, $index) = @_;
-
-      my $input = $str;
-      my $inputLength = length($str);
-
-      my $c = sub {
-        my ($state) = @_;
-        return $state;
-      };
-      my $cap = [ ($self->host_undef) x $self->nCapturingParens ];
-      my $x = [$index, $cap];
-      return &$m($x, $c);
-    };
-}
-
-sub _Disjunction_Alternative {
-    my ($self, $alternative) = @_;
-    return $self->host_eval($alternative);
-}
-
-sub _Disjunction_Alternative_OR_Disjunction {
-    my ($self, $alternative, $disjunction) = @_;
-
-    my $m1 = $self->host_eval($alternative);
-    my $m2 = $self->host_eval($disjunction);
-
-    return sub {
-	my ($x, $c) = @_;
-	my $r = &$m1($x, $c);
-        if ($self->host_isFailure($r) != $self->host_true) {
-          return $r;
-        }
-        return &$m2($x, $c);
-    };
-}
-
-sub _Alternative {
-    my ($self) = @_;
-
-    return sub {
-	my ($x, $c) = @_;
-	return &$c($x);
-    };
-}
-
-sub _Alternative_Alternative_Term {
-    my ($self, $alternative, $term) = @_;
-
-    my $m1 = $self->host_eval($alternative);
-    my $m2 = $self->host_eval($term);
-
-  return sub {
-      my ($x, $c) = @_;
-      my $d = sub {
-	  my ($y) = @_;
-	  return &$m2($y, $c);
-      };
-      return &$m1($x, $d);
-  };
-}
-
-sub _Term_Assertion {
-    my ($self, $assertion) = @_;
-
-    return sub {
-	my ($x, $c) = @_;
-
-	my $t = $self->host_eval($assertion);
-	my $r = &$t($x);
-	if ($self->host_isFalse($r)) {
-	    return $self->host_failure;
-	}
-	return &$c($x);
-    };
-}
-
-sub _Term_Atom {
-    my ($self, $atom) = @_;
-
-    return $self->host_eval($atom);
-}
-
-sub _repeatMatcher {
-  my ($self, $m, $min, $max, $greedy, $x, $c, $parenIndex, $parenCount) = @_;
-
-  if ($max == 0) {
-    return &$c($x);
-  }
-  my $d = sub {
-    my ($y) = @_;
-    if ($min == 0 && $y->[-1] == $x->[-1]) {
-      return $self->host_failure;
-    }
-    my $min2 = ($min == 0) ? 0 : ($min - 1);
-    my $max2 = $self->host_isInf($max) ? $self->host_pos_inf : ($max - 1);
-    return $self->_repeatMatcher($m, $min2, $max2, $greedy, $y, $c, $parenIndex, $parenCount);
-  };
-  my @cap = @{$x->[1]};
-  foreach my $k (($parenIndex+1)..($parenIndex+$parenCount)) {
-    $cap[$k] = $self->host_undef;
-  }
-  my $e = $x->[-1];
-  my $xr = [$e, \@cap ];
-  if ($min != 0) {
-    return &$m($xr, $d);
-  }
-  if ($self->host_isFalse($greedy)) {
-    my $z = &$c($x);
-    if (! $self->host_isFailure($z)) {
-      return $z;
-    }
-    return &$m($xr, $d);
-  }
-  my $z = &$m($xr, $d);
-  if (! $self->host_isFailure($z)) {
-    return $z;
-  }
-  return &$c($x);
-}
-
-sub _Term_Atom_Quantifier {
-    my ($self, $atom, $quantifier) = @_;
-
-    my $m = $self->host_eval($atom);
-    my ($min, $max, $greedy) = $self->host_eval($quantifier);
-    if ($self->host_isFinite($max) && $self->host_isLt($max, $min)) {
-      $self->syntaxError("$max < $min");
-    }
-    my ($start, $end) = Marpa::R2::Context::location();
-    my $parenIndex = $self->parenIndex($start);
-    my $parentCount = $self->parenCount($start, $end);
-
-    return sub {
-      my ($x, $c) = @_;
-    };
-}
 
 1;
 __DATA__
@@ -326,67 +201,67 @@ __DATA__
 lexeme default = action => [start,length,value]
 
 Pattern ::=
-      Disjunction                       action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Pattern_Disjunction
+      Disjunction                             action => _Pattern_Disjunction
 
 Disjunction ::=
-      Alternative                       action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Disjunction_Alternative
-    | Alternative '|' Disjunction       action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Disjunction_Alternative_OR_Disjunction
+      Alternative                             action => _Disjunction_Alternative
+    | Alternative '|' Disjunction             action => _Disjunction_Alternative_OR_Disjunction
 
-Alternative ::=                         action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Alternative
-Alternative ::= Alternative Term        action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Alternative_Alternative_Term
+Alternative ::=                               action => _Alternative
+Alternative ::= Alternative Term              action => _Alternative_Alternative_Term
 
 Term ::=
-      Assertion                         action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Term_Assertion
-    | Atom                              action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Term_Atom
-    | Atom Quantifier                   action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::_Term_Atom_Quantifier
+      Assertion                               action => _Term_Assertion
+    | Atom                                    action => _Term_Atom
+    | Atom Quantifier                         action => _Term_Atom_Quantifier
 
 Assertion ::=
-      '^'
-    | '$'
-    | '\b'
-    | '\B'
-    | '(?=' Disjunction ')'
-    | '(?!' Disjunction ')'
+      '^'                                     action => _Assertion_Caret
+    | '$'                                     action => _Assertion_Dollar
+    | '\b'                                    action => _Assertion_b
+    | '\B'                                    action => _Assertion_B
+    | '(?=' Disjunction ')'                   action => _Assertion_DisjunctionPositiveLookAhead
+    | '(?!' Disjunction ')'                   action => _Assertion_DisjunctionNegativeLookAhead
 
 Quantifier ::=
-      QuantifierPrefix
-    | QuantifierPrefix '?'
+      QuantifierPrefix                        action => _Quantifier_QuantifierPrefix
+    | QuantifierPrefix '?'                    action => _Quantifier_QuantifierPrefix_QuestionMark
 
 QuantifierPrefix ::=
-      '*'
-    | '+'
-    | '?'
-    | '{' DecimalDigits '}'
-    | '{' DecimalDigits ',}'
-    | '{' DecimalDigits ',' DecimalDigits '}'
+      '*'                                     action => _QuantifierPrefix_Star
+    | '+'                                     action => _QuantifierPrefix_Plus
+    | '?'                                     action => _QuantifierPrefix_QuestionMark
+    | '{' DecimalDigits '}'                   action => _QuantifierPrefix_DecimalDigits
+    | '{' DecimalDigits ',}'                  action => _QuantifierPrefix_DecimalDigits_Comma
+    | '{' DecimalDigits ',' DecimalDigits '}' action => _QuantifierPrefix_DecimalDigits_DecimalDigits_
 
 Atom ::=
-      PatternCharacter
-    | '.'
-    | '\' AtomEscape
-    | CharacterClass
-    | LPAREN_ATOM_DISJUNCTION Disjunction RPAREN_ATOM_DISJUNCTION
-    | '(?:' Disjunction ')'
+      PatternCharacter                        action => _Atom_PatternCharacter
+    | '.'                                     action => _Atom_Dot
+    | '\' AtomEscape                          action => _Atom_Backslash_AtomEscape
+    | CharacterClass                          action => _Atom_Backslash_CharacterClass
+    | LPAREN_ATOM_DISJUNCTION Disjunction ')' action => _Atom_Lparen_Disjunction_Rparen
+    | '(?:' Disjunction ')'                   action => _Atom_nonCapturingDisjunction
 
-PatternCharacter ::=
+PatternCharacter ~
       [\p{IsPatternCharacter}]
 
 AtomEscape ::=
-      DecimalEscape
-    | CharacterEscape
-    | CharacterClassEscape
+      DecimalEscape                           action => _AtomEscape_DecimalEscape
+    | CharacterEscape                         action => _AtomEscape_CharacterEscape
+    | CharacterClassEscape                    action => _AtomEscape_CharacterClassEscape
 
 CharacterEscape ::=
-      ControlEscape
-    | 'c' ControlLetter
-    | HexEscapeSequence
-    | UnicodeEscapeSequence
-    | IdentityEscape
+      ControlEscape                           action => _CharacterEscape_ControlEscape
+    | 'c' ControlLetter                       action => _CharacterEscape_ControlLetter
+    | HexEscapeSequence                       action => _CharacterEscape_HexEscapeSequence
+    | UnicodeEscapeSequence                   action => _CharacterEscape_UnicodeEscapeSequence
+    | IdentityEscape                          action => _CharacterEscape_IdentityEscape
 
-ControlEscape ::=
+ControlEscape ~
       [fnrtv]
 
-ControlLetter ::=
+ControlLetter ~
       [a-zA-Z]
 
 #
@@ -417,34 +292,34 @@ ControlLetter ::=
 #    | <ZWJ>
 #    | <ZWNJ>
 
-IdentityEscape ::=
+IdentityEscape ~
        [\p{IsIdentityEscape}]
 
-DecimalEscape ::=
-    DecimalIntegerLiteral # Lookahead not in decimal digit is automatic
+DecimalEscape ::= # Lookahead not in decimal digit is automatic
+    DecimalIntegerLiteral                           action => _DecimalEscape_DecimalIntegerLiteral
 
-DecimalIntegerLiteral ::=
+DecimalIntegerLiteral ~
     '0'
   | _NonZeroDigit
-  | _NonZeroDigit DecimalDigits
+  | _NonZeroDigit _DecimalDigits
 
-DecimalDigits ::=
+_DecimalDigits ~
     _DecimalDigit
-  | DecimalDigits _DecimalDigit
+  | _DecimalDigits _DecimalDigit
 
 _NonZeroDigit      ~ [\p{IsNonZeroDigit}]
 _DecimalDigit      ~ [\p{IsDecimalDigit}]
 
 CharacterClassEscape ::=
-      [dDsSwW]
+      [dDsSwW]                                      action => _CharacterClassEscape
 
 CharacterClass ::=
-      '[' ClassRanges ']'
-    | '[^' ClassRanges ']'
+      '[' ClassRanges ']'                           action => _CharacterClass_ClassRanges
+    | '[^' ClassRanges ']'                          action => _CharacterClass_CaretClassRanges
 
+ClassRanges ::=                                     action => _ClassRanges
 ClassRanges ::=
-ClassRanges ::=
-  NonemptyClassRanges
+  NonemptyClassRanges                               action => _ClassRanges_NonemptyClassRanges
 
 NonemptyClassRanges ::=
       ClassAtom
@@ -470,15 +345,11 @@ ClassEscape ::=
     | CharacterEscape
     | CharacterClassEscape
 
-HexEscapeSequence ::= 'x' _HexDigit _HexDigit
+HexEscapeSequence ::= 'x' _HexDigit _HexDigit                         action => _HexEscapeSequence
 
-UnicodeEscapeSequence ::= 'u' _HexDigit _HexDigit _HexDigit _HexDigit
+UnicodeEscapeSequence ::= 'u' _HexDigit _HexDigit _HexDigit _HexDigit action => _UnicodeEscapeSequence
 
 _HexDigit              ~ [\p{IsHexDigit}]
 
 :lexeme ~ <LPAREN_ATOM_DISJUNCTION> pause => after event => 'LPAREN_ATOM_DISJUNCTION$'
 LPAREN_ATOM_DISJUNCTION ~ '('
-:lexeme ~ <RPAREN_ATOM_DISJUNCTION> pause => after event => 'RPAREN_ATOM_DISJUNCTION$'
-RPAREN_ATOM_DISJUNCTION ~ ')'
-
-
