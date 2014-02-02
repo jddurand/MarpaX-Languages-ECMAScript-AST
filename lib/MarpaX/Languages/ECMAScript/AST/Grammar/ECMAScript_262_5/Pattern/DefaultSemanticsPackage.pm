@@ -81,7 +81,6 @@ sub _Pattern_Disjunction {
     my $m = $disjunction;
 
     return sub {
-	use Data::Dumper; print STDERR "JDD 01 " . Dumper(\@_);
 	#
 	# Note: $str is a true perl string, $index is a true perl scalar
 	#
@@ -97,7 +96,6 @@ sub _Pattern_Disjunction {
 	local $MarpaX::Languages::ECMAScript::AST::Pattern::ignoreCase = $ignoreCase;
 
 	my $c = sub {
-	    use Data::Dumper; print STDERR "JDD 02 " . Dumper(\@_);
 	    my ($state) = @_;
 	    return $state;
 	};
@@ -120,10 +118,9 @@ sub _Disjunction_Alternative_OR_Disjunction {
     my $m2 = $disjunction;
 
     return sub {
-	use Data::Dumper; print STDERR "JDD 03 " . Dumper(\@_);
 	my ($x, $c) = @_;
 	my $r = &$m1($x, $c);
-        if (! $r) {
+        if ($r) {
           return $r;
         }
         return &$m2($x, $c);
@@ -134,7 +131,6 @@ sub _Alternative {
     my ($self) = @_;
 
     return sub {
-	use Data::Dumper; print STDERR "JDD 04 " . Dumper(\@_);
 	my ($x, $c) = @_;
 	return &$c($x);
     };
@@ -146,23 +142,20 @@ sub _Alternative_Alternative_Term {
     my $m1 = $alternative;
     my $m2 = $term;
 
-  return sub {
-      use Data::Dumper; print STDERR "JDD 05 " . Dumper(\@_);
+    return sub {
       my ($x, $c) = @_;
       my $d = sub {
-	  use Data::Dumper; print STDERR "JDD 06 " . Dumper(\@_);
 	  my ($y) = @_;
 	  return &$m2($y, $c);
       };
       return &$m1($x, $d);
-  };
+    };
 }
 
 sub _Term_Assertion {
     my ($self, $assertion) = @_;
 
     return sub {
-	use Data::Dumper; print STDERR "JDD 07 " . Dumper(\@_);
 	my ($x, $c) = @_;
 
 	my $t = $assertion;
@@ -183,11 +176,10 @@ sub _Term_Atom {
 sub _repeatMatcher {
   my ($m, $min, $max, $greedy, $x, $c, $parenIndex, $parenCount) = @_;
 
-  if ($max == 0) {
+  if (defined($max) && $max == 0) {
     return &$c($x);
   }
   my $d = sub {
-      use Data::Dumper; print STDERR "JDD 08 " . Dumper(\@_);
     my ($y) = @_;
     if ($min == 0 && $y->[0] == $x->[0]) {
       return 0;
@@ -198,7 +190,7 @@ sub _repeatMatcher {
   };
   my @cap = @{$x->[1]};
   foreach my $k (($parenIndex+1)..($parenIndex+$parenCount)) {
-    $cap[$k] = undef;
+    $cap[$k-1] = undef;     # Take care, cap index in ECMA spec start at 1
   }
   my $e = $x->[0];
   my $xr = [$e, \@cap ];
@@ -226,11 +218,11 @@ sub _parenIndexAndCount {
     my $parenIndex = 0;
     my $parenCount = 0;
     foreach (@{$self->lparen}) {
-	if ($_ <= $end) {
+	if ($_ < $start) {
 	    ++$parenIndex;
-	    if ($_ >= $start) {
-		++$parenCount;
-	    }
+	}
+	elsif ($_ <= $end) {
+	    ++$parenCount;
 	}
     }
     return {parenIndex => $parenIndex, parenCount => $parenCount};
@@ -250,7 +242,6 @@ sub _Term_Atom_Quantifier {
     my $hashp = $self->_parenIndexAndCount();
 
     return sub {
-	use Data::Dumper; print STDERR "JDD 09 " . Dumper(\@_);
 	my ($x, $c) = @_;
 
 	return _repeatMatcher($m, $min, $max, $greedy, $x, $c, $hashp->{parenIndex}, $hashp->{parenCount});
@@ -261,7 +252,6 @@ sub _Assertion_Caret {
     my ($self, $caret) = @_;
 
     return sub {
-	use Data::Dumper; print STDERR "JDD 10 " . Dumper(\@_);
 	my ($x) = @_;
 
 	my $e = $x->[0];
@@ -284,7 +274,6 @@ sub _Assertion_Dollar {
     my ($self, $caret) = @_;
 
     return sub {
-	use Data::Dumper; print STDERR "JDD 11 " . Dumper(\@_);
 	my ($x) = @_;
 
 	my $e = $x->[0];
@@ -305,8 +294,6 @@ sub _Assertion_Dollar {
 
 sub _isWordChar {
     my ($e) = @_;
-
-    use Data::Dumper; print STDERR "JDD _isWordChar " . Dumper(\@_);
 
     if ($e == -1 || $e == $MarpaX::Languages::ECMAScript::AST::Pattern::inputLength) {
 	return 0;
@@ -336,7 +323,6 @@ sub _Assertion_b {
     my ($self, $caret) = @_;
 
     return sub {
-	use Data::Dumper; print STDERR "JDD 12 " . Dumper(\@_);
 	my ($x) = @_;
 
 	my $e = $x->[0];
@@ -356,7 +342,6 @@ sub _Assertion_B {
     my ($self, $caret) = @_;
 
     return sub {
-	use Data::Dumper; print STDERR "JDD 13 " . Dumper(\@_);
 	my ($x) = @_;
 
 	my $e = $x->[0];
@@ -378,11 +363,9 @@ sub _Assertion_DisjunctionPositiveLookAhead {
     my $m = $disjunction;
 
     return sub {
-	use Data::Dumper; print STDERR "JDD 14 " . Dumper(\@_);
 	my ($x, $c) = @_;
 
 	my $d = sub {
-	    use Data::Dumper; print STDERR "JDD 15 " . Dumper(\@_);
 	    my ($y) = @_;
 	    return $y;
 	};
@@ -405,11 +388,9 @@ sub _Assertion_DisjunctionNegativeLookAhead {
     my $m = $disjunction;
 
     return sub {
-	use Data::Dumper; print STDERR "JDD 16 " . Dumper(\@_);
 	my ($x, $c) = @_;
 
 	my $d = sub {
-	    use Data::Dumper; print STDERR "JDD 17 " . Dumper(\@_);
 	    my ($y) = @_;
 	    return $y;
 	};
@@ -525,7 +506,6 @@ sub _canonicalize {
 sub _characterSetMatcher {
     my ($self, $A, $invert) = @_;
 
-    use Data::Dumper; print STDERR "JDD _characterSetMatcher " . Dumper($A);
     my ($x, $c) = @_;
 
     my ($Anegation, $Arange) = @{$A};
@@ -535,7 +515,6 @@ sub _characterSetMatcher {
     }
 
     return sub {
-	use Data::Dumper; print STDERR "JDD 18 " . Dumper(\@_);
 	my ($x, $c) = @_;
 
 	my $e = $x->[0];
@@ -545,11 +524,11 @@ sub _characterSetMatcher {
 	my $ch = substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $e, 1);
 	my $cc = _canonicalize($ch);
 	if (! $invert) {
-	    if (! grep {$cc eq $_} @{$Arange}) {
+	    if (! grep {$cc eq _canonicalize($_)} @{$Arange}) {
 		return 0;
 	    }
 	} else {
-	    if (grep {$cc eq $_} @{$Arange}) {
+	    if (grep {$cc eq _canonicalize($_)} @{$Arange}) {
 		return 0;
 	    }
 	}
@@ -598,18 +577,16 @@ sub _Atom_Lparen_Disjunction_Rparen {
     my $m = $disjunction;
     my $parenIndex = $self->_parenIndexAndCount()->{parenIndex};
     return sub {
-	use Data::Dumper; print STDERR "JDD 19 " . Dumper(\@_);
 	my ($x, $c) = @_;
 
 	my $d = sub {
-	    use Data::Dumper; print STDERR "JDD 20 " . Dumper(\@_);
 	    my ($y) = @_;
 
 	    my @cap = @{$y->[1]};
 	    my $xe = $x->[0];
 	    my $ye = $y->[0];
-	    my $s = substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $xe, $ye-$xe-1);
-	    $cap[$parenIndex+1] = $s;
+	    my $s = substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $xe, $ye-$xe);
+	    $cap[$parenIndex] = $s;        # Take care, in ECMA spec, cap index start at 1
 	    my $z = [$ye, \@cap ];
 	    return &$c($z);
 	};
@@ -639,11 +616,10 @@ sub _AtomEscape_DecimalEscape {
 	SyntaxError("backtrack number $n must be > 0 and <= " . scalar(@{$self->lparen}));
     }
     return sub {
-	use Data::Dumper; print STDERR "JDD 21 " . Dumper(\@_);
 	my ($x, $c) = @_;
 
 	my $cap = $x->[1];
-	my $s = $cap->[$n];
+	my $s = $cap->[$n-1];     # Take care, in ECMA spec cap index start at 1
 	if (! defined($s)) {
 	    return &$c($x);
 	}
@@ -827,8 +803,6 @@ sub _charsetUnion {
     my ($Anegation, $Arange) = @{$A};
     my ($Bnegation, $Brange) = @{$A};
 
-    my $lc = List::Compare->new('--unsorted', '--accelerated', $Arange, $Brange);
-
     if ($Anegation == $Bnegation) {
 	#
 	# If A and B have the same negation, then this really is a normal union
@@ -873,7 +847,7 @@ sub _characterRange {
     my ($self, $A, $B) = @_;
 
     my ($Anegation, $Arange) = @{$A};
-    my ($Bnegation, $Brange) = @{$A};
+    my ($Bnegation, $Brange) = @{$B};
 
     if ($Anegation != $Bnegation) {
 	# We choose the one with the smallest number of elements
@@ -921,6 +895,7 @@ sub _NonemptyClassRanges_ClassAtom_ClassAtom_ClassRanges {
     my $B = $classAtom2;
     my $C = $classRanges;
     my $D = $self->_characterRange($A, $B);
+
     return $self->_charsetUnion($D, $C);
 }
 

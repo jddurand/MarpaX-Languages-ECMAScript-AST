@@ -75,7 +75,7 @@ IsSingleEscapeCharacter
 IsSlash
 IsSourceCharacter
 IsSourceCharacterButNotLineTerminator
-IsSourceCharacterButNotOneOfBackslashOrRbracketorMinus
+IsSourceCharacterButNotOneOfBackslashOrRbracketOrMinus
 IsSourceCharacterButNotOneOfDquoteOrBackslashOrLineTerminator
 IsSourceCharacterButNotOneOfEscapeCharacterOrLineTerminator
 IsSourceCharacterButNotOneOfSlashOrStar
@@ -806,11 +806,11 @@ sub IsPatternCharacter { return <<END;
 END
 }
 
-=head2 IsSourceCharacterButNotOneOfBackslashOrRbracketorMinus()
+=head2 IsSourceCharacterButNotOneOfBackslashOrRbracketOrMinus()
 
 =cut
 
-sub IsSourceCharacterButNotOneOfBackslashOrRbracketorMinus { return <<END;
+sub IsSourceCharacterButNotOneOfBackslashOrRbracketOrMinus { return <<END;
 +MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsSourceCharacter
 -MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsBackslash
 -MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsRbracket

@@ -26,13 +26,15 @@ BEGIN {
 
 my $ecmaAst = MarpaX::Languages::ECMAScript::AST->new();
 my $pattern = $ecmaAst->pattern;
-print STDERR "IMPL is $pattern->{impl}\n";
-print STDERR "PATTERN is $pattern\n";
-print STDERR "PATTERN GRAMMAR is $pattern->{grammar}\n";
 
 my %DATA = (
-    # reg        str multiline ignoreCase  value
-    '(a|ab)' => [ 'abc',       0,         0,  'a' ]
+    # reg                         str multiline ignoreCase  value
+    'a|ab'                 => [ 'abc',       0,         0,  [1, [] ] ],
+    '((a)|(ab))((c)|(bc))' => [ 'abc',       0,         0,  [3, ['a','a',undef,'bc',undef,'bc'] ] ],
+    'a[a-z]{2,4}'          => [ 'abcdefghi', 0,         0,  [5, [] ] ],
+    '(a[a-z]{2,4})'        => [ 'abcdefghi', 0,         0,  [5, ['abcde'] ] ],
+    'a[a-z]{2,4}?'         => [ 'abcdefghi', 0,         0,  [3, [] ] ],
+    '(a[a-z]{2,4}?)'       => [ 'abcdefghi', 0,         0,  [3, ['abc'] ] ],
     );
 my $ntest = 0;
 foreach (keys %DATA) {

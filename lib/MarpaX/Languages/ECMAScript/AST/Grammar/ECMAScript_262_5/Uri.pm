@@ -201,7 +201,7 @@ ClassAtom ~
     | ClassAtomNoDash
 
 ClassAtomNoDash ~
-      [\p{IsSourceCharacterButNotOneOfBackslashOrRbracketorMinus}]
+      [\p{IsSourceCharacterButNotOneOfBackslashOrRbracketOrMinus}]
     | '\' ClassEscape
 # '
 ClassEscape ~

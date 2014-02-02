@@ -132,7 +132,10 @@ Parse the source given as $source using implementation $impl.
 
 sub parse {
     my ($self, $source, $impl) = @_;
-    $self->{programCompleted} = 0;
+    #
+    # Reset tracking of disjunction positions
+    #
+    $self->{_lparen} = [];
     return $self->SUPER($source, $impl,
                         {
                          callback => \&_eventCallback,
@@ -158,7 +161,11 @@ sub _eventCallback {
     # ---------------------------------
     #
     if ($name eq 'LPAREN_ATOM_DISJUNCTION$') {
-      push(@{$self->{_lparen}}, $pos);
+	#
+	# By definition, the current position here is exactly
+	# after the '(', so position in the stream of this
+	# lexeme is $pos-1.
+	push(@{$self->{_lparen}}, $pos-1);
     }
   }
 
@@ -237,7 +244,7 @@ QuantifierPrefix ::=
     | '?'                                     action => _QuantifierPrefix_QuestionMark
     | '{' DecimalDigits '}'                   action => _QuantifierPrefix_DecimalDigits
     | '{' DecimalDigits ',}'                  action => _QuantifierPrefix_DecimalDigits_Comma
-    | '{' DecimalDigits ',' DecimalDigits '}' action => _QuantifierPrefix_DecimalDigits_DecimalDigits_
+    | '{' DecimalDigits ',' DecimalDigits '}' action => _QuantifierPrefix_DecimalDigits_DecimalDigits
 
 Atom ::=
       PatternCharacter                        action => _Atom_PatternCharacter
@@ -307,9 +314,9 @@ DecimalIntegerLiteral ~
   | _NonZeroDigit
   | _NonZeroDigit _DecimalDigits
 
-_DecimalDigits ~
-    _DecimalDigit
-  | _DecimalDigits _DecimalDigit
+_DecimalDigits ~ _DecimalDigit+
+
+DecimalDigits ~ _DecimalDigits
 
 _NonZeroDigit      ~ [\p{IsNonZeroDigit}]
 _DecimalDigit      ~ [\p{IsDecimalDigit}]
@@ -340,8 +347,8 @@ ClassAtom ::=
     | ClassAtomNoDash                               action => _ClassAtom_ClassAtomNoDash
 
 ClassAtomNoDash ::=
-      [\p{IsSourceCharacterButNotOneOfBackslashOrRbracketorMinus}]  action => _ClassAtomNoDash_OneChar
-    | '\' ClassEscape                                               action => _ClassAtomNoDash_ClassEscape
+      OneChar                                       action => _ClassAtomNoDash_OneChar
+    | '\' ClassEscape                               action => _ClassAtomNoDash_ClassEscape
 
 ClassEscape ::=
       DecimalEscape                                 action => _ClassEscape_DecimalEscape
@@ -354,6 +361,8 @@ HexEscapeSequence ::= 'x' _HexDigit _HexDigit                         action => 
 UnicodeEscapeSequence ::= 'u' _HexDigit _HexDigit _HexDigit _HexDigit action => _UnicodeEscapeSequence
 
 _HexDigit              ~ [\p{IsHexDigit}]
+
+OneChar                ~ [\p{IsSourceCharacterButNotOneOfBackslashOrRbracketOrMinus}]
 
 :lexeme ~ <LPAREN_ATOM_DISJUNCTION> pause => after event => 'LPAREN_ATOM_DISJUNCTION$'
 LPAREN_ATOM_DISJUNCTION ~ '('
