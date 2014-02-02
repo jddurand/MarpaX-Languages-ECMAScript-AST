@@ -55,6 +55,7 @@ Isn
 IsNBSP
 IsNine
 IsNonZeroDigit
+IsNULL
 IsOctalDigit
 IsPatternCharacter
 IsPipe
@@ -107,6 +108,7 @@ LineTerminator
 LF
 LS
 NBSP
+NULL
 PS
 SP
 TAB
@@ -404,6 +406,23 @@ Return an array reference of characters composing CR
 =cut
 
 sub CR { return [ "\N{U+000D}" ]; }
+
+=head2 IsNULL()
+
+=cut
+
+sub IsNULL { return <<END;
+0000
+END
+}
+
+=head2 NULL()
+
+Return an array reference of characters composing NULL
+
+=cut
+
+sub NULL { return [ "\N{U+0000}" ]; }
 
 =head2 IsLS()
 
