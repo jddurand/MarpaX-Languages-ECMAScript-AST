@@ -3,6 +3,7 @@ use warnings FATAL => 'all';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses;
 use Exporter 'import';
+use Encode qw/decode/;
 
 # ABSTRACT: ECMAScript, character classes
 
@@ -21,6 +22,9 @@ This modules defines generic user-defined character classes for ECMAScript. Ther
 =cut
 
 our @EXPORT_OK = qw/
+BOM
+CR
+FF
 Isb
 IsBackslash
 IsBOM
@@ -99,6 +103,16 @@ IsZeroToThree
 IsFourToSeven
 IsZWJ
 IsZWNJ
+LineTerminator
+LF
+LS
+NBSP
+PS
+SP
+TAB
+USP
+VT
+WhiteSpace
 /;
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
@@ -165,6 +179,23 @@ sub IsWhiteSpace { return <<END;
 END
 }
 
+=head2 WhiteSpace()
+
+Return an array reference of characters composing WhiteSpace
+
+=cut
+
+sub WhiteSpace { return [
+		     @{TAB()},
+		     @{VT()},
+		     @{FF()},
+		     @{SP()},
+		     @{NBSP()},
+		     @{BOM()},
+		     @{USP()},
+		     ];
+}
+
 =head2 IsSourceCharacter()
 
 =cut
@@ -201,6 +232,14 @@ FEFF
 END
 }
 
+=head2 BOM()
+
+Return an array reference of characters composing BOM
+
+=cut
+
+sub BOM { return [ "\N{U+FEFF}" ] }
+
 =head2 IsTAB()
 
 =cut
@@ -209,6 +248,14 @@ sub IsTAB { return <<END;
 0009
 END
 }
+
+=head2 TAB()
+
+Return an array reference of characters composing TAB
+
+=cut
+
+sub TAB { return [ "\N{U+0009}" ] }
 
 =head2 IsVT()
 
@@ -219,6 +266,14 @@ sub IsVT { return <<END;
 END
 }
 
+=head2 VT()
+
+Return an array reference of characters composing VT
+
+=cut
+
+sub VT { return [ "\N{U+000B}" ] }
+
 =head2 IsFF()
 
 =cut
@@ -227,6 +282,14 @@ sub IsFF { return <<END;
 000C
 END
 }
+
+=head2 FF()
+
+Return an array reference of characters composing FF
+
+=cut
+
+sub FF { return [ "\N{U+000C}" ] }
 
 =head2 IsSP()
 
@@ -237,6 +300,14 @@ sub IsSP { return <<END;
 END
 }
 
+=head2 SP()
+
+Return an array reference of characters composing SP
+
+=cut
+
+sub SP { return [ "\N{U+0020}" ] }
+
 =head2 IsNBSP()
 
 =cut
@@ -245,6 +316,14 @@ sub IsNBSP { return <<END;
 00A0
 END
 }
+
+=head2 NBSP()
+
+Return an array reference of characters composing NBSP
+
+=cut
+
+sub NBSP { return [ "\N{U+00A0}" ] }
 
 =head2 IsUSP()
 
@@ -255,6 +334,43 @@ sub IsUSP { return <<END;
 END
 }
 
+=head2 USP()
+
+Return an array reference of characters composing USP
+
+=cut
+
+our @USP = ();
+{
+    #
+    # We do as "unichars". And hardcode restriction to 65535, i.e.
+    # the maximum supported by ECMAScript
+    #
+    foreach (0..65535) {
+        # gaggy UTF-16 surrogates are invalid UTF-8 code points
+        next if ($_ >= 0xD800 && $_ <= 0xDFFF);
+
+        # from utf8.c in perl src; must avoid fatals in 5.10
+        next if ($_ >= 0xFDD0 && $_ <= 0xFDEF);
+
+        next if (0xFFFE == ($_ & 0xFFFE)); # both FFFE and FFFF
+
+        # see "Unicode non-character %s is illegal for interchange" in perldiag(1)
+        $_ = do { no warnings "utf8"; chr($_) };
+
+        # fixes "the Unicode bug"
+        unless (utf8::is_utf8($_)) {
+            $_ = decode("iso-8859-1", $_);
+        }
+
+	if ($_ =~ /\p{Zs}/) {
+	    push(@USP, $_);
+	}
+    }
+}
+
+sub USP { return \@USP }
+
 =head2 IsLF()
 
 =cut
@@ -263,6 +379,14 @@ sub IsLF { return <<END;
 000A
 END
 }
+
+=head2 LF()
+
+Return an array reference of characters composing LF
+
+=cut
+
+sub LF { return [ "\N{U+000A}" ]; }
 
 =head2 IsCR()
 
@@ -273,6 +397,14 @@ sub IsCR { return <<END;
 END
 }
 
+=head2 CR()
+
+Return an array reference of characters composing CR
+
+=cut
+
+sub CR { return [ "\N{U+000D}" ]; }
+
 =head2 IsLS()
 
 =cut
@@ -282,6 +414,14 @@ sub IsLS { return <<END;
 END
 }
 
+=head2 LS()
+
+Return an array reference of characters composing LS
+
+=cut
+
+sub LS { return [ "\N{U+2028}" ]; }
+
 =head2 IsPS()
 
 =cut
@@ -290,6 +430,14 @@ sub IsPS { return <<END;
 2029
 END
 }
+
+=head2 PS()
+
+Return an array reference of characters composing PS
+
+=cut
+
+sub PS { return [ "\N{U+2029}" ]; }
 
 =head2 IsSourceCharacterButNotStar()
 
@@ -356,6 +504,20 @@ sub IsLineTerminator { return <<END;
 +MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsPS
 END
 }
+
+=head2 LineTerminator()
+
+Return an array reference of characters composing LineTerminator
+
+=cut
+
+sub LineTerminator { return
+			 [
+			  @{LF()},
+			  @{CR()},
+			  @{LS()},
+			  @{PS()}
+			 ]; }
 
 =head2 IsSourceCharacterButNotLineTerminator()
 
@@ -964,5 +1126,7 @@ This module is exporting on demand the following tags:
 All functions.
 
 =back
+
+=cut
 
 1;
