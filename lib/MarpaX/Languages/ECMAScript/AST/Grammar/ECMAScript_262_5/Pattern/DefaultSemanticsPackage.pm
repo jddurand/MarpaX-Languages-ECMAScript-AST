@@ -19,9 +19,7 @@ Instantiate a new object. The value will be a perl subroutine closure that retur
 
 It will be the responsability of the caller to coerce back into host's representations of array and strings.
 
-The perl subroutine closure will have two parameters: $str and $index.
-
-=over
+The perl subroutine closure will have four parameters: $str, $index, $multiline and $ignoreCase:
 
 =item $str
 
@@ -31,28 +29,42 @@ perl's string. Typically this will JavaScript's String.prototype.valueOf() on Ja
 
 perl's scalar. Typically Number.prototype.valueOf() on JavaScript's number.
 
-=back
+=item $mutiline
 
-The caller will have to localize the following perl's scalar representations of multiline, ignoreCase, like that:
+perl's scalar boolean, saying if this is a multiline match. Default is a false value.
 
-=over
+=item $ignoreCase
 
-=item MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::multiline
-
-perl scalar representing multiline Regexp object's boolean value. Typically Regexp.property.multiline.prototype.valueOf().
-
-=item MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::ignoreCase
-
-perl scalar representing ignoreCase Regexp object's boolean value. Typically Regexp.property.ignoreCase.prototype.valueOf().
+perl's scalar boolean, saying if this is an insensitive match. Default is a false value.
 
 =back
+
+This new routine is instanciated by a call to Marpa as a "semantics_package" recognizer option, and until one can pass directly arguments to it, it is using the localized variable $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::lparen, that is an array reference of left-parenthesis capture disjunctions's offsets.
 
 Please note the a SyntaxError error can be thrown.
+
+It will be the responsability of the caller to coerce back into host's representations of array and strings.
+
+Internally the closures are overwriting explicitely the two internal variables __input__ and __inputLength__.
 
 =cut
 
 sub new {
-    return bless {}, shift;
+    my ($class) = @_;
+    my $self = {_lparen => $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::lparen};
+    bless $self, $class;
+}
+
+=head2 lparen($self)
+
+Return an array reference of left-parenthesis capture disjunction's offsets.
+
+=cut
+
+sub lparen {
+    my ($self) = @_;
+
+    return $self->{_lparen};
 }
 
 #
@@ -60,40 +72,36 @@ sub new {
 # write a fresh regular expression engine from scratch. The only important notion is case-folding. There we rely
 # on perl.
 #
-
 our @LINETERMINATOR = @{MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::LineTerminator()};
 our @WHITESPACE = @{MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::WhiteSpace()};
 
 sub _Pattern_Disjunction {
     my ($self, $disjunction) = @_;
 
-    my $m = &$disjunction();
+    my $m = $disjunction;
 
     return sub {
+	use Data::Dumper; print STDERR "JDD 01 " . Dumper(\@_);
 	#
 	# Note: $str is a true perl string, $index is a true perl scalar
 	#
-	my ($str, $index) = @_;
-
-	my $input = $str;
-	my $inputLength = length($input);
+	my ($str, $index, $multiline, $ignoreCase) = @_;
+	$multiline //= 0;
+	$ignoreCase //= 0;
 	#
-	# We localize input and inputLength
+	# We localize input, input length, mutiline and ignoreCase
 	#
-	$MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::input = $input;
-	$MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::inputLength = $inputLength;
-	#
-	# And pre-calculation of number of capturing disjunctions
-	#
-	$MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::nCapturingParens = scalar(@{$MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::lparen});
-	#
-	# pre-calculation of 
+	local $MarpaX::Languages::ECMAScript::AST::Pattern::input = $str;
+	local $MarpaX::Languages::ECMAScript::AST::Pattern::inputLength = length($str);
+	local $MarpaX::Languages::ECMAScript::AST::Pattern::multiline = $multiline;
+	local $MarpaX::Languages::ECMAScript::AST::Pattern::ignoreCase = $ignoreCase;
 
 	my $c = sub {
-	    my ($self, $state) = @_;
+	    use Data::Dumper; print STDERR "JDD 02 " . Dumper(\@_);
+	    my ($state) = @_;
 	    return $state;
 	};
-	my $cap = [ (undef) x $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::nCapturingParens ];
+	my $cap = [ (undef) x scalar(@{$self->lparen}) ];
 	my $x = [ $index, $cap ];
 
 	return &$m($x, $c);
@@ -102,16 +110,17 @@ sub _Pattern_Disjunction {
 
 sub _Disjunction_Alternative {
     my ($self, $alternative) = @_;
-    return &$alternative;
+    return $alternative;
 }
 
 sub _Disjunction_Alternative_OR_Disjunction {
-    my ($self, $alternative, $disjunction) = @_;
+    my ($self, $alternative, undef, $disjunction) = @_;
 
-    my $m1 = &$alternative;
-    my $m2 = &$disjunction;
+    my $m1 = $alternative;
+    my $m2 = $disjunction;
 
     return sub {
+	use Data::Dumper; print STDERR "JDD 03 " . Dumper(\@_);
 	my ($x, $c) = @_;
 	my $r = &$m1($x, $c);
         if (! $r) {
@@ -125,6 +134,7 @@ sub _Alternative {
     my ($self) = @_;
 
     return sub {
+	use Data::Dumper; print STDERR "JDD 04 " . Dumper(\@_);
 	my ($x, $c) = @_;
 	return &$c($x);
     };
@@ -133,12 +143,14 @@ sub _Alternative {
 sub _Alternative_Alternative_Term {
     my ($self, $alternative, $term) = @_;
 
-    my $m1 = &$alternative;
-    my $m2 = &$term;
+    my $m1 = $alternative;
+    my $m2 = $term;
 
   return sub {
+      use Data::Dumper; print STDERR "JDD 05 " . Dumper(\@_);
       my ($x, $c) = @_;
       my $d = sub {
+	  use Data::Dumper; print STDERR "JDD 06 " . Dumper(\@_);
 	  my ($y) = @_;
 	  return &$m2($y, $c);
       };
@@ -150,9 +162,10 @@ sub _Term_Assertion {
     my ($self, $assertion) = @_;
 
     return sub {
+	use Data::Dumper; print STDERR "JDD 07 " . Dumper(\@_);
 	my ($x, $c) = @_;
 
-	my $t = &$assertion;
+	my $t = $assertion;
 	my $r = &$t($x);
 	if (! $r) {
 	    return 0;
@@ -164,16 +177,17 @@ sub _Term_Assertion {
 sub _Term_Atom {
     my ($self, $atom) = @_;
 
-    return &$atom;
+    return $atom;
 }
 
 sub _repeatMatcher {
-  my ($self, $m, $min, $max, $greedy, $x, $c, $parenIndex, $parenCount) = @_;
+  my ($m, $min, $max, $greedy, $x, $c, $parenIndex, $parenCount) = @_;
 
   if ($max == 0) {
     return &$c($x);
   }
   my $d = sub {
+      use Data::Dumper; print STDERR "JDD 08 " . Dumper(\@_);
     my ($y) = @_;
     if ($min == 0 && $y->[0] == $x->[0]) {
       return 0;
@@ -206,10 +220,12 @@ sub _repeatMatcher {
 }
 
 sub _parenIndexAndCount {
+    my ($self) = @_;
+
     my ($start, $end) = Marpa::R2::Context::location();
     my $parenIndex = 0;
     my $parenCount = 0;
-    foreach (@{$MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::lparen}) {
+    foreach (@{$self->lparen}) {
 	if ($_ <= $end) {
 	    ++$parenIndex;
 	    if ($_ >= $start) {
@@ -226,17 +242,18 @@ sub _parenIndexAndCount {
 sub _Term_Atom_Quantifier {
     my ($self, $atom, $quantifier) = @_;
 
-    my $m = &$atom;
-    my ($min, $max, $greedy) = &$quantifier;
+    my $m = $atom;
+    my ($min, $max, $greedy) = @{$quantifier};
     if (defined($max) && $max < $min) {
       SyntaxError("$max < $min");
     }
-    my $hashp = _parenIndexAndCount();
+    my $hashp = $self->_parenIndexAndCount();
 
     return sub {
-      my ($x, $c) = @_;
+	use Data::Dumper; print STDERR "JDD 09 " . Dumper(\@_);
+	my ($x, $c) = @_;
 
-      return _repeatMatcher($m, $min, $max, $greedy, $x, $c, $hashp->{parenIndex}, $hashp->{parenCount});
+	return _repeatMatcher($m, $min, $max, $greedy, $x, $c, $hashp->{parenIndex}, $hashp->{parenCount});
     };
 }
 
@@ -244,25 +261,21 @@ sub _Assertion_Caret {
     my ($self, $caret) = @_;
 
     return sub {
+	use Data::Dumper; print STDERR "JDD 10 " . Dumper(\@_);
 	my ($x) = @_;
 
 	my $e = $x->[0];
 	if ($e == 0) {
 	    return 1;
 	}
-	if (! $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::multiline) {
+	if (! $MarpaX::Languages::ECMAScript::AST::Pattern::multiline) {
 	    return 0;
 	}
-	my $c = substr($MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::input, $e, 1);
+	my $c = substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $e, 1);
 	if (grep {$c == $_} @LINETERMINATOR) {
 	    return 1;
 	}
-	#
-	# Could have been writen like that:
-	#
-	# if (substr($MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::input, $e, 1) =~ /[\p{MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::IsLineTerminator}]/) {
-	#    return 1;
-	# }
+
 	return 0;
     };
 }
@@ -271,25 +284,21 @@ sub _Assertion_Dollar {
     my ($self, $caret) = @_;
 
     return sub {
+	use Data::Dumper; print STDERR "JDD 11 " . Dumper(\@_);
 	my ($x) = @_;
 
 	my $e = $x->[0];
-	if ($e == $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::inputLength) {
+	if ($e == $MarpaX::Languages::ECMAScript::AST::Pattern::inputLength) {
 	    return 1;
 	}
-	if (! $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::multiline) {
+	if (! $MarpaX::Languages::ECMAScript::AST::Pattern::multiline) {
 	    return 0;
 	}
-	my $c = substr($MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::input, $e, 1);
+	my $c = substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $e, 1);
 	if (grep {$c == $_} @LINETERMINATOR) {
 	    return 1;
 	}
-	#
-	# Could have been writen like that:
-	#
-	# if (substr($MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::input, $e, 1) =~ /[\p{MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::IsLineTerminator}]/) {
-	#     return 1;
-	# }
+
 	return 0;
     };
 }
@@ -297,13 +306,15 @@ sub _Assertion_Dollar {
 sub _isWordChar {
     my ($e) = @_;
 
-    if ($e == -1 || $e == $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::inputLength) {
+    use Data::Dumper; print STDERR "JDD _isWordChar " . Dumper(\@_);
+
+    if ($e == -1 || $e == $MarpaX::Languages::ECMAScript::AST::Pattern::inputLength) {
 	return 0;
     }
     #
-    # This rally refers to ASCII characters, so it is ok to test the ord directly
+    # This really refers to ASCII characters, so it is ok to test the ord directly
     #
-    my $c = substr($MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::input, $e, 1);
+    my $c = substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $e, 1);
     #
     # I put the most probables (corresponding also to the biggest ranges) first
     if (
@@ -317,13 +328,7 @@ sub _isWordChar {
 	) {
 	return 1;
     }
-    #
-    # Could have been writen like that:
-    #
-    # my $c = substr($MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::input, $e, 1);
-    # if ($c =~ /[a-zA-Z0-9_/) {
-    #     return 1;
-    # }
+
     return 0;
 }
 
@@ -331,6 +336,7 @@ sub _Assertion_b {
     my ($self, $caret) = @_;
 
     return sub {
+	use Data::Dumper; print STDERR "JDD 12 " . Dumper(\@_);
 	my ($x) = @_;
 
 	my $e = $x->[0];
@@ -350,6 +356,7 @@ sub _Assertion_B {
     my ($self, $caret) = @_;
 
     return sub {
+	use Data::Dumper; print STDERR "JDD 13 " . Dumper(\@_);
 	my ($x) = @_;
 
 	my $e = $x->[0];
@@ -368,12 +375,14 @@ sub _Assertion_B {
 sub _Assertion_DisjunctionPositiveLookAhead {
     my ($self, undef, $disjunction, undef) = @_;
 
-    my $m = &$disjunction;
+    my $m = $disjunction;
 
     return sub {
+	use Data::Dumper; print STDERR "JDD 14 " . Dumper(\@_);
 	my ($x, $c) = @_;
 
 	my $d = sub {
+	    use Data::Dumper; print STDERR "JDD 15 " . Dumper(\@_);
 	    my ($y) = @_;
 	    return $y;
 	};
@@ -393,12 +402,14 @@ sub _Assertion_DisjunctionPositiveLookAhead {
 sub _Assertion_DisjunctionNegativeLookAhead {
     my ($self, undef, $disjunction, undef) = @_;
 
-    my $m = &$disjunction;
+    my $m = $disjunction;
 
     return sub {
+	use Data::Dumper; print STDERR "JDD 16 " . Dumper(\@_);
 	my ($x, $c) = @_;
 
 	my $d = sub {
+	    use Data::Dumper; print STDERR "JDD 17 " . Dumper(\@_);
 	    my ($y) = @_;
 	    return $y;
 	};
@@ -414,61 +425,70 @@ sub _Assertion_DisjunctionNegativeLookAhead {
 sub _Quantifier_QuantifierPrefix {
     my ($self, $quantifierPrefix) = @_;
 
-    my ($min, $max) = &$quantifierPrefix;
-    return ($min, $max, 1);
+    my ($min, $max) = @{$quantifierPrefix};
+    return [$min, $max, 1];
 }
 
 sub _Quantifier_QuantifierPrefix_QuestionMark {
     my ($self, $quantifierPrefix, $questionMark) = @_;
 
-    my ($min, $max) = &$quantifierPrefix;
-    return ($min, $max, 0);
+    my ($min, $max) = @{$quantifierPrefix};
+    return [$min, $max, 0];
 }
 
 sub _QuantifierPrefix_Star {
     my ($self, $start) = @_;
 
-    return (0, undef);
+    return [0, undef];
 }
 
 sub _QuantifierPrefix_Plus {
     my ($self, $plus) = @_;
 
-    return (1, undef);
+    return [1, undef];
 }
 
 sub _QuantifierPrefix_QuestionMark {
     my ($self, $questionMark) = @_;
 
-    return (0, 1);
+    return [0, 1];
 }
 
 sub _QuantifierPrefix_DecimalDigits {
     my ($self, undef, $decimalDigits, undef) = @_;
 
-    my $i = int($decimalDigits);
-    return ($i, $i);
+    #
+    # Note: DecimalDigits is a lexeme, default lexeme value is [start,length,value]
+    #
+    my $i = $decimalDigits->[2];
+    return [$i, $i];
 }
 
 sub _QuantifierPrefix_DecimalDigits_Comma {
     my ($self, undef, $decimalDigits, undef) = @_;
 
-    my $i = int($decimalDigits);
-    return ($i, undef);
+    #
+    # Note: DecimalDigits is a lexeme, default lexeme value is [start,length,value]
+    #
+    my $i = $decimalDigits->[2];
+    return [$i, undef];
 }
 
 sub _QuantifierPrefix_DecimalDigits_DecimalDigits {
     my ($self, undef, $decimalDigits1, undef, $decimalDigits2, undef) = @_;
 
-    my $i = int($decimalDigits1);
-    my $j = int($decimalDigits2);
-    return ($i, $j);
+    #
+    # Note: DecimalDigits is a lexeme, default lexeme value is [start,length,value]
+    #
+    my $i = $decimalDigits1->[2];
+    my $j = $decimalDigits2->[2];
+    return [$i, $j];
 }
 
 sub _canonicalize {
     my ($ch) = @_;
 
-    if (! $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::ignoreCase) {
+    if (! $MarpaX::Languages::ECMAScript::AST::Pattern::ignoreCase) {
 	return $ch;
     }
     #
@@ -503,7 +523,10 @@ sub _canonicalize {
 # [^\D] means: $A=[1,[0..9]], $invert=1, which is equivalent to [\d], i.e.: $A=[0,[0..9], $invert=0
 
 sub _characterSetMatcher {
-    my ($A, $invert) = @_;
+    my ($self, $A, $invert) = @_;
+
+    use Data::Dumper; print STDERR "JDD _characterSetMatcher " . Dumper($A);
+    my ($x, $c) = @_;
 
     my ($Anegation, $Arange) = @{$A};
 
@@ -512,13 +535,14 @@ sub _characterSetMatcher {
     }
 
     return sub {
+	use Data::Dumper; print STDERR "JDD 18 " . Dumper(\@_);
 	my ($x, $c) = @_;
 
 	my $e = $x->[0];
-	if ($e == $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::inputLength) {
+	if ($e == $MarpaX::Languages::ECMAScript::AST::Pattern::inputLength) {
 	    return 0;
 	}
-	my $ch = substr($MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::inputLength, $e, 1);
+	my $ch = substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $e, 1);
 	my $cc = _canonicalize($ch);
 	if (! $invert) {
 	    if (! grep {$cc eq $_} @{$Arange}) {
@@ -538,16 +562,19 @@ sub _characterSetMatcher {
 sub _Atom_PatternCharacter {
     my ($self, $patternCharacter) = @_;
 
-    my $ch = $patternCharacter;
+    #
+    # Note: PatternCharacter is a lexeme, default lexeme value is [start,length,value]
+    #
+    my $ch = $patternCharacter->[2];
     my $A = [0 , [ $ch ]];
-    return _characterSetMatcher($A, 0);
+    return $self->_characterSetMatcher($A, 0);
 }
 
 sub _Atom_Dot {
     my ($self, $dot) = @_;
 
     my $A = [1 , \@LINETERMINATOR];
-    return _characterSetMatcher($A, 0);
+    return $self->_characterSetMatcher($A, 0);
 
 
 }
@@ -555,31 +582,33 @@ sub _Atom_Dot {
 sub _Atom_Backslash_AtomEscape {
     my ($self, $backslash, $atomEscape) = @_;
 
-    return &$atomEscape;
+    return $atomEscape;
 }
 
 sub _Atom_Backslash_CharacterClass {
     my ($self, $characterClass) = @_;
 
-    my ($A, $invert) = &$characterClass;
-    return _characterSetMatcher($A, $invert);
+    my ($A, $invert) = @{$characterClass};
+    return $self->_characterSetMatcher($A, $invert);
 }
 
 sub _Atom_Lparen_Disjunction_Rparen {
     my ($self, $lparen, $disjunction, $rparen) = @_;
 
-    my $m = &$disjunction;
-    my $parenIndex = _parenIndexAndCount()->{parenIndex};
+    my $m = $disjunction;
+    my $parenIndex = $self->_parenIndexAndCount()->{parenIndex};
     return sub {
+	use Data::Dumper; print STDERR "JDD 19 " . Dumper(\@_);
 	my ($x, $c) = @_;
 
 	my $d = sub {
+	    use Data::Dumper; print STDERR "JDD 20 " . Dumper(\@_);
 	    my ($y) = @_;
 
 	    my @cap = @{$y->[1]};
 	    my $xe = $x->[0];
 	    my $ye = $y->[0];
-	    my $s = substr($MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::input, $xe, $ye-$xe-1);
+	    my $s = substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $xe, $ye-$xe-1);
 	    $cap[$parenIndex+1] = $s;
 	    my $z = [$ye, \@cap ];
 	    return &$c($z);
@@ -592,24 +621,25 @@ sub _Atom_Lparen_Disjunction_Rparen {
 sub _Atom_nonCapturingDisjunction {
     my ($self, undef, $disjunction, undef) = @_;
 
-    return &$disjunction;
+    return $disjunction;
 }
 
 sub _AtomEscape_DecimalEscape {
     my ($self, $decimalEscape) = @_;
 
-    my $E = &$decimalEscape;
+    my $E = $decimalEscape;
 
     my $ch = eval { chr($E) };
     if (! $@) {
 	my $A = [0 , [ $ch ]];
-	return _characterSetMatcher($A, 0);
+	return $self->_characterSetMatcher($A, 0);
     }
     my $n = $E;
-    if ($n == 0 || $n > $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::nCapturingParens) {
-	SyntaxError("backtrack number $n must be > 0 and <= $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::nCapturingParens");
+    if ($n == 0 || $n > scalar(@{$self->lparen})) {
+	SyntaxError("backtrack number $n must be > 0 and <= " . scalar(@{$self->lparen}));
     }
     return sub {
+	use Data::Dumper; print STDERR "JDD 21 " . Dumper(\@_);
 	my ($x, $c) = @_;
 
 	my $cap = $x->[1];
@@ -620,11 +650,11 @@ sub _AtomEscape_DecimalEscape {
 	my $e = $x->[0];
 	my $len = length($s);
 	my $f = $e+$len;
-	if ($f > $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::inputLength) {
+	if ($f > $MarpaX::Languages::ECMAScript::AST::Pattern::inputLength) {
 	    return 0;
 	}
 	foreach (0..($len-1)) {
-	    if (_canonicalize(substr($s, $_, 1)) ne _canonicalize(substr($MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::input, $e+$_, 1))) {
+	    if (_canonicalize(substr($s, $_, 1)) ne _canonicalize(substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $e+$_, 1))) {
 		return 0;
 	    }
 	}
@@ -636,34 +666,40 @@ sub _AtomEscape_DecimalEscape {
 sub _AtomEscape_CharacterEscape {
     my ($self, $characterEscape) = @_;
 
-    my $ch = &$characterEscape;
+    my $ch = $characterEscape;
     my $A = [0 , [ $ch ]];
-    return _characterSetMatcher($A, 0);
+    return $self->_characterSetMatcher($A, 0);
 }
 
 sub _AtomEscape_CharacterClassEscape {
     my ($self, $characterClassEscape) = @_;
 
-    my $A = &$characterClassEscape;
-    return _characterSetMatcher($A, 0);
+    #
+    # Note: CharacterClassEscape RHS is an anonymous lexeme, default lexeme value is [start,length,value]
+    #
+    my $A = $characterClassEscape->[2];
+    return $self->_characterSetMatcher($A, 0);
 }
 
 sub _CharacterEscape_ControlEscape {
     my ($self, $controlEscape) = @_;
 
-    if ($controlEscape eq 't') {
+    #
+    # Note: ControlEscape is a lexeme, default lexeme value is [start,length,value]
+    #
+    if ($controlEscape->[2] eq 't') {
 	return MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::TAB()->[0];
     }
-    elsif ($controlEscape eq 'n') {
+    elsif ($controlEscape->[2] eq 'n') {
 	return MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::LF()->[0];
     }
-    elsif ($controlEscape eq 'v') {
+    elsif ($controlEscape->[2] eq 'v') {
 	return MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::VT()->[0];
     }
-    elsif ($controlEscape eq 'f') {
+    elsif ($controlEscape->[2] eq 'f') {
 	return MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::FF()->[0];
     }
-    elsif ($controlEscape eq 'r') {
+    elsif ($controlEscape->[2] eq 'r') {
 	return MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::CR()->[0];
     }
 }
@@ -671,14 +707,20 @@ sub _CharacterEscape_ControlEscape {
 sub _CharacterEscape_ControlLetter {
     my ($self, undef, $controlLetter) = @_;
 
-    my $ch = $controlLetter;
+    #
+    # Note: ControlEscape is a lexeme, default lexeme value is [start,length,value]
+    #
+    my $ch = $controlLetter->[2];
     my $i = ord($ch);
     my $j = $i % 32;
     return chr($j);
 }
 
-sub _HexEscapeSequence { return chr(16 * hex($_[1]) + hex($_[2])); }
-sub _UnicodeEscapeSequence { return chr(4096 * hex($_[2]) + 256 * hex($_[3]) + 16 * hex($_[4]) + hex($_[5])); }
+#
+# Note: _HexDigit is a lexeme, default lexeme value is [start,length,value]
+#
+sub _HexEscapeSequence { return chr(16 * hex($_[1]->[2]) + hex($_[2]->[2])); }
+sub _UnicodeEscapeSequence { return chr(4096 * hex($_[2]->[2]) + 256 * hex($_[3]->[2]) + 16 * hex($_[4]->[2]) + hex($_[5]->[2])); }
 
 sub _CharacterEscape_HexEscapeSequence {
     my ($self, $hexEscapeSequence) = @_;
@@ -695,13 +737,19 @@ sub _CharacterEscape_UnicodeEscapeSequence {
 sub _CharacterEscape_IdentityEscape {
     my ($self, $identityEscape) = @_;
 
-    return $identityEscape;
+    #
+    # Note: IdentityEscape is a lexeme, default lexeme value is [start,length,value]
+    #
+    return $identityEscape->[2];
 }
 
 sub _DecimalEscape_DecimalIntegerLiteral {
     my ($self, $decimalIntegerLiteral) = @_;
 
-    my $i = $decimalIntegerLiteral;
+    #
+    # Note: DecimalIntegerLiteral is a lexeme, default lexeme value is [start,length,value]
+    #
+    my $i = $decimalIntegerLiteral->[2];
     if ($i == 0) {
 	return \N{0000};
     }
@@ -735,13 +783,13 @@ sub _CharacterClassEscape {
 sub _CharacterClass_ClassRanges {
     my ($self, undef, $classRanges, undef) = @_;
 
-    return (&$classRanges, 0);
+    return [$classRanges, 0];
 }
 
 sub _CharacterClass_CaretClassRanges {
     my ($self, undef, $classRanges, undef) = @_;
 
-    return (&$classRanges, 1);
+    return [$classRanges, 1];
 }
 
 sub _ClassRanges {
@@ -753,17 +801,17 @@ sub _ClassRanges {
 sub _ClassRanges_NonemptyClassRanges {
     my ($self, $nonemptyClassRanges) = @_;
 
-    return &$nonemptyClassRanges;
+    return $nonemptyClassRanges;
 }
 
 sub _NonemptyClassRanges_ClassAtom {
     my ($self, $classAtom) = @_;
 
-    return &$classAtom;
+    return $classAtom;
 }
 
 sub _rangeComplement {
-    my ($A) = @_;
+    my ($self, $A) = @_;
 
     my ($Anegation, $Arange) = @{$A};
 
@@ -774,7 +822,7 @@ sub _rangeComplement {
 }
 
 sub _charsetUnion {
-    my ($A, $B) = @_;
+    my ($self, $A, $B) = @_;
 
     my ($Anegation, $Arange) = @{$A};
     my ($Bnegation, $Brange) = @{$A};
@@ -803,12 +851,12 @@ sub _charsetUnion {
 	    #
 	    # We take the union of A and reverted B
 	    #
-	    return _charsetUnion($A, _rangeComplement($B));
+	    return $self->_charsetUnion($A, $self->_rangeComplement($B));
 	} else {
 	    #
 	    # We take the union of reverted A and B
 	    #
-	    return _charsetUnion(_rangeComplement($A), $B);
+	    return $self->_charsetUnion($self->_rangeComplement($A), $B);
 	}
     }
 }
@@ -816,13 +864,13 @@ sub _charsetUnion {
 sub _NonemptyClassRanges_ClassAtom_NonemptyClassRangesNoDash {
     my ($self, $classAtom, $nonemptyClassRangesNoDash) = @_;
 
-    my $A = &$classAtom;
-    my $B = &$nonemptyClassRangesNoDash;
-    return _charsetUnion($A, $B);
+    my $A = $classAtom;
+    my $B = $nonemptyClassRangesNoDash;
+    return $self->_charsetUnion($A, $B);
 }
 
 sub _characterRange {
-    my ($A, $B) = @_;
+    my ($self, $A, $B) = @_;
 
     my ($Anegation, $Arange) = @{$A};
     my ($Bnegation, $Brange) = @{$A};
@@ -842,12 +890,12 @@ sub _characterRange {
 	    #
 	    # We take the reverted A
 	    #
-	    ($Anegation, $Arange) = _rangeComplement($A);
+	    ($Anegation, $Arange) = $self->_rangeComplement($A);
 	} else {
 	    #
 	    # We take the reverted B
 	    #
-	    ($Bnegation, $Brange) = _rangeComplement($B);
+	    ($Bnegation, $Brange) = $self->_rangeComplement($B);
 	}
     }
 
@@ -869,35 +917,35 @@ sub _characterRange {
 sub _NonemptyClassRanges_ClassAtom_ClassAtom_ClassRanges {
     my ($self, $classAtom1, undef, $classAtom2, $classRanges) = @_;
 
-    my $A = &$classAtom1;
-    my $B = &$classAtom2;
-    my $C = &$classRanges;
-    my $D = _characterRange($A, $B);
-    return _charsetUnion($D, $C);
+    my $A = $classAtom1;
+    my $B = $classAtom2;
+    my $C = $classRanges;
+    my $D = $self->_characterRange($A, $B);
+    return $self->_charsetUnion($D, $C);
 }
 
 sub _NonemptyClassRangesNoDash_ClassAtom {
     my ($self, $classAtom) = @_;
 
-    return &$classAtom;
+    return $classAtom;
 }
 
 sub _NonemptyClassRangesNoDash_ClassAtomNoDash_NonemptyClassRangesNoDash {
     my ($self, $classAtomNoDash, $nonemptyClassRangesNoDash) = @_;
 
-    my $A = &$classAtomNoDash;
-    my $B = &$nonemptyClassRangesNoDash;
-    return _charsetUnion($A, $B);
+    my $A = $classAtomNoDash;
+    my $B = $nonemptyClassRangesNoDash;
+    return $self->_charsetUnion($A, $B);
 }
 
 sub _NonemptyClassRangesNoDash_ClassAtomNoDash_ClassAtom_ClassRanges {
     my ($self, $classAtomNoDash, undef, $classAtom, $classRanges) = @_;
 
-    my $A = &$classAtomNoDash;
-    my $B = &$classAtom;
-    my $C = &$classRanges;
-    my $D = _characterRange($A, $B);
-    return _charsetUnion($D, $C);
+    my $A = $classAtomNoDash;
+    my $B = $classAtom;
+    my $C = $classRanges;
+    my $D = $self->_characterRange($A, $B);
+    return $self->_charsetUnion($D, $C);
 }
 
 sub _ClassAtom_Dash {
@@ -909,25 +957,28 @@ sub _ClassAtom_Dash {
 sub _ClassAtom_ClassAtomNoDash {
     my ($self, $classAtomNoDash) = @_;
 
-    return &$classAtomNoDash;
+    return $classAtomNoDash;
 }
 
 sub _ClassAtomNoDash_OneChar {
     my ($self, $oneChar) = @_;
 
-    return [0, [ $oneChar ]];
+    #
+    # Note: OneChar is a lexeme, default lexeme value is [start,length,value]
+    #
+    return [0, [ $oneChar->[2] ]];
 }
 
 sub _ClassAtomNoDash_ClassEscape {
     my ($self, undef, $classEscape) = @_;
 
-    return &$classEscape;
+    return $classEscape;
 }
 
 sub _ClassEscape_DecimalEscape {
     my ($self, $decimalEscape) = @_;
 
-    my $E = &$decimalEscape;
+    my $E = $decimalEscape;
 
     my $ch = eval {chr($E)};
     if ($@) {
@@ -945,13 +996,13 @@ sub _ClassEscape_b {
 sub _ClassEscape_CharacterEscape {
     my ($self, $characterEscape) = @_;
 
-    return [0, [ &$characterEscape ]];
+    return [0, [ $characterEscape ]];
 }
 
 sub _ClassEscape_CharacterClassEscape {
     my ($self, $characterClassEscape) = @_;
 
-    return &$characterClassEscape;
+    return $characterClassEscape;
 }
 
 1;

@@ -176,6 +176,10 @@ This method is explicitely setting a localized MarpaX::Languages::ECMAScript::AS
 sub value {
   my ($self, $impl) = @_;
 
+  #
+  # Left-parenthesis locations, so that they are visible when Marpa will call
+  # semantics_package's new().
+  #
   local $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::lparen = $self->{_lparen};
 
   return $self->SUPER($impl);
