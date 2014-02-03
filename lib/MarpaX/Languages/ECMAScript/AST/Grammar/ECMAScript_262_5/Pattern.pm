@@ -84,6 +84,18 @@ sub new {
     return $self;
 }
 
+=head2 lparen($self)
+
+Returns current lexer left parenthesis offsets of captures.
+
+=cut
+
+sub lparen {
+    my ($self) = @_;
+
+    return $self->{_lparen};
+}
+
 =head2 recce_option($self, $package)
 
 Returns recce options.

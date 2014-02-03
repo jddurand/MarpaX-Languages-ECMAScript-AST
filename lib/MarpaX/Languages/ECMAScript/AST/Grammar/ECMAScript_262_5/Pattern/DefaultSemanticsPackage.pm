@@ -606,14 +606,18 @@ sub _AtomEscape_DecimalEscape {
 
     my $E = $decimalEscape;
 
-    my $ch = eval { chr($E) };
-    if (! $@) {
+    #
+    # We are in an atom escape context: the only allowed character is NUL
+    #
+    my $ch = ($decimalEscape == 0) ? MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::NULL()->[0] : undef;
+
+    if (defined($ch)) {
 	my $A = [0 , [ $ch ]];
 	return $self->_characterSetMatcher($A, 0);
     }
     my $n = $E;
     if ($n == 0 || $n > scalar(@{$self->lparen})) {
-	SyntaxError("backtrack number $n must be > 0 and <= " . scalar(@{$self->lparen}));
+	SyntaxError("backtrack number must be <= " . scalar(@{$self->lparen}));
     }
     return sub {
 	my ($x, $c) = @_;
@@ -725,9 +729,7 @@ sub _DecimalEscape_DecimalIntegerLiteral {
     # Note: DecimalIntegerLiteral is a lexeme, default lexeme value is [start,length,value]
     #
     my $i = $decimalIntegerLiteral->[2];
-    if ($i == 0) {
-	return \N{0000};
-    }
+
     return $i;
 }
 
@@ -954,6 +956,10 @@ sub _ClassEscape_DecimalEscape {
 
     my $E = $decimalEscape;
 
+    #
+    # We are in the ClassEscape context. Only a character is possible.
+    # Yet, it is possible that the codepoint $E correspond to no character
+    #
     my $ch = eval {chr($E)};
     if ($@) {
 	SyntaxError("Decimal Escape is not a valid character");
