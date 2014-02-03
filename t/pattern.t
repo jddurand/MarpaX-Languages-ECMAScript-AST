@@ -40,6 +40,7 @@ my %DATA = (
     '(z)((a+)?(b+)?(c))*'  => [ 'zaacbbbcac', 0,         0,  [10, ['z', 'ac', 'a', undef, 'c'] ] ],
     '(a*)*'                => [ 'b',          0,         0,  [0, [undef] ] ],
     '(a*)b\1+'             => [ 'baaaac',     0,         0,  [1, [''] ] ],
+    '(?=(a+))'             => [ 'baaabac',    0,         0,  [4, ['', 'aaa'] ] ],
     );
 my $ntest = 0;
 foreach (keys %DATA) {
