@@ -1,7 +1,114 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.005 2013-11-30T21:36:50
+0.006 2014-02-03T22:16:02
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - use
+   MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Character
+   Classes
+ - t/pattern.t: Removed logging
+ - Pattern: t+ and deviation from the spec for Assertions returning a
+   matcher
+ - Pattern: t+
+ - Revert "ECMAScript_262_5/Pattern.pm :  missing track of lparens for
+   lookahead disjunctions"
+   
+   This reverts commit 71d04f099f953fde146afd4ec3d5b4b59279fa85.
+ - Revert "Pattern/DefaultSemanticsPackage.pm: support of lparens in
+   lookahead disjunctions"
+   
+   This reverts commit 72cfe8ac1f5a430bbc0e6e3d9820786ba53e3fbe.
+ - Pattern/DefaultSemanticsPackage.pm: support of lparens in lookahead
+   disjunctions
+ - ECMAScript_262_5/Pattern.pm :  missing track of lparens for lookahead
+   disjunctions
+ - Pattern: positive lookahead test
+ - Pattern: backtracking fix
+ - Pattern/DefaultSemanticsPackage.pm: _CharacterEscape_IdentityEscape fix
+ - Pattern: t+
+ - Pattern: t+
+ - Pattern: t+
+ - Pattern: dev+
+ - Grammar/CharacterClasses.pm: Added export of BS
+ - Pattern/DefaultSemanticsPackage.pm: Use only exported functions from
+   CharacterClasses
+ - Grammar/CharacterClasses.pm: added NULL range and value
+ - Pattern: dev+
+ - StringNumericLiteral/DefaultSemanticsPackage.pm: POD fix
+ - Grammar/CharacterClasses.pm: Export explicitely the characters composing
+   LineTerminator and Whitespace
+ - Pattern: dev+
+ - ECMAScript_262_5/Program.pm: Fix POD
+ - StringNumericLilteral/DefaultSemanticsPackage.pm: Fix POD
+ - Pattern: dev+
+ - StringNumericLiteral/DefaultSemanticsPackage: Fix POD
+ - Revisited method names for StringNumericLiteral
+ - Pattern: dev+
+ - ECMAScript_262_5.pm: say that only the Program grammar provides an AST
+ - Pattern: dev+
+ - Lexical.pm: removed as non-needed
+ - Base: say that every string in the AST is a perl string
+ - rename of t/stringNumericLiteral*.t
+ - t/stringNumericLiteralBigFloat: Math::BigFloat implementation
+ - StringNumericLiteral: Fix call to implementations
+ - StringNumericLiteral::DefaultSemanticsPackage: Fix POD
+ - Pattern/DefaultSemanticsPackage.pm: POD fix
+ - Impl.pm: use Marpa::R2 2.078000
+ - ECMAScript_262_5 Generic Template for version 0.006
+ - Added default actions, fixed IdentityEscape
+ - AST/Grammar/ECMAScript_262_5.pm: added pattern()
+ - AST/Grammar.pm: added pattern()
+ - AST.pm: more POD, added pattern()
+ - ECMAScript_262_5 Generic Template for version 0.006
+ - StringNumericLiteral: renamed method value to hostValue
+ - Pattern.pm : make compilable
+ - Merge branch 'master' of
+   https://github.com/jddurand/MarpaX-Languages-ECMAScript-AST
+ - Regexp string preparation
+ - Regexp string preparation
+ - Regexp string preparation
+ - Regexp string preparation
+ - AST.pm : document more options argument passing
+ - Several POD fix (dzil xtest)
+ - StringNumericLiteral/DefaultSemanticsPackage.pm; Removed unused method
+ - Grammar/ECMAScript_262_5: POD fix
+ - Impl.pm: use Marpa::R2 2.077015 for a semantics_package fix
+ - Grammar/ECMAScript_262_5.pm: fix option passing
+ - Externalised semantic package example
+ - t/stringNumericLiteral.t: test cases with space (or empty input -;
+ - StringNumericLiteral: fix call to actions
+ - StringNumericLiteral defaults and test-suite
+ - ECMAScript_262_5 Generic Template for version 0.006
+ - Supreesed modules
+ - Fix default and make_grammar_option method overwrite
+ - t/stringNumericLiteral.t: dev+
+ - Template new moved from HASH to ref to HASH
+ - StringNumericLiteral: dev+
+ - Added missing exports for template and stringNumericLiteral
+ - ECMAScript_262_5 Generic Template for version 0.006
+ - StringNumericLiteral.pm: a somewhat better default
+ - Impl.pm: always use local hash for G->new() input
+ - Impl.pm: always use local hash to R->new() input
+ - StringNumericLiteral export
+ - StringNumericLiteral/DefaultSemanticsPackage.pm: fix typo
+ - StringNumericLiteral singleton and default semantics_package
+ - ECMAScript_262_5 Generic Template for version 0.006
+ - Use cached grammars for Program and StringLiteral
+ - Support of cached grammars
+ - StringNumericLiteral: dev+
+ - t/asi.t: use the same instance for all subtest
+ - Program/Singleton.pm: cached Program grammar
+ - StringNumericLiteral dev+
+ - Lexical::StringNumericLiteral: dev+
+ - Grammar::CharacterClasses: add IseOrE
+ - Lexical::StringNumericLiteral::Actions: dev+
+ - Lexical::StringNumericLiteral: dev+
+ - Lexical::StringLiteral: use inherited parse()
+ - Use range for character class when possible
+ - RT #91120
+
+0.005 2013-11-30T21:38:48
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Release of version 0.005
  - Lexical/StringLiteral/Actions.pm; octal actions fixes
  - AST/Impl.pm: typo in POD
  - AST/Impl.pm: possibility to cache the Marpa::R2::Scanless::G for speedup

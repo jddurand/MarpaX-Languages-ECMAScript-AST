@@ -8,7 +8,7 @@ MarpaX::Languages::ECMAScript::AST - Translate a ECMAScript source to an AST
 
 =head1 VERSION
 
-version 0.005
+version 0.006
 
 =head1 SYNOPSIS
 
@@ -39,7 +39,7 @@ version 0.005
 
 =head1 DESCRIPTION
 
-This module translates ECMAScript source into an AST tree. To assist further process of the AST tree, the nodes of the AST are blessed according to the ECMAScript grammar you have selected. (The default is 'ECMAScript-262-5'.) If you want to enable logging, be aware that this module is using Log::Any.
+This module translates ECMAScript source into an AST tree. If you want to enable logging, be aware that this module is using Log::Any.
 
 =head1 SUBROUTINES/METHODS
 
@@ -56,6 +56,26 @@ Name of a grammar. Default is 'ECMAScript-262-5'.
 =item cache
 
 Produced AST can be cached: very often the same ECMAScript is used again and again, so there is no need to always compute it at each call. The cache key is the buffer MD4 checksum, eventual collisions being handled. The cache location is the my_dist_data directory provided by File::HomeDir package. Default is a false value.
+
+=item ANYTHINGELSE
+
+Any other option that will be specific to the ECMAScript specific implementation. In practice these are:
+
+=over
+
+=item Template
+
+Reference to a hash for template options. C.f. per-ECMAScript documentation.
+
+=item StringNumericLiteral
+
+Reference to a hash for StringNumericLiteral grammar options. C.f. per-ECMAScript documentation.
+
+=item Pattern
+
+Reference to a hash for Pattern grammar options. C.f. per-ECMAScript documentation.
+
+=back
 
 =back
 
@@ -81,15 +101,43 @@ Returns the templates absolute path.
 
 =head2 parse($self, $source)
 
-Get and AST from the ECMAScript source, pointed by $source. This method will call all the intermediary steps (lexical, transformation, evaluation) necessary to produce the AST.
+Get an AST from the ECMAScript source, pointed by $source. This method will call all the intermediary steps (lexical, transformation, evaluation) necessary to produce the AST. An AST is a reference to nested arrays, containing either:
+
+=over
+
+=item valuesAndRuleId
+
+An entry describing a G1 rule (i.e. a non-terminal) is a reference to an array. The array contains the values of the right-hand side of the rule, followed by the rule Id.
+
+=item startAndLengthAndValue
+
+An entry describing a lexeme (i.e. a terminal) is a reference to an array. The array contains the start location in the stream, length and lexeme as perl's utf8 string.
+
+=back
 
 =head2 template($self)
 
 Return the generic template for this grammar. This template is doing nothing else but reproduce an ECMAScript source that, if parsed, would have an AST similar to the original source.
 
+=head2 stringNumericLiteral($self)
+
+Return the generic stringNumericLiteral for this grammar.
+
+=head2 pattern($self)
+
+Return the generic Pattern for this grammar.
+
 =head1 SEE ALSO
 
-L<Log::Any>, L<Marpa::R2>, L<Digest::MD4>, L<CHI::Driver::File>
+L<Log::Any>
+
+L<Marpa::R2>
+
+L<Digest::MD4>
+
+L<CHI::Driver::File>
+
+L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5>
 
 =for :stopwords cpan testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto metadata placeholders metacpan
 
