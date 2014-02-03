@@ -712,7 +712,6 @@ sub _CharacterEscape_UnicodeEscapeSequence {
 
 sub _CharacterEscape_IdentityEscape {
     my ($self, $identityEscape) = @_;
-
     #
     # Note: IdentityEscape is a lexeme, default lexeme value is [start,length,value]
     #
@@ -729,7 +728,7 @@ sub _DecimalEscape_DecimalIntegerLiteral {
     if ($i == 0) {
 	return \N{0000};
     }
-    return chr($i);
+    return $i;
 }
 
 sub _CharacterClassEscape {
