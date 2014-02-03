@@ -358,7 +358,7 @@ sub _Assertion_B {
 }
 
 sub _Assertion_DisjunctionPositiveLookAhead {
-    my ($self, undef, undef, $disjunction, undef) = @_;
+    my ($self, undef, $disjunction, undef) = @_;
 
     my $m = $disjunction;
 
@@ -383,7 +383,7 @@ sub _Assertion_DisjunctionPositiveLookAhead {
 }
 
 sub _Assertion_DisjunctionNegativeLookAhead {
-    my ($self, undef, undef, $disjunction, undef) = @_;
+    my ($self, undef, $disjunction, undef) = @_;
 
     my $m = $disjunction;
 
