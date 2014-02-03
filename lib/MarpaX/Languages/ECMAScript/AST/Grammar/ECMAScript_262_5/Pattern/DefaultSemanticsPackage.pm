@@ -4,6 +4,10 @@ use warnings FATAL => 'all';
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::DefaultSemanticsPackage;
 use MarpaX::Languages::ECMAScript::AST::Exceptions qw/:all/;
 use List::Compare::Functional 0.21 qw/get_union_ref/;
+use constant {
+  ASSERTION_IS_NOT_MATCHER => 0,
+  ASSERTION_IS_MATCHER     => 1
+};
 
 # ABSTRACT: ECMAScript 262, Edition 5, pattern grammar default semantics package
 
@@ -155,15 +159,22 @@ sub _Alternative_Alternative_Term {
 sub _Term_Assertion {
     my ($self, $assertion) = @_;
 
+    my ($isMatcher, $assertionCode) = @{$assertion};
+
     return sub {
 	my ($x, $c) = @_;
 
-	my $t = $assertion;
-	my $r = &$t($x);
-	if (! $r) {
+        if (! $isMatcher) {
+          my $t = $assertionCode;
+          my $r = &$t($x, $c);        # Take care! Typo in ECMAScript spec, $c is missing
+          if (! $r) {
 	    return 0;
-	}
-	return &$c($x);
+          }
+          return &$c($x);
+        } else {
+          my $m = $assertionCode;
+          return &$m($x, $c);
+        }
     };
 }
 
@@ -251,45 +262,47 @@ sub _Term_Atom_Quantifier {
 sub _Assertion_Caret {
     my ($self, $caret) = @_;
 
-    return sub {
-	my ($x) = @_;
+    return [ASSERTION_IS_NOT_MATCHER,
+            sub {
+              my ($x) = @_;
 
-	my $e = $x->[0];
-	if ($e == 0) {
-	    return 1;
-	}
-	if (! $MarpaX::Languages::ECMAScript::AST::Pattern::multiline) {
-	    return 0;
-	}
-	my $c = substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $e, 1);
-	if (grep {$c == $_} @LINETERMINATOR) {
-	    return 1;
-	}
+              my $e = $x->[0];
+              if ($e == 0) {
+                return 1;
+              }
+              if (! $MarpaX::Languages::ECMAScript::AST::Pattern::multiline) {
+                return 0;
+              }
+              my $c = substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $e, 1);
+              if (grep {$c == $_} @LINETERMINATOR) {
+                return 1;
+              }
 
-	return 0;
-    };
+              return 0;
+            }],
 }
 
 sub _Assertion_Dollar {
     my ($self, $caret) = @_;
 
-    return sub {
-	my ($x) = @_;
+    return [ASSERTION_IS_NOT_MATCHER,
+            sub {
+              my ($x) = @_;
 
-	my $e = $x->[0];
-	if ($e == $MarpaX::Languages::ECMAScript::AST::Pattern::inputLength) {
-	    return 1;
-	}
-	if (! $MarpaX::Languages::ECMAScript::AST::Pattern::multiline) {
-	    return 0;
-	}
-	my $c = substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $e, 1);
-	if (grep {$c == $_} @LINETERMINATOR) {
-	    return 1;
-	}
+              my $e = $x->[0];
+              if ($e == $MarpaX::Languages::ECMAScript::AST::Pattern::inputLength) {
+                return 1;
+              }
+              if (! $MarpaX::Languages::ECMAScript::AST::Pattern::multiline) {
+                return 0;
+              }
+              my $c = substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $e, 1);
+              if (grep {$c == $_} @LINETERMINATOR) {
+                return 1;
+              }
 
-	return 0;
-    };
+              return 0;
+            }];
 }
 
 sub _isWordChar {
@@ -322,39 +335,41 @@ sub _isWordChar {
 sub _Assertion_b {
     my ($self, $caret) = @_;
 
-    return sub {
-	my ($x) = @_;
+    return [ASSERTION_IS_NOT_MATCHER,
+            sub {
+              my ($x) = @_;
 
-	my $e = $x->[0];
-	my $a = _isWordChar($e-1);
-	my $b = _isWordChar($e);
-	if ($a && ! $b) {
-	    return 1;
-	}
-	if (! $a && $b) {
-	    return 1;
-	}
-	return 0;
-    };
+              my $e = $x->[0];
+              my $a = _isWordChar($e-1);
+              my $b = _isWordChar($e);
+              if ($a && ! $b) {
+                return 1;
+              }
+              if (! $a && $b) {
+                return 1;
+              }
+              return 0;
+            }];
 }
 
 sub _Assertion_B {
     my ($self, $caret) = @_;
 
-    return sub {
-	my ($x) = @_;
+    return [ASSERTION_IS_NOT_MATCHER,
+            sub {
+              my ($x) = @_;
 
-	my $e = $x->[0];
-	my $a = _isWordChar($e-1);
-	my $b = _isWordChar($e);
-	if ($a && ! $b) {
-	    return 0;
-	}
-	if (! $a && $b) {
-	    return 0;
-	}
-	return 1;
-    };
+              my $e = $x->[0];
+              my $a = _isWordChar($e-1);
+              my $b = _isWordChar($e);
+              if ($a && ! $b) {
+                return 0;
+              }
+              if (! $a && $b) {
+                return 0;
+              }
+              return 1;
+            }];
 }
 
 sub _Assertion_DisjunctionPositiveLookAhead {
@@ -362,24 +377,25 @@ sub _Assertion_DisjunctionPositiveLookAhead {
 
     my $m = $disjunction;
 
-    return sub {
-	my ($x, $c) = @_;
+    return [ASSERTION_IS_MATCHER,
+            sub {
+              my ($x, $c) = @_;
 
-	my $d = sub {
-	    my ($y) = @_;
-	    return $y;
-	};
+              my $d = sub {
+                my ($y) = @_;
+                return $y;
+              };
 
-	my $r = &$m($x, $d);
-	if (! $r) {
-	    return 0;
-	}
-	my $y = $r;
-	my $cap = $y->[1];
-	my $xe = $x->[0];
-	my $z = [$xe, $cap];
-	return &$c($z);
-    };
+              my $r = &$m($x, $d);
+              if (! $r) {
+                return 0;
+              }
+              my $y = $r;
+              my $cap = $y->[1];
+              my $xe = $x->[0];
+              my $z = [$xe, $cap];
+              return &$c($z);
+            }];
 }
 
 sub _Assertion_DisjunctionNegativeLookAhead {
@@ -387,20 +403,21 @@ sub _Assertion_DisjunctionNegativeLookAhead {
 
     my $m = $disjunction;
 
-    return sub {
-	my ($x, $c) = @_;
+    return [ASSERTION_IS_MATCHER,
+            sub {
+              my ($x, $c) = @_;
 
-	my $d = sub {
-	    my ($y) = @_;
-	    return $y;
-	};
+              my $d = sub {
+                my ($y) = @_;
+                return $y;
+              };
 
-	my $r = &$m($x, $d);
-	if ($r) {
-	    return 0;
-	}
-	return &$c($x);
-    };
+              my $r = &$m($x, $d);
+              if ($r) {
+                return 0;
+              }
+              return &$c($x);
+            }];
 }
 
 sub _Quantifier_QuantifierPrefix {
@@ -984,5 +1001,11 @@ sub _ClassEscape_CharacterClassEscape {
 
     return $characterClassEscape;
 }
+
+=head1 NOTE
+
+The only deviation from the standard is what I believe is an error in the ECMA-262-5 specification for Term :: Assertion. The assertion is of two types, and assertion tester and an internal matcher, while the spec assumes this is always an assertion tester. The internal matcher is when an assertion is a disjunction lookahead. In such Term :: Assertion is modified to call this matcher below and return its result.
+
+=cut
 
 1;
