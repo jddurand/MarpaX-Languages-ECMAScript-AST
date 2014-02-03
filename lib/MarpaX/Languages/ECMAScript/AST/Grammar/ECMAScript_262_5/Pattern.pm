@@ -239,12 +239,12 @@ Term ::=
     | Atom Quantifier                         action => _Term_Atom_Quantifier
 
 Assertion ::=
-      '^'                                     action => _Assertion_Caret
-    | '$'                                     action => _Assertion_Dollar
-    | '\b'                                    action => _Assertion_b
-    | '\B'                                    action => _Assertion_B
-    | '(?=' Disjunction ')'                   action => _Assertion_DisjunctionPositiveLookAhead
-    | '(?!' Disjunction ')'                   action => _Assertion_DisjunctionNegativeLookAhead
+      '^'                                          action => _Assertion_Caret
+    | '$'                                          action => _Assertion_Dollar
+    | '\b'                                         action => _Assertion_b
+    | '\B'                                         action => _Assertion_B
+    | LPAREN_ATOM_DISJUNCTION '?=' Disjunction ')' action => _Assertion_DisjunctionPositiveLookAhead
+    | LPAREN_ATOM_DISJUNCTION '?!' Disjunction ')' action => _Assertion_DisjunctionNegativeLookAhead
 
 Quantifier ::=
       QuantifierPrefix                        action => _Quantifier_QuantifierPrefix
