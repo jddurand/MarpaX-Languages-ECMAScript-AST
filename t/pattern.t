@@ -67,13 +67,13 @@ foreach (keys %DATA) {
     my $regexp = $_;
     my $parse = $pattern->{grammar}->parse($regexp, $pattern->{impl});
     my $code = eval { $pattern->{grammar}->value($pattern->{impl}) };
+    if ($@) {
+        print STDERR $@;
+        $code = sub {undef};
+    }
     foreach (@{$DATA{$_}}) {
 	my ($input, $multiline, $ignoreCase, $result) = @{$_};
 	++$ntest;
-	if ($@) {
-	    print STDERR $@;
-	    $code = sub {undef};
-	}
 	my $value = &$code($input, 0);
 	eq_or_diff($value, $result, "/$regexp/.exec(\"$input\")");
     }
