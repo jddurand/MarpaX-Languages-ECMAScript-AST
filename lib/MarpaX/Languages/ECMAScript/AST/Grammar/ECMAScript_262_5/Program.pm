@@ -12,7 +12,7 @@ use warnings FATAL => 'all';
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program;
 use parent qw/MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base/;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Singleton;
-use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Actions;
+use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::DefaultSemanticsPackage;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::RegularExpressionLiteral;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::NumericLiteral;
@@ -131,18 +131,66 @@ This modules returns describes the ECMAScript 262, Edition 5 lexical program gra
 
 =head1 SUBROUTINES/METHODS
 
-=head2 new()
+=head2 new($optionsp)
 
 Instance a new object.
+
+$optionsp is a reference to hash that may contain the following key/value pair:
+
+=over
+
+=item semantics_package
+
+As per Marpa::R2, The semantics package is used when resolving action names to fully qualified Perl names. This package must support and behave as documented in the DefaultSemanticsPackage (c.f. SEE ALSO).
+
+=back
 
 =cut
 
 sub new {
-    my ($class) = @_;
+    my ($class, $optionsp) = @_;
+
+    $optionsp //= {};
+
+    my $semantics_package = exists($optionsp->{semantics_package}) ? $optionsp->{semantics_package} : __PACKAGE__ . '::DefaultSemanticsPackage';
 
     my $self = $class->SUPER($grammar_source, __PACKAGE__);
+    #
+    # Add semantics package to self
+    #
+    $self->{_semantics_package} = $semantics_package;
 
     return $self;
+}
+
+=head2 recce_option($self, $package)
+
+Returns recce options.
+
+=cut
+
+sub recce_option {
+    my ($self) = @_;
+    my $recce_option = super();
+    
+    $recce_option->{semantics_package} = $self->{_semantics_package};
+
+    return $recce_option;
+}
+
+=head2 make_grammar_option($class, $package)
+
+Returns default grammar options.
+
+=cut
+
+sub make_grammar_option {
+    my ($class) = @_;
+    my $grammar_option = super();
+    
+    delete($grammar_option->{action_object});
+
+    return $grammar_option;
 }
 
 =head2 G()

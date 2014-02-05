@@ -1,7 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Actions;
+package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::DefaultSemanticsPackage;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral;
 
 our $StringLiteral = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral->new();
@@ -75,12 +75,6 @@ sub StringLiteral {
     # We just re-evaluate the value. Per def there is no need to eval, the lexeme
     # got matched.
     #
-    # It is quite consuming to redo a full grammar stuff. So instead let's look at
-    # the differences between a true perl string and a JavaScript string.
-    # The difference is always related with escape sequence thingies, c.f.
-    # StringTerminal/Actions.pm
-    #
-
     $lexemeActionValuep->[2] = $StringLiteral->parse($lexemeActionValuep->[2], $StringLiteralImpl)->value($StringLiteralImpl);
 
     return $lexemeActionValuep;
