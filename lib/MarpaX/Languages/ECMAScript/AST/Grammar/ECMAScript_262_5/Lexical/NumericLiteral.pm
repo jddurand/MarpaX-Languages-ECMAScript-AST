@@ -38,15 +38,15 @@ Instance a new object.
 
 =cut
 
+#
+# Prevent injection of this grammar to collide with others:
+# ___yy is changed to ___NumericLiteral___yy
+#
+our $grammar_source = do {local $/; <DATA>};
+$grammar_source =~ s/___/___NumericLiteral___/g;
+
 sub new {
     my ($class) = @_;
-
-    #
-    # Prevent injection of this grammar to collide with others:
-    # ___yy is changed to ___NumericLiteral___yy
-    #
-    my $grammar_source = do {local $/; <DATA>};
-    $grammar_source =~ s/___/___NumericLiteral___/g;
 
     return $class->SUPER($grammar_source, __PACKAGE__);
 }
