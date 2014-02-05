@@ -37,7 +37,7 @@ my %DATA = (
 foreach (keys %DATA) {
     my $value;
     if (length("$_") <= 0) {
-	$value = Data::Float::pos_zero;
+	$value = Data::Float::pos_zero();
     } else {
 	eval{
 	    my $parse = $stringNumericLiteral->{grammar}->parse("$_",
@@ -45,7 +45,7 @@ foreach (keys %DATA) {
 	    $value = $stringNumericLiteral->{grammar}->value($stringNumericLiteral->{impl});
 	};
         if ($@) {
-            $value = Data::Float::nan;
+            $value = Data::Float::nan();
         }
     }
     $DATA{$_}($value);
