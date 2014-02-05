@@ -4,11 +4,9 @@ use warnings FATAL => 'all';
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral;
 use parent qw/MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base/;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::Singleton;
-use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::DefaultSemanticsPackage;
+use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses;
 use SUPER;
-use Carp qw/croak/;
-use Scalar::Util qw/blessed/;
 
 # ABSTRACT: ECMAScript-262, Edition 5, string numeric literal grammar written in Marpa BNF
 
@@ -35,12 +33,12 @@ This modules returns describes the ECMAScript 262, Edition 5 string numeric lite
 #
 # Note that this grammar is NOT supposed to be injected in Program
 #
-our $grammar_source = do {local $/; <DATA>};
+our $grammar_content = do {local $/; <DATA>};
 
 our $singleton = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::Singleton->instance(
     MarpaX::Languages::ECMAScript::AST::Impl->new
     (
-     __PACKAGE__->make_grammar_option(__PACKAGE__, 'ECMAScript-262-5', $grammar_source),
+     __PACKAGE__->make_grammar_option('ECMAScript-262-5'),
      undef,                                   # $recceOptionsHashp
      undef,                                   # $cachedG
      1                                        # $noR
@@ -57,7 +55,7 @@ $optionsp is a reference to hash that may contain the following key/value pair:
 
 =item semantics_package
 
-As per Marpa::R2, The semantics package is used when resolving action names to fully qualified Perl names. This package must support and behave as documented in the DefaultSemanticsPackage (c.f. SEE ALSO).
+As per Marpa::R2, The semantics package is used when resolving action names to fully qualified Perl names. This package must support and behave as documented in the NativeNumberSemantics (c.f. SEE ALSO).
 
 =back
 
@@ -68,9 +66,9 @@ sub new {
 
     $optionsp //= {};
 
-    my $semantics_package = exists($optionsp->{semantics_package}) ? $optionsp->{semantics_package} : __PACKAGE__ . '::DefaultSemanticsPackage';
+    my $semantics_package = exists($optionsp->{semantics_package}) ? $optionsp->{semantics_package} : __PACKAGE__ . '::NativeNumberSemantics';
 
-    my $self = $class->SUPER($grammar_source, __PACKAGE__);
+    my $self = $class->SUPER();
 
     #
     # Add semantics package to self
@@ -80,34 +78,35 @@ sub new {
     return $self;
 }
 
-=head2 recce_option($self, $package)
+=head2 make_grammar_content($class)
 
-Returns recce options.
+Returns the grammar. This will be injected in the Program's grammar.
+
+=cut
+
+sub make_grammar_content {
+    my ($class) = @_;
+    return $grammar_content;
+}
+
+=head2 recce_option($self)
+
+Returns option for Marpa::R2::Scanless::R->new(), returned as a reference to a hash.
 
 =cut
 
 sub recce_option {
     my ($self) = @_;
-    my $recce_option = super();
-    
-    $recce_option->{semantics_package} = $self->{_semantics_package};
+    #
+    # Get default hash
+    #
+    my $default = $self->SUPER();
+    #
+    # And overwrite the semantics_package
+    #
+    $default->{semantics_package} = $self->{_semantics_package};
 
-    return $recce_option;
-}
-
-=head2 make_grammar_option($class, $package)
-
-Returns default grammar options.
-
-=cut
-
-sub make_grammar_option {
-    my ($class) = @_;
-    my $grammar_option = super();
-    
-    delete($grammar_option->{action_object});
-
-    return $grammar_option;
+    return $default;
 }
 
 =head2 G()
@@ -120,15 +119,9 @@ sub G {
     return $singleton->G;
 }
 
-=head1 SEE ALSO
-
-L<Data::Float>
-
-L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base>
-
-L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::DefaultSemanticsPackage>
-
-=cut
+#
+# INTERNAL ACTIONS
+#
 
 sub _secondArg {
     return $_[2];
@@ -214,6 +207,16 @@ sub _DecimalDigit {
 sub _neg {
   return $_[2]->host_neg;
 }
+
+=head1 SEE ALSO
+
+L<Data::Float>
+
+L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base>
+
+L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics>
+
+=cut
 
 1;
 __DATA__

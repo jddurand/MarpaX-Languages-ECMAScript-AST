@@ -3,10 +3,6 @@ use warnings FATAL => 'all';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::RegularExpressionLiteral;
 use parent qw/MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base/;
-use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::RegularExpressionLiteral::Actions;
-use Carp qw/croak/;
-use Log::Any qw/$log/;
-use SUPER;
 
 # ABSTRACT: ECMAScript-262, Edition 5, lexical string grammar written in Marpa BNF
 
@@ -14,7 +10,9 @@ use SUPER;
 
 =head1 DESCRIPTION
 
-This modules returns describes the ECMAScript 262, Edition 5 lexical string grammar written in Marpa BNF, as of L<http://www.ecma-international.org/publications/standards/Ecma-262.htm>. This module inherits the methods from MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base package.
+This modules describes the ECMAScript 262, Edition 5 regular expression literal grammar written in Marpa BNF, as of L<http://www.ecma-international.org/publications/standards/Ecma-262.htm>.
+
+This module inherits the methods from MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base package.
 
 =head1 SYNOPSIS
 
@@ -30,48 +28,24 @@ This modules returns describes the ECMAScript 262, Edition 5 lexical string gram
 
 =cut
 
-=head1 SUBROUTINES/METHODS
-
-=head2 new()
-
-Instance a new object.
-
-=cut
-
 #
 # Prevent injection of this grammar to collide with others:
 # ___yy is changed to ___StringLiteral___yy
 #
-our $grammar_source = do {local $/; <DATA>};
-$grammar_source =~ s/___/___RegularExpressionLiteral___/g;
+our $grammar_content = do {local $/; <DATA>};
+$grammar_content =~ s/___/___RegularExpressionLiteral___/g;
 
-sub new {
-    my ($class) = @_;
+=head1 SUBROUTINES/METHODS
 
-    return $class->SUPER($grammar_source, __PACKAGE__);
-}
+=head2 make_grammar_content($class)
 
-=head2 parse($self, $source)
-
-Parse the source given as $source.
+Returns the grammar. This will be injected in the Program's grammar.
 
 =cut
 
-sub parse {
-    my ($self, $source, $impl) = @_;
-    return $self->SUPER($source, $impl,
-	{
-	 #   '_DecimalLiteral$'     => \&_DecimalLiteral,
-	 #   '_HexIntegerLiteral$'  => \&_HexIntegerLiteral,
-	 #   '_OctalIntegerLiteral$'=> \&_OctalIntegerLiteral,
-	 #   '_IdentifierName$'     => \&_IdentifierName
-	});
-}
-
-sub _DecimalLiteral {
-    my ($self, $lexemeHashp, $source, $impl) = @_;
-
-    $self->_NumericLiteralLookhead($lexemeHashp, $source, $impl);
+sub make_grammar_content {
+    my ($class) = @_;
+    return $grammar_content;
 }
 
 =head1 SEE ALSO

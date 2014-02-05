@@ -1,11 +1,11 @@
 use strict;
 use warnings FATAL => 'all';
 
-package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::DefaultSemanticsPackage;
+package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics;
 use Data::Float qw//;
 use Scalar::Util qw/blessed/;
 
-# ABSTRACT: ECMAScript 262, Edition 5, lexical string numeric grammar default semantics package
+# ABSTRACT: ECMAScript 262, Edition 5, lexical string numeric grammar default semantics package, using native perl number representations
 
 # VERSION
 

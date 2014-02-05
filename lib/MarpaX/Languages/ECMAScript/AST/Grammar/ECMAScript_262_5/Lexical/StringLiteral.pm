@@ -3,18 +3,17 @@ use warnings FATAL => 'all';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral;
 use parent qw/MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base/;
-use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral::Actions;
-use Carp qw/croak/;
-use Log::Any qw/$log/;
-use SUPER;
+use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral::Semantics;
 
-# ABSTRACT: ECMAScript-262, Edition 5, lexical string grammar written in Marpa BNF
+# ABSTRACT: ECMAScript-262, Edition 5, string literal grammar written in Marpa BNF
 
 # VERSION
 
 =head1 DESCRIPTION
 
-This modules returns describes the ECMAScript 262, Edition 5 lexical string grammar written in Marpa BNF, as of L<http://www.ecma-international.org/publications/standards/Ecma-262.htm>. This module inherits the methods from MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base package.
+This modules returns describes the ECMAScript 262, Edition 5 lexical string literal grammar written in Marpa BNF, as of L<http://www.ecma-international.org/publications/standards/Ecma-262.htm>.
+
+This module inherits the methods from MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base package, and have a semantics.
 
 =head1 SYNOPSIS
 
@@ -30,38 +29,36 @@ This modules returns describes the ECMAScript 262, Edition 5 lexical string gram
 
 =cut
 
-=head1 SUBROUTINES/METHODS
-
-=head2 new()
-
-Instance a new object.
-
-=cut
-
 #
 # Prevent injection of this grammar to collide with others:
 # ___yy is changed to ___StringLiteral___yy
 #
-our $grammar_source = do {local $/; <DATA>};
-$grammar_source =~ s/___/___StringLiteral___/g;
+our $grammar_content = do {local $/; <DATA>};
+$grammar_content =~ s/___/___StringLiteral___/g;
 
-sub new {
-    my ($class) = @_;
+=head1 SUBROUTINES/METHODS
 
-    return $class->SUPER($grammar_source, __PACKAGE__);
-}
+=head2 make_grammar_content($class)
 
-=head2 original_content()
-
-Class method returning the grammar content as found in this module.
+Returns the grammar. This will be injected in the Program's grammar.
 
 =cut
 
-sub original_content {
-    return $grammar_source;
+sub make_grammar_content {
+    my ($class) = @_;
+    return $grammar_content;
 }
 
-#
+=head2 semantics_package($class)
+
+Class method that returns a default recce semantics_package, doing nothing else but a new().
+
+=cut
+
+sub make_semantics_package {
+    my ($class) = @_;
+    return join('::', $class, 'DefaultSemanticsPackage');
+}
 
 =head1 SEE ALSO
 

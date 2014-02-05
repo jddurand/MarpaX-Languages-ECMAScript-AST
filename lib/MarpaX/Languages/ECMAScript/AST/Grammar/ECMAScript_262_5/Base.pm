@@ -35,11 +35,9 @@ Instance a new object. Takes a grammar and package name as required parameters.
 =cut
 
 sub new {
-  my $class = shift;
-  my $grammar = shift;
-  my $package = shift;
+  my ($class) = @_;
 
-  return $class->SUPER($grammar, $package, 'ECMAScript_262_5', @_);
+  return $class->SUPER('ECMAScript_262_5');
 
 }
 

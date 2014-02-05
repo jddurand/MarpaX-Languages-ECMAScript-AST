@@ -35,43 +35,26 @@ This modules returns a base package for all the ECMAScript grammars written in M
 
 =head1 SUBROUTINES/METHODS
 
-=head2 new($grammar_content, $package, $spec)
+=head2 new($class, $spec)
 
-Instance a new object. Takes a grammar content $grammar_content, a package name $package and an ECMAScript specification $spec as required parameters.
+Instance a new object. Takes an ECMAScript specification $spec as required parameter.
 
 =cut
 
 sub new {
-  my ($class, $grammar_content, $package, $spec) = @_;
+  my ($class, $spec) = @_;
 
-  InternalError(error => 'Missing grammar') if (! defined($grammar_content));
-  InternalError(error => 'Missing package name') if (! defined($package));
   InternalError(error => 'Missing ECMAScript specification') if (! defined($spec));
 
   my $self  = {
-      _content => $class->make_content($spec, $grammar_content),
-      _grammar_option => $class->make_grammar_option($package, $spec, $grammar_content),
-      _recce_option => $class->make_recce_option,
-      _strict => 0
+      _content        => $class->make_content($spec),
+      _grammar_option => $class->make_grammar_option($spec),
+      _recce_option   => $class->make_recce_option($spec),
   };
 
   bless($self, $class);
 
   return $self;
-}
-
-=head2 strict($self, [$strict])
-
-Sets/Returns the strict mode of the grammar.
-
-=cut
-
-sub strict {
-    my $self = shift;
-    if (@_) {
-	$self->{_strict} = shift;
-    }
-    return $self->{_strict};
 }
 
 =head2 content($self)
@@ -85,14 +68,16 @@ sub content {
     return $self->{_content};
 }
 
-=head2 make_content($class, $spec, $original_content)
+=head2 make_content($class, $spec)
 
-Class method that return the default content of the grammar writen for specification $spec and based on $original_content. Grammars in the ECMA script typically use Posix user-defined classes without the full classname; this method is making sure full classname is used.
+Class method that return the default content of the grammar writen for specification $spec. Grammars are typically use Posix user-defined classes without the full classname; this method is making sure full classname is used; using $spec.
 
 =cut
 
 sub make_content {
-    my ($class, $spec, $original_content) = @_;
+    my ($class, $spec) = @_;
+
+    my $content = $class->make_grammar_content;
 
     #
     # Too painful to write MarpaX::Languages::ECMAScript::AST::Grammar::${spec}::CharacterClasses::IsSomething
@@ -102,7 +87,6 @@ sub make_content {
 	$spec = 'ECMAScript_262_5';
     }
     my $characterClass = "\\p{MarpaX::Languages::ECMAScript::AST::Grammar::${spec}::CharacterClasses::Is";
-    my $content = $original_content;
     $content =~ s/\\p\{Is/$characterClass/g;
 
     return $content;
@@ -129,16 +113,38 @@ sub extract {
     return $rc;
 }
 
-=head2 make_grammar_option($class, $package, $spec, $grammar_content)
+=head2 make_grammar_option($class, $spec)
 
-Class method that returns default grammar options for a given package $package, ECMA specification $spec, and grammar content $grammar_content. Default $package is the class name used for this call.
+Class method that returns default grammar options for a given ECMA specification $spec.
 
 =cut
 
 sub make_grammar_option {
-    my ($class, $package, $spec, $grammar_content) = @_;
-    $package //= $class;
-    return {bless_package => $class, action_object  => sprintf('%s::%s', $package, 'Actions'), source => \$class->make_content($spec, $grammar_content)};
+    my ($class, $spec) = @_;
+    return {bless_package => $class->make_bless_package,
+	    source        => \$class->make_content($spec, $class->make_grammar_content)};
+}
+
+=head2 make_grammar_content($class)
+
+Class method that returns the grammar content. This class must be overwriten by the any package providing a grammar.
+
+=cut
+
+sub make_grammar_content {
+    my ($class) = @_;
+    return undef;
+}
+
+=head2 make_bless_package($class)
+
+Class method that returns recommended bless_package grammar options.
+
+=cut
+
+sub make_bless_package {
+    my ($class) = @_;
+    return $class;
 }
 
 =head2 grammar_option($self)
@@ -163,15 +169,37 @@ sub recce_option {
     return $self->{_recce_option};
 }
 
-=head2 make_recce_option($class, $package)
+=head2 make_recce_option($class, $spec)
 
-Class method that returns default recce options.
+Class method that returns default recce options for a given ECMA specification $spec.
 
 =cut
 
 sub make_recce_option {
+    my ($class, $spec) = @_;
+    return {ranking_method => $class->make_ranking_method, semantics_package => $class->make_semantics_package};
+}
+
+=head2 ranking_method($class)
+
+Class method that returns recommended recce ranking_method
+
+=cut
+
+sub make_ranking_method {
     my ($class) = @_;
-    return {ranking_method => 'high_rule_only'};
+    return 'high_rule_only';
+}
+
+=head2 semantics_package($class)
+
+Class method that returns a default recce semantics_package, doing nothing else but a new().
+
+=cut
+
+sub make_semantics_package {
+    my ($class) = @_;
+    return join('::', __PACKAGE__, 'DefaultSemanticsPackage');
 }
 
 =head2 parse($self, $source, [$optionsp], [$start], [$length])
@@ -203,10 +231,6 @@ End callback Code Reference. Default is undef.
 =item endargs
 
 Reference to an array of End callback Code Reference first arguments. Default is [].
-
-=item keepOriginalSource
-
-Because of Automatic Semicolon Insertion that may happen at the end, a space is appended to a copy of the source to be parsed. If a true value, this option disable that append. Default is true.
 
 =back
 
@@ -260,20 +284,9 @@ sub parse {
   my $endp = $optionsp->{end};
   my $endargsp = $optionsp->{endargs} // [];
   my @endargs = @{$endargsp};
-  my $keepOriginalSource = $optionsp->{keepOriginalSource} // 1;
 
   $start //= 0;
   $length //= -1;
-
-  #
-  # This will create a new instance of the string
-  #
-  if (! $keepOriginalSource) {
-      #
-      # Space for an eventual last and inserted semicolon
-      #
-      $source .= ' ';
-  }
 
   my $pos = $start;
   my $max = length($source) - $start + $length;

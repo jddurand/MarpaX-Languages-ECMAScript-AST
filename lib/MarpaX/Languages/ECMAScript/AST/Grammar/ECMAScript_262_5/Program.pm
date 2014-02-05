@@ -12,7 +12,7 @@ use warnings FATAL => 'all';
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program;
 use parent qw/MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base/;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Singleton;
-use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::DefaultSemanticsPackage;
+use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Semantics;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::RegularExpressionLiteral;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::NumericLiteral;
@@ -60,7 +60,7 @@ our @NullLiteral = qw/null/;
 
 our @BooleanLiteral = qw/true false/;
 
-our $grammar_source = do {local $/; <DATA>};
+our $grammar_content = do {local $/; <DATA>};
 
 #
 # It is clearer to have reserved words in an array. But for efficienvy the hash is better,
@@ -76,29 +76,29 @@ our %BooleanLiteral           = map {($_, uc($_))} @BooleanLiteral;
 #
 # ... And we inject in the grammar those that exist (FutureReservedWord do not)
 #
-$grammar_source .= "\n";
+$grammar_content .= "\n";
 # ... Priorities
-map {$grammar_source .= ":lexeme ~ <$_> priority => 1\n"} values %Keyword;
-map {$grammar_source .= ":lexeme ~ <$_> priority => 1\n"} values %NullLiteral;
-map {$grammar_source .= ":lexeme ~ <$_> priority => 1\n"} values %BooleanLiteral;
+map {$grammar_content .= ":lexeme ~ <$_> priority => 1\n"} values %Keyword;
+map {$grammar_content .= ":lexeme ~ <$_> priority => 1\n"} values %NullLiteral;
+map {$grammar_content .= ":lexeme ~ <$_> priority => 1\n"} values %BooleanLiteral;
 # ... Definition
-map {$grammar_source .= uc($_) . " ~ '$_'\n"} @Keyword;
-map {$grammar_source .= uc($_) . " ~ '$_'\n"} @NullLiteral;
-map {$grammar_source .= uc($_) . " ~ '$_'\n"} @BooleanLiteral;
+map {$grammar_content .= uc($_) . " ~ '$_'\n"} @Keyword;
+map {$grammar_content .= uc($_) . " ~ '$_'\n"} @NullLiteral;
+map {$grammar_content .= uc($_) . " ~ '$_'\n"} @BooleanLiteral;
 #
 # Injection of grammars.
 #
 our $StringLiteral = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral->new();
 our $RegularExpressionLiteral = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::RegularExpressionLiteral->new();
 our $NumericLiteral = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::NumericLiteral->new();
-$grammar_source .= $StringLiteral->extract;
-$grammar_source .= $NumericLiteral->extract;
-$grammar_source .= $RegularExpressionLiteral->extract;
+$grammar_content .= $StringLiteral->extract;
+$grammar_content .= $NumericLiteral->extract;
+$grammar_content .= $RegularExpressionLiteral->extract;
 
 our $singleton = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Singleton->instance(
     MarpaX::Languages::ECMAScript::AST::Impl->new
     (
-     __PACKAGE__->make_grammar_option(__PACKAGE__, 'ECMAScript-262-5', $grammar_source),
+     __PACKAGE__->make_grammar_option('ECMAScript-262-5'),
      undef,                                   # $recceOptionsHashp
      undef,                                   # $cachedG
      1                                        # $noR
@@ -131,66 +131,26 @@ This modules returns describes the ECMAScript 262, Edition 5 lexical program gra
 
 =head1 SUBROUTINES/METHODS
 
-=head2 new($optionsp)
+=head2 make_grammar_content($class)
 
-Instance a new object.
-
-$optionsp is a reference to hash that may contain the following key/value pair:
-
-=over
-
-=item semantics_package
-
-As per Marpa::R2, The semantics package is used when resolving action names to fully qualified Perl names. This package must support and behave as documented in the DefaultSemanticsPackage (c.f. SEE ALSO).
-
-=back
+Returns the grammar. This will be injected in the Program's grammar.
 
 =cut
 
-sub new {
-    my ($class, $optionsp) = @_;
-
-    $optionsp //= {};
-
-    my $semantics_package = exists($optionsp->{semantics_package}) ? $optionsp->{semantics_package} : __PACKAGE__ . '::DefaultSemanticsPackage';
-
-    my $self = $class->SUPER($grammar_source, __PACKAGE__);
-    #
-    # Add semantics package to self
-    #
-    $self->{_semantics_package} = $semantics_package;
-
-    return $self;
-}
-
-=head2 recce_option($self, $package)
-
-Returns recce options.
-
-=cut
-
-sub recce_option {
-    my ($self) = @_;
-    my $recce_option = super();
-    
-    $recce_option->{semantics_package} = $self->{_semantics_package};
-
-    return $recce_option;
-}
-
-=head2 make_grammar_option($class, $package)
-
-Returns default grammar options.
-
-=cut
-
-sub make_grammar_option {
+sub make_grammar_content {
     my ($class) = @_;
-    my $grammar_option = super();
-    
-    delete($grammar_option->{action_object});
+    return $grammar_content;
+}
 
-    return $grammar_option;
+=head2 semantics_package($class)
+
+Class method that returns Program default recce semantics_package. These semantics are adding ruleId to all values, and execute eventually StringLiteral lexical grammar.
+
+=cut
+
+sub make_semantics_package {
+    my ($class) = @_;
+    return join('::', __PACKAGE__, 'Semantics');
 }
 
 =head2 G()
@@ -211,7 +171,12 @@ Parse the source given as $source using implementation $impl.
 
 sub parse {
     my ($self, $source, $impl) = @_;
+    #
+    # Because of Automatic Semicolon Insertion that may happen at the end,
+    # a space is appended to a copy of the source to be parsed.
+    #
     $self->{programCompleted} = 0;
+    $source .= ' ';
     return $self->SUPER($source, $impl,
                         {
                          callback => \&_eventCallback,
@@ -220,7 +185,6 @@ sub parse {
                          failureargs => [ $self ],
                          end => \&_endCallback,
                          endargs => [ $self ],
-			 keepOriginalSource => 0,
                         });
 }
 
