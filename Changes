@@ -1,7 +1,19 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.006 2014-02-03T22:16:02
+0.007 2014-02-05T23:01:37
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Refactorisation
+ - Lexical/NumericLiteral.pm: Load grammar once
+ - Program/Actions.pm renamed to Program/DefaultSemanticsPackage.pm
+ - StringNumericLiteral: fix bareword warnings
+ - t/pattern.t: better indentation
+ - t/pattern.t: move test of value upper
+ - t/pattern.t: two more test with alternation
+ - Pattern: Fix lexeme issue (longest match win)
+
+0.006 2014-02-03T22:18:19
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Release of version 0.006
  - use
    MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Character
    Classes
