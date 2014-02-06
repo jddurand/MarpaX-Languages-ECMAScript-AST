@@ -1,212 +1,67 @@
 use strict;
 use warnings FATAL => 'all';
 
-package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Uri;
+package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::URI;
+use parent qw/MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base/;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses;
-use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::Actions;
-use Carp qw/croak/;
 
 our $grammar_content = do {local $/; <DATA>};
 
-# ABSTRACT: ECMAScript-262, Edition 5, grammar written in Marpa BNF
-
-# VERSION
-
 =head1 DESCRIPTION
 
-This modules returns describes the ECMAScript 262, Edition 5, pattern grammar written in Marpa BNF, as of L<http://www.ecma-international.org/publications/standards/Ecma-262.htm>.
+This modules returns describes the ECMAScript 262, Edition 5 URI grammar written in Marpa BNF, as of L<http://www.ecma-international.org/publications/standards/Ecma-262.htm>. This module inherits the methods from MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base package.
 
 =head1 SYNOPSIS
 
     use strict;
     use warnings FATAL => 'all';
-    use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern;
+    use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::URI;
 
-    my $grammar = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern->new();
+    my $grammar = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::URI->new();
 
     my $grammar_content = $grammar->content();
     my $grammar_option = $grammar->grammar_option();
     my $recce_option = $grammar->recce_option();
 
+=cut
+
 =head1 SUBROUTINES/METHODS
 
-=head2 new()
+=head2 make_grammar_content($class)
 
-Instance a new object. Takes no parameter.
-
-=cut
-
-sub new {
-  my ($class) = @_;
-
-  my $self  = {
-    _grammar_option => {action_object  => sprintf('%s::%s', __PACKAGE__, 'Actions')},
-    _recce_option => {ranking_method => 'high_rule_only'},
-    _content => $grammar_content
-  };
-  #
-  # Too painful to write MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::IsSomething
-  # so I change it on-the-fly here
-  #
-  $self->{_content} =~ s/\\p\{Is/\\p{MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::Is/g;
-
-  bless($self, $class);
-
-  return $self;
-}
-
-=head2 content()
-
-Returns the content of the grammar. Takes no argument.
+Returns the grammar. This will be injected in the Program's grammar.
 
 =cut
 
-sub content {
-    my ($self) = @_;
-    return $self->{_content};
+sub make_grammar_content {
+    my ($class) = @_;
+    return $grammar_content;
 }
 
-=head2 grammar_option()
+=head1 SEE ALSO
 
-Returns recommended option for Marpa::R2::Scanless::G->new(), returned as a reference to a hash.
+L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base>
 
 =cut
-
-sub grammar_option {
-    my ($self) = @_;
-    return $self->{_grammar_option};
-}
-
-=head2 recce_option()
-
-Returns recommended option for Marpa::R2::Scanless::R->new(), returned as a reference to a hash.
-
-=cut
-
-sub recce_option {
-    my ($self) = @_;
-    return $self->{_recce_option};
-}
 
 1;
 __DATA__
+# ==================================
+# ECMAScript Script Lexical String Grammar
+# ==================================
 #
-# Defaults
+# The source text of an ECMAScript program is first converted into a sequence of input elements, which are
+# tokens, line terminators, comments, or white space.
 #
-:default ::= action => [values] bless => ::lhs
+:start ::= uri
+:default ::= action => [values]
 lexeme default = action => [start,length,value]
 
-:start ::= Pattern
-
-Pattern ::=
-      Disjunction
-
-Disjunction ::=
-      Alternative
-    | Alternative '|' Disjunction
-
-Alternative ::=
-Alternative ::=
-      Alternative Term
-
-Term ::=
-      Assertion
-    | Atom
-    | Atom Quantifier
-
-Assertion ::=
-      '^'
-    | '$'
-    | '\' 'b'
-    | '\' 'B'
-    | '(' '?' '=' Disjunction ')'
-    | '(' '?' '!' Disjunction ')'
-
-
-Quantifier ::=
-      QuantifierPrefix
-    | QuantifierPrefix '?'
-
-QuantifierPrefix ::=
-      '*'
-    | '+'
-    | '?'
-    | '{' DecimalDigits '}'
-    | '{' DecimalDigits ',' '}'
-    | '{' DecimalDigits ',' DecimalDigits '}'
-
-Atom ::=
-      PatternCharacter
-    | '.'
-    | '\' AtomEscape
-# '
-    | CharacterClass
-    | '(' Disjunction ')'
-    | '(' '?' ':' Disjunction ')'
-
-PatternCharacter ~
-    [\p{IsPatternCharacter}]
-
-AtomEscape ::=
-      DecimalEscape
-    | CharacterEscape
-    | CharacterClassEscape
-
-CharacterEscape ::
-      ControlEscape
-    | 'c' ControlLetter
-    | HexEscapeSequence
-    | UnicodeEscapeSequence
-    | IdentityEscape
-
-ControlEscape ~
-      [fnrtv]
-
-ControlLetter ~
-      [a-zA-Z]
-
-IdentityEscape ~
-      [\p{SourceCharacterbut not IdentifierPart}]
-    | [\p{IsZWJ}]
-    | [\p{ZWNJ}]
-
-#
-# Note: [lookahead not in DecimalDigit]
-DecimalEscape ::=
-      DecimalIntegerLiteral
-
-CharacterClassEscape ~
-      [dDsSwW]
-
-CharacterClass ~
-      '[' ClassRanges ']'
-    | '[' '^' ClassRanges ']'
-
-ClassRanges ~
-ClassRanges ~
-      NonemptyClassRanges
-
-NonemptyClassRanges ~
-      ClassAtom
-    | ClassAtom NonemptyClassRangesNoDash
-    | ClassAtom '-' ClassAtom ClassRanges
-
-NonemptyClassRangesNoDash ~
-      ClassAtom
-    | ClassAtomNoDash NonemptyClassRangesNoDash
-    | ClassAtomNoDash '-' ClassAtom ClassRanges
-
-ClassAtom ~
-      '-'
-    | ClassAtomNoDash
-
-ClassAtomNoDash ~
-      [\p{IsSourceCharacterButNotOneOfBackslashOrRbracketOrMinus}]
-    | '\' ClassEscape
-# '
-ClassEscape ~
-      DecimalEscape
-    | 'b'
-    | CharacterEscape
-    | CharacterClassEscape
-
+uri           ::= uriCharactersopt
+uriCharacters ::= uriCharacter+
+uriCharacter  ::= uriReserved | uriUnescaped | uriEscaped
+uriReserved   ~   [;/\?:@&=+$,]
+uriUnescaped  ::= uriAlpha | DecimalDigit | uriMark
+uriEscaped    ::= '%' HexDigit HexDigit
+uriAlpha      ::= [a-zA-Z]
+uriMark       ::= [\-_.!~*'()]
