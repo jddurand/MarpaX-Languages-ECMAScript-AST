@@ -6,6 +6,7 @@ use MarpaX::Languages::ECMAScript::AST::Impl;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern;
+use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::JSON;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Template;
 
 # ABSTRACT: ECMAScript-262, Edition 5, grammar
@@ -14,7 +15,7 @@ use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Template;
 
 =head1 DESCRIPTION
 
-This modules returns all grammars needed for the ECMAScript 262, Edition 5 grammars written in Marpa BNF, as of L<http://www.ecma-international.org/publications/standards/Ecma-262.htm>. ONLY the Program grammar provides an AST. The StringNumericLiteral and Pattern grammars, if needed by another engine but a perl executable, will have to be provided expicitely. StringNumericLiteral and Pattern parse tree values presented here are meaningful only for a perl engine.
+This modules returns all grammars needed for the ECMAScript 262, Edition 5 grammars written in Marpa BNF, as of L<http://www.ecma-international.org/publications/standards/Ecma-262.htm>. ONLY the Program and JSON grammars provides an AST. The StringNumericLiteral and Pattern grammars, if needed by another engine but a perl executable, will have to be provided expicitely. StringNumericLiteral and Pattern parse tree values presented here are meaningful only for a perl engine.
 
 From a perl engine point of view, there two main notion of numbers: native (i.e. the ones in the math library with which perl was build), and the Math::Big* family. Therefore the parse tree value of the StringNumericLiteral is abstracted to handle both cases.
 
@@ -99,6 +100,12 @@ sub _init {
 	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($program->grammar_option(), $program->recce_option())
     };
 
+    my $JSON = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::JSON->new();
+    $self->{_JSON} = {
+	grammar => $JSON,
+	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($JSON->grammar_option(), $JSON->recce_option())
+    };
+
     my $stringNumericLiteralOptionsp = exists($opts{StringNumericLiteral}) ? $opts{StringNumericLiteral} : undef;
     my $stringNumericLiteral = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral->new($stringNumericLiteralOptionsp);
     $self->{_stringNumericLiteral} = {
@@ -139,6 +146,30 @@ sub program {
     my ($self) = @_;
 
     return $self->{_program};
+}
+
+=head2 JSON()
+
+Returns the JSON grammar as a hash reference that is
+
+=over
+
+=item grammar
+
+A MarpaX::Languages::ECMAScript::AST::Grammar::Base object
+
+=item impl
+
+A MarpaX::Languages::ECMAScript::AST::Impl object
+
+=back
+
+=cut
+
+sub JSON {
+    my ($self) = @_;
+
+    return $self->{_JSON};
 }
 
 =head2 template()

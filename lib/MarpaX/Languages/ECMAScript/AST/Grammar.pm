@@ -128,6 +128,17 @@ sub pattern {
     return $self->{_grammar}->pattern;
 }
 
+=head2 JSON($self)
+
+Returns the generic JSON associated to grammarName.
+
+=cut
+
+sub JSON {
+    my ($self) = @_;
+    return $self->{_grammar}->JSON;
+}
+
 =head1 SEE ALSO
 
 L<Marpa::R2>

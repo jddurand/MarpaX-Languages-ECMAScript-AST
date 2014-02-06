@@ -347,11 +347,15 @@ Return the generic stringNumericLiteral for this grammar.
 
 =cut
 
+# ----------------------------------------------------------------------------------------
+
 sub stringNumericLiteral {
   my ($self) = @_;
 
   return $self->{_grammar}->stringNumericLiteral;
 }
+
+# ----------------------------------------------------------------------------------------
 
 =head2 pattern($self)
 
@@ -364,6 +368,22 @@ sub pattern {
 
   return $self->{_grammar}->pattern;
 }
+
+# ----------------------------------------------------------------------------------------
+
+=head2 JSON($self)
+
+Return the generic JSON for this grammar.
+
+=cut
+
+sub JSON {
+  my ($self) = @_;
+
+  return $self->{_grammar}->JSON;
+}
+
+# ----------------------------------------------------------------------------------------
 
 =head1 SEE ALSO
 

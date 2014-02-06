@@ -77,6 +77,7 @@ IsSourceCharacter
 IsSourceCharacterButNotLineTerminator
 IsSourceCharacterButNotOneOfBackslashOrRbracketOrMinus
 IsSourceCharacterButNotOneOfDquoteOrBackslashOrLineTerminator
+IsSourceCharacterButNotOneOfDquoteOrBackslashOrU0000ThroughU001F
 IsSourceCharacterButNotOneOfEscapeCharacterOrLineTerminator
 IsSourceCharacterButNotOneOfSlashOrStar
 IsSourceCharacterButNotOneOfSlashOrStarOrLineTerminator
@@ -90,6 +91,7 @@ IsStar
 Ist
 IsTAB
 Isu
+IsU0000ThroughU001F
 IsUnderscore
 IsUnicodeCombiningMark
 IsUnicodeConnectorPunctuation
@@ -488,6 +490,18 @@ sub IsSourceCharacterButNotStarOrLineTerminator { return <<END;
 END
 }
 
+=head2 IsSourceCharacterButNotOneOfDquoteOrBackslashOrU0000ThroughU001F()
+
+=cut
+
+sub IsSourceCharacterButNotOneOfDquoteOrBackslashOrU0000ThroughU001F { return <<END;
++MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsSourceCharacter
+-MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsDquote
+-MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsBackslash
+-MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses::IsU0000ThroughU001F
+END
+}
+
 =head2 IsSourceCharacterButNotOneOfSlashOrStar()
 
 =cut
@@ -596,6 +610,15 @@ END
 
 sub IsUnicodeConnectorPunctuation { return <<END;
 +utf8::Pc
+END
+}
+
+=head2 IsU0000ThroughU001F()
+
+=cut
+
+sub IsU0000ThroughU001F { return <<END;
+0000\t001F
 END
 }
 
