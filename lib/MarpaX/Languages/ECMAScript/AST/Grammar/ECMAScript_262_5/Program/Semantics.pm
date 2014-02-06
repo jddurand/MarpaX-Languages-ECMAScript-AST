@@ -5,7 +5,7 @@ package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral;
 
 our $StringLiteral = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral->new();
-our $StringLiteralImpl = MarpaX::Languages::ECMAScript::AST::Impl->new($StringLiteral->grammar_option(), $StringLiteral->recce_option(), undef, 1);
+our $StringLiteralImpl = MarpaX::Languages::ECMAScript::AST::Impl->new($StringLiteral->grammar_option(), $StringLiteral->recce_option());
 
 # ABSTRACT: ECMAScript 262, Edition 5, lexical expressions grammar actions
 

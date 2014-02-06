@@ -3,7 +3,6 @@ use warnings FATAL => 'all';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral;
 use parent qw/MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base/;
-use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::Singleton;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses;
 use SUPER;
@@ -34,16 +33,6 @@ This modules returns describes the ECMAScript 262, Edition 5 string numeric lite
 # Note that this grammar is NOT supposed to be injected in Program
 #
 our $grammar_content = do {local $/; <DATA>};
-
-our $singleton = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::Singleton->instance(
-    MarpaX::Languages::ECMAScript::AST::Impl->new
-    (
-     __PACKAGE__->make_grammar_option('ECMAScript-262-5'),
-     undef,                                   # $recceOptionsHashp
-     undef,                                   # $cachedG
-     1                                        # $noR
-    )->grammar
-    );
 
 =head1 SUBROUTINES/METHODS
 
@@ -107,16 +96,6 @@ sub recce_option {
     $default->{semantics_package} = $self->{_semantics_package};
 
     return $default;
-}
-
-=head2 G()
-
-Cached Marpa::R2::Scanless::G compiled grammar.
-
-=cut
-
-sub G {
-    return $singleton->G;
 }
 
 #

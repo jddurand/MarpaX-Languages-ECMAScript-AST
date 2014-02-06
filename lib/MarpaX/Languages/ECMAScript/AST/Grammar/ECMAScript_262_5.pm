@@ -96,20 +96,20 @@ sub _init {
     my $program = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program->new();
     $self->{_program} = {
 	grammar => $program,
-	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($program->grammar_option(), $program->recce_option(), $program->G, 1)
+	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($program->grammar_option(), $program->recce_option())
     };
 
     my $stringNumericLiteralOptionsp = exists($opts{StringNumericLiteral}) ? $opts{StringNumericLiteral} : undef;
     my $stringNumericLiteral = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral->new($stringNumericLiteralOptionsp);
     $self->{_stringNumericLiteral} = {
 	grammar => $stringNumericLiteral,
-	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($stringNumericLiteral->grammar_option(), $stringNumericLiteral->recce_option(), $stringNumericLiteral->G, 1)
+	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($stringNumericLiteral->grammar_option(), $stringNumericLiteral->recce_option())
     };
 
     my $pattern = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern->new();
     $self->{_pattern} = {
 	grammar => $pattern,
-	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($pattern->grammar_option(), $pattern->recce_option(), $pattern->G, 1)
+	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($pattern->grammar_option(), $pattern->recce_option())
     };
 
     my $templateOptionsp = exists($opts{Template}) ? $opts{Template} : undef;

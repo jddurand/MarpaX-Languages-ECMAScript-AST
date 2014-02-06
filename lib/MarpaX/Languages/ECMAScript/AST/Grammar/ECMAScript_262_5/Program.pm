@@ -11,14 +11,13 @@ use warnings FATAL => 'all';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program;
 use parent qw/MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base/;
-use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Singleton;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Semantics;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::RegularExpressionLiteral;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::NumericLiteral;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses;
 use MarpaX::Languages::ECMAScript::AST::Exceptions qw/:all/;
-use Log::Any qw/$log/;
+#use Log::Any qw/$log/;
 use SUPER;
 
 # ABSTRACT: ECMAScript-262, Edition 5, lexical program grammar written in Marpa BNF
@@ -95,16 +94,6 @@ $grammar_content .= $StringLiteral->extract;
 $grammar_content .= $NumericLiteral->extract;
 $grammar_content .= $RegularExpressionLiteral->extract;
 
-our $singleton = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Singleton->instance(
-    MarpaX::Languages::ECMAScript::AST::Impl->new
-    (
-     __PACKAGE__->make_grammar_option('ECMAScript-262-5'),
-     undef,                                   # $recceOptionsHashp
-     undef,                                   # $cachedG
-     1                                        # $noR
-    )->grammar
-    );
-
 #
 # For convenience in the IDENTIFIER$ lexeme callback, we merge Keyword, FutureReservedWord, NullLiteral, BooleanLiteral into
 # a single hash ReservedWord.
@@ -151,16 +140,6 @@ Class method that returns Program default recce semantics_package. These semanti
 sub make_semantics_package {
     my ($class) = @_;
     return join('::', __PACKAGE__, 'Semantics');
-}
-
-=head2 G()
-
-Cached Marpa::R2::Scanless::G compiled grammar.
-
-=cut
-
-sub G {
-    return $singleton->G;
 }
 
 =head2 parse($self, $source, $impl)

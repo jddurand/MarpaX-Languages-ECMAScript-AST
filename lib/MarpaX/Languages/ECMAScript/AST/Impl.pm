@@ -8,6 +8,7 @@ package MarpaX::Languages::ECMAScript::AST::Impl;
 use Marpa::R2 2.078000;
 use MarpaX::Languages::ECMAScript::AST::Exceptions qw/:all/;
 use MarpaX::Languages::ECMAScript::AST::Impl::Logger;
+use MarpaX::Languages::ECMAScript::AST::Impl::Singleton;
 
 # VERSION
 
@@ -34,6 +35,8 @@ sub BEGIN {
     }
 }
 
+our $singleton = MarpaX::Languages::ECMAScript::AST::Impl::Singleton->instance();
+
 =head1 DESCRIPTION
 
 This modules implements all needed Marpa calls using its Scanless interface. Please be aware that logging is done via Log::Any.
@@ -48,18 +51,21 @@ This modules implements all needed Marpa calls using its Scanless interface. Ple
 
 =head1 SUBROUTINES/METHODS
 
-=head2 new($class, $grammarOptionsHashp, $recceOptionsHashp, $cachedG, $noR)
+=head2 new($class, $grammarOptionsHashp, $recceOptionsHashp)
 
-Instantiate a new object. Takes as parameter two references to hashes: the grammar options, the recognizer options. In the recognizer, there is a grammar internal option that will be forced to the grammar object. If the environment variable MARPA_TRACE_TERMINALS is set to a true value, then internal Marpa trace on terminals is activated. If the environment MARPA_TRACE_VALUES is set to a true value, then internal Marpa trace on values is activated. If the environment variable MARPA_TRACE is set to a true value, then both terminals and values internal Marpa traces are activated. $cachedG is an optional parameter that must be a cached value of Marpa::R2::Scanless::G->new($grammarOptionsHashp). If not present, this value can be retrieved for further use with $self->grammar method. As a special case, if the optional $noR is true, no Marpa::R2::Scanless:G recognizer will be created. This can be used to generate a Marpa::R2::Scanless:G only and cache it. Default $noR is false. When $noR is true, $recceOptionsHashp is nevertheless kept for further see (see method R()).
+Instantiate a new object. Takes as parameter two references to hashes: the grammar options, the recognizer options. In the recognizer, there is a grammar internal option that will be forced to the grammar object. If the environment variable MARPA_TRACE_TERMINALS is set to a true value, then internal Marpa trace on terminals is activated. If the environment MARPA_TRACE_VALUES is set to a true value, then internal Marpa trace on values is activated. If the environment variable MARPA_TRACE is set to a true value, then both terminals and values internal Marpa traces are activated.
+
+Please note that Marpa::R2::Scanless:G grammar object are systematically cached or reuse.
+
+No Marpa::R2::Scanless:R recognizer will be created, but $recceOptionsHashp is nevertheless kept for further see (see method make_R()).
 
 =cut
 
 sub new {
-  my ($class, $grammarOptionsHashp, $recceOptionsHashp, $cachedG, $noR) = @_;
+  my ($class, $grammarOptionsHashp, $recceOptionsHashp) = @_;
 
-  my $self->{grammar} = $cachedG || Marpa::R2::Scanless::G->new($grammarOptionsHashp);
+  my $self->{grammar} = $singleton->G($grammarOptionsHashp);
 
-  $noR //= 0;
   if (defined($recceOptionsHashp)) {
       $recceOptionsHashp->{grammar} = $self->{grammar};
   } else {
@@ -74,10 +80,6 @@ sub new {
   $self->{_recceOptionsHashp} = $recceOptionsHashp;
 
   bless($self, $class);
-
-  if (! $noR) {
-      $self->make_R;
-  }
 
   return $self;
 }
@@ -320,6 +322,16 @@ Returns a Marpa::R2::Scanless::R object of this grammar.
 
 sub recce {
   return $_[0]->{grammar};
+}
+
+=head2 R($self)
+
+Alias of the recce() method.
+
+=cut
+
+sub R {
+  return $_[0]->recce;
 }
 
 =head2 rule_ids($self, $subgrammar)
