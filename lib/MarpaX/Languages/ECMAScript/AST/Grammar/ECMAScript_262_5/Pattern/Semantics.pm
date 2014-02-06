@@ -26,6 +26,8 @@ It will be the responsability of the caller to coerce back into host's represent
 
 The perl subroutine closure will have four parameters: $str, $index, $multiline and $ignoreCase:
 
+=over
+
 =item $str
 
 perl's string. Typically this will JavaScript's String.prototype.valueOf() on JavaScript's string.
