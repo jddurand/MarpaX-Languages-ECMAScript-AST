@@ -94,7 +94,7 @@ sub make_R {
 
 =head2 destroy_R($self)
 
-Destroy an eventual Marpa::R2::Scanless::R recognizer object stored it together with the grammar.
+Destroy an eventual Marpa::R2::Scanless::R recognizer object stored together with the grammar.
 
 =cut
 
