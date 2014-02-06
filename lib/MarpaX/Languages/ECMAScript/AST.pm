@@ -385,6 +385,20 @@ sub JSON {
 
 # ----------------------------------------------------------------------------------------
 
+=head2 URI($self)
+
+Return the generic URI for this grammar.
+
+=cut
+
+sub URI {
+  my ($self) = @_;
+
+  return $self->{_grammar}->URI;
+}
+
+# ----------------------------------------------------------------------------------------
+
 =head1 SEE ALSO
 
 L<Log::Any>

@@ -7,6 +7,7 @@ use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::JSON;
+use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::URI;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Template;
 
 # ABSTRACT: ECMAScript-262, Edition 5, grammar
@@ -106,6 +107,12 @@ sub _init {
 	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($JSON->grammar_option(), $JSON->recce_option())
     };
 
+    my $URI = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::URI->new();
+    $self->{_URI} = {
+	grammar => $URI,
+	impl => MarpaX::Languages::ECMAScript::AST::Impl->new($URI->grammar_option(), $URI->recce_option())
+    };
+
     my $stringNumericLiteralOptionsp = exists($opts{StringNumericLiteral}) ? $opts{StringNumericLiteral} : undef;
     my $stringNumericLiteral = MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral->new($stringNumericLiteralOptionsp);
     $self->{_stringNumericLiteral} = {
@@ -170,6 +177,30 @@ sub JSON {
     my ($self) = @_;
 
     return $self->{_JSON};
+}
+
+=head2 URI()
+
+Returns the URI grammar as a hash reference that is
+
+=over
+
+=item grammar
+
+A MarpaX::Languages::ECMAScript::AST::Grammar::Base object
+
+=item impl
+
+A MarpaX::Languages::ECMAScript::AST::Impl object
+
+=back
+
+=cut
+
+sub URI {
+    my ($self) = @_;
+
+    return $self->{_URI};
 }
 
 =head2 template()

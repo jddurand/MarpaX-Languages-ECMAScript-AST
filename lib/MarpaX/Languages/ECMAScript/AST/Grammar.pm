@@ -139,6 +139,17 @@ sub JSON {
     return $self->{_grammar}->JSON;
 }
 
+=head2 URI($self)
+
+Returns the generic URI associated to grammarName.
+
+=cut
+
+sub URI {
+    my ($self) = @_;
+    return $self->{_grammar}->URI;
+}
+
 =head1 SEE ALSO
 
 L<Marpa::R2>

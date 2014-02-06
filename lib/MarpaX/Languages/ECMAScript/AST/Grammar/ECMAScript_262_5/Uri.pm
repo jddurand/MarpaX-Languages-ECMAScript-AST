@@ -58,10 +58,27 @@ __DATA__
 lexeme default = action => [start,length,value]
 
 uri           ::= uriCharactersopt
-uriCharacters ::= uriCharacter+
+
+uriCharactersopt ::= uriCharacters
+uriCharactersopt ::=
+
+uriCharacters    ::= uriCharacter+
+
 uriCharacter  ::= uriReserved | uriUnescaped | uriEscaped
-uriReserved   ~   [;/\?:@&=+$,]
+
+uriReserved   ~ [;/?:@&=+$,]
+
 uriUnescaped  ::= uriAlpha | DecimalDigit | uriMark
-uriEscaped    ::= '%' HexDigit HexDigit
-uriAlpha      ::= [a-zA-Z]
-uriMark       ::= [\-_.!~*'()]
+
+uriEscaped    ~ '%' HexDigit HexDigit
+
+uriAlpha      ~ [a-zA-Z]
+
+uriMark       ~ [\-_\.!~\*'\(\)]
+
+#
+# Copy/pasted from Program grammar
+#
+DecimalDigit  ~ [\p{IsDecimalDigit}]
+
+HexDigit      ~ [\p{IsHexDigit}]
