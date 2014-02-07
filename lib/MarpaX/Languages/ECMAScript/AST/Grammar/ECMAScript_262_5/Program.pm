@@ -139,7 +139,7 @@ Class method that returns Program default recce semantics_package. These semanti
 
 sub make_semantics_package {
     my ($class) = @_;
-    return join('::', __PACKAGE__, 'Semantics');
+    return join('::', $class, 'Semantics');
 }
 
 =head2 parse($self, $source, $impl)

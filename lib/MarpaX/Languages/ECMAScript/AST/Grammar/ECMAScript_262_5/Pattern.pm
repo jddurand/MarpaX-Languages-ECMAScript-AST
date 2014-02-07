@@ -57,7 +57,7 @@ sub new {
 
     $optionsp //= {};
 
-    my $semantics_package = exists($optionsp->{semantics_package}) ? $optionsp->{semantics_package} : __PACKAGE__ . '::Semantics';
+    my $semantics_package = exists($optionsp->{semantics_package}) ? $optionsp->{semantics_package} : join('::', $class, 'Semantics');
 
     my $self = $class->SUPER();
 
