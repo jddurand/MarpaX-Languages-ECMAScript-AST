@@ -2,8 +2,6 @@
 use strict;
 use warnings FATAL => 'all';
 use Test::More;
-use Test::Differences;
-use Data::Float;
 
 BEGIN {
     use_ok( 'MarpaX::Languages::ECMAScript::AST' ) || print "Bail out!\n";
@@ -17,8 +15,8 @@ my $ntest = 0;
 my $JSONText = do {local $/; <DATA>};
 my $parse = $JSON->{grammar}->parse($JSONText, $JSON->{impl});
 my $value = eval { $JSON->{grammar}->value($JSON->{impl}) };
-use Data::Dumper;
-print STDERR Dumper($value);
+ok(defined($value), 'JSON test data');
+
 ++$ntest;
 
 done_testing(1 + $ntest);
