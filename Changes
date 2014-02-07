@@ -1,7 +1,25 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.007 2014-02-05T23:01:37
+0.008 2014-02-07T19:34:19
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - ECMAScript_262_5 Generic Template for version 0.008
+ - Replaced __PACKAGE__ by $class
+ - Fix tests
+ - Problem with file naming (2)
+ - Pb with file naming
+ - Fix Semantics package runtime settings
+ - Added missing ABSTRACT and VERSION
+ - URI prototype
+ - URI dev+
+ - JSON prototype
+ - dist.ini: double quotes for portability
+ - Singleton centralization
+ - AST/Impl.pm: Typo in POD
+ - Pattern/Semantics.pm: Fix POD error
+
+0.007 2014-02-05T23:04:05
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Release of version 0.007
  - Refactorisation
  - Lexical/NumericLiteral.pm: Load grammar once
  - Program/Actions.pm renamed to Program/DefaultSemanticsPackage.pm

@@ -8,7 +8,7 @@ MarpaX::Languages::ECMAScript::AST - Translate a ECMAScript source to an AST
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 SYNOPSIS
 
@@ -126,6 +126,14 @@ Return the generic stringNumericLiteral for this grammar.
 =head2 pattern($self)
 
 Return the generic Pattern for this grammar.
+
+=head2 JSON($self)
+
+Return the generic JSON for this grammar.
+
+=head2 URI($self)
+
+Return the generic URI for this grammar.
 
 =head1 SEE ALSO
 
