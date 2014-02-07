@@ -7,6 +7,10 @@ use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClas
 
 our $grammar_content = do {local $/; <DATA>};
 
+# ABSTRACT: ECMAScript-262, Edition 5, URI grammar
+
+# VERSION
+
 =head1 DESCRIPTION
 
 This modules returns describes the ECMAScript 262, Edition 5 URI grammar written in Marpa BNF, as of L<http://www.ecma-international.org/publications/standards/Ecma-262.htm>. This module inherits the methods from MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base package.
