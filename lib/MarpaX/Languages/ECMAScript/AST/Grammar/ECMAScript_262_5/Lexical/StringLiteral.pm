@@ -57,7 +57,7 @@ Class method that returns a default recce semantics_package, doing nothing else 
 
 sub make_semantics_package {
     my ($class) = @_;
-    return join('::', $class, 'DefaultSemanticsPackage');
+    return join('::', $class, 'Semantics');
 }
 
 =head1 SEE ALSO

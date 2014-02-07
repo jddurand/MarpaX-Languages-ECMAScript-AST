@@ -46,7 +46,7 @@ $optionsp is a reference to hash that may contain the following key/value pair:
 
 =item semantics_package
 
-As per Marpa::R2, The semantics package is used when resolving action names to fully qualified Perl names. This package must support and behave as documented in the DefaultSemanticsPackage (c.f. SEE ALSO).
+As per Marpa::R2, The semantics package is used when resolving action names to fully qualified Perl names. This package must support and behave as documented in the Semantics package (c.f. SEE ALSO).
 
 =back
 
@@ -188,7 +188,7 @@ sub value {
 
 L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base>
 
-L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::DefaultSemanticsPackage>
+L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::Semantics>
 
 =cut
 
