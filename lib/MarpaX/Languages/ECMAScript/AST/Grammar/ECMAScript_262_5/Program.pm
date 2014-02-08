@@ -174,6 +174,8 @@ sub _eventCallback {
   # $pos is the exact position where SLIF stopped because of an event
   #
   my $rc = $pos;
+  my %lastLexeme = ();
+  my $lastLexemeDoneb = 0;
 
   foreach (@{$impl->events()}) {
     my ($name) = @{$_};
@@ -203,8 +205,10 @@ sub _eventCallback {
       }
     }
     elsif ($name eq 'IDENTIFIER$') {
-	my %lastLexeme = ();
-	$self->getLastLexeme(\%lastLexeme, $impl);
+	if (! $lastLexemeDoneb) {
+	    $self->getLastLexeme(\%lastLexeme, $impl);
+	    $lastLexemeDoneb = 1;
+	}
 	if (exists($ReservedWord{$lastLexeme{value}})) {
 	    SyntaxError(error => "Identifier $lastLexeme{value} is a reserved word");
 	}
@@ -222,8 +226,10 @@ sub _eventCallback {
       #
       # In the AST, we explicitely associate the ';' to the missing semicolon
       #
-	my %lastLexeme = ();
-	$self->getLastLexeme(\%lastLexeme, $impl);
+	if (! $lastLexemeDoneb) {
+	    $self->getLastLexeme(\%lastLexeme, $impl);
+	    $lastLexemeDoneb = 1;
+	}
 	my $Slength = $self->_preSLength($source, $rc, $impl);
 	$self->_insertInvisibleSemiColon($impl, $rc, $Slength);
 	$rc += $Slength;
@@ -232,8 +238,10 @@ sub _eventCallback {
     # ^PLUSPLUS_POSTFIX, ^MINUSMINUS_POSTFIX
     # --------------------------------------
     elsif ($name eq '^PLUSPLUS_POSTFIX' || $name eq '^MINUSMINUS_POSTFIX') {
-      my %lastLexeme = ();
-      $self->getLastLexeme(\%lastLexeme, $impl);
+	if (! $lastLexemeDoneb) {
+	    $self->getLastLexeme(\%lastLexeme, $impl);
+	    $lastLexemeDoneb = 1;
+	}
       my $postLineTerminatorPos = $lastLexeme{start} + $lastLexeme{length};
       my $postLineTerminatorLength = $self->_postLineTerminatorLength($source, $postLineTerminatorPos, $impl);
       if ($postLineTerminatorLength > 0) {
