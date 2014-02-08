@@ -39,6 +39,9 @@ my %DATA = (
     '00314.E-02' => sub {my $rc = shift; ok(Math::BigFloat->new("3.14")->bcmp($rc) == 0, 'input: "00314.E-02"' . "=> $rc")},
     " 1.0 "      => sub {my $rc = shift; ok(Math::BigFloat->bone->bcmp($rc) == 0, 'input: " 1.0 "' . "=> $rc")},
     ""           => sub {my $rc = shift; ok($rc->is_zero(), 'input: ""' . "=> $rc")},
+    "Infinity"   => sub {my $rc = shift; ok($rc->is_inf(), 'input: "Infinity"' . "=> $rc")},
+    "+Infinity"  => sub {my $rc = shift; ok($rc->is_inf('+'), 'input: "+Infinity"' . "=> $rc")},
+    "-Infinity"  => sub {my $rc = shift; ok($rc->is_inf('-'), 'input: "-Infinity"' . "=> $rc")},
     );
 foreach (keys %DATA) {
     my $value;

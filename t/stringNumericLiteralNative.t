@@ -33,6 +33,9 @@ my %DATA = (
     '00314.E-02' => sub {my $rc = shift; ok("$rc" == 3.14, 'input: "00314.E-02"' . "=> $rc")},
     " 1.0 "      => sub {my $rc = shift; ok("$rc" == 1, 'input: " 1.0 "' . "=> $rc")},
     ""           => sub {my $rc = shift; ok(Data::Float::float_is_zero($rc), 'input: ""' . "=> $rc")},
+    "Infinity"   => sub {my $rc = shift; ok(Data::Float::float_is_infinite($rc), 'input: "Infinity"' . "=> $rc")},
+    "+Infinity"  => sub {my $rc = shift; ok(Data::Float::float_is_infinite($rc), 'input: "+Infinity"' . "=> $rc")},
+    "-Infinity"  => sub {my $rc = shift; ok(Data::Float::float_is_infinite($rc), 'input: "-Infinity"' . "=> $rc")},
     );
 foreach (keys %DATA) {
     my $value;
