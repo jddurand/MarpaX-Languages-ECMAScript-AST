@@ -1,7 +1,15 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.008 2014-02-07T19:34:19
+0.009 2014-02-08T18:13:59
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - t/stringNumericLiteral*.t: Infinity tests
+ - StringNumericLiteral/NativeNumberSemantics.pm: Try to deal with
+   platforms without pos_zero or pos_infinity
+ - ECMAScript_262_5/Program.pm: Tiny optimization
+
+0.008 2014-02-07T19:36:39
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Release of version 0.008
  - ECMAScript_262_5 Generic Template for version 0.008
  - Replaced __PACKAGE__ by $class
  - Fix tests
