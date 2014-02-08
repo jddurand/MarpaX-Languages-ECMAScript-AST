@@ -12,10 +12,9 @@ our $POS_ZERO = have_signed_zero() ? Data::Float::pos_zero() : 0.0;
 # On some machine this may give 1.79769313486232e+308 (Alpha/HPUX), i.e.
 # when floats on are 64bits when ints are on 32bits
 #
-our $POS_INF_CANDIDATE1 = (~0)**(~0);
-our $POS_INF_CANDIDATE2 = do {my $n = 2; $n *= $n while $n < $n*$n; $n};
+our $POS_INF_CANDIDATE = (~0)**(~0);
 
-our $POS_INF  = have_infinite() ? Data::Float::pos_infinity() : (isinf($POS_INF_CANDIDATE1) ? $POS_INF_CANDIDATE1 : $POS_INF_CANDIDATE2);
+our $POS_INF  = have_infinite() ? Data::Float::pos_infinity() : (isinf($POS_INF_CANDIDATE) ? $POS_INF_CANDIDATE : do {my $n = 2; $n *= $n while $n < $n*$n; $n});
 
 # ABSTRACT: ECMAScript 262, Edition 5, lexical string numeric grammar default semantics package, using native perl representations
 
