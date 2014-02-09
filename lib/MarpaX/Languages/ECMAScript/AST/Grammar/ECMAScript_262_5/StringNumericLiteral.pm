@@ -191,6 +191,10 @@ sub _neg {
 
 L<Data::Float>
 
+L<Scalar::Util::Numeric>
+
+L<Math::BigFloat>
+
 L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base>
 
 L<MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics>

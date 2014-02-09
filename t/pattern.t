@@ -3,7 +3,6 @@ use strict;
 use warnings FATAL => 'all';
 use Test::More;
 use Test::Differences;
-use Data::Float;
 
 BEGIN {
     use_ok( 'MarpaX::Languages::ECMAScript::AST' ) || print "Bail out!\n";

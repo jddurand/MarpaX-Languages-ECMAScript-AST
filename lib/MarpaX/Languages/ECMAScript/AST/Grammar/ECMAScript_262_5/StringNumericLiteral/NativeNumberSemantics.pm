@@ -2,19 +2,16 @@ use strict;
 use warnings FATAL => 'all';
 
 package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics;
-use Data::Float qw/have_signed_zero have_infinite/;
+use Data::Float qw/have_signed_zero have_infinite have_nan/;
+use Math::BigFloat;
 use Scalar::Util qw/blessed/;
-use Scalar::Util::Numeric qw/isinf/;
+use Scalar::Util::Numeric qw/isinf isnan/;
 
-our $POS_ZERO = have_signed_zero() ? Data::Float::pos_zero() : 0.0;
-#
-# C.f. http://computer-programming-forum.com/53-perl/3bbc35c5223c25f7.htm
-# On some machine this may give 1.79769313486232e+308 (Alpha/HPUX), i.e.
-# when floats on are 64bits when ints are on 32bits
-#
-our $POS_INF_CANDIDATE = (~0)**(~0);
-
-our $POS_INF  = have_infinite() ? Data::Float::pos_infinity() : (isinf($POS_INF_CANDIDATE) ? $POS_INF_CANDIDATE : do {my $n = 2; $n *= $n while $n < $n*$n; $n});
+our $POS_ZERO = have_signed_zero() ? Data::Float::pos_zero()     : Math::BigFloat->bzero();
+our $NEG_ZERO = have_signed_zero() ? Data::Float::neg_zero()     : Math::BigFloat->bzero();   # No -0 with Math::BigFloat.
+our $POS_INF  = have_infinite()    ? Data::Float::pos_infinity() : Math::BigFloat->binf();
+our $NEG_INF  = have_infinite()    ? Data::Float::neg_infinity() : Math::BigFloat->binf('-');
+our $NAN      = have_nan()         ? Data::Float::nan()          : Math::BigFloat->bnan();
 
 # ABSTRACT: ECMAScript 262, Edition 5, lexical string numeric grammar default semantics package, using native perl representations
 
@@ -22,7 +19,11 @@ our $POS_INF  = have_infinite() ? Data::Float::pos_infinity() : (isinf($POS_INF_
 
 =head1 DESCRIPTION
 
-This modules provide a default semantics package for the actions associated to ECMAScript_262_5 lexical string numeric grammar, using native number representation. This mean that the notion of Infinity, or positive zero, might not exactly follow ECMAScript specification (which restrict numbers to IEEE 32 bits floats).
+This modules provide a default semantics package for the actions associated to ECMAScript_262_5 lexical string numeric grammar, using native number representation, with the possible exceptions of positive zero and positive infinity: If one of them is not available natively, then the Math::BigFloat representation is used.
+
+For this reason, this module exports two class methods to test if a number is zero or not, that use the native library or Math::BigFloat.
+
+For convenience, even if this is not formally in the string numeric grammar, the neg_zero(), neg_infinity(), nan(), is_zero(), is_infinite() and is_nan() methods are also exported.
 
 =cut
 
@@ -185,6 +186,124 @@ Returns the host implementation of value hosted in $self.
 
 sub host_value {
   return $_[0]->{_number};
+}
+
+=head2 pos_zero($class)
+
+Class method that returns the host implementation of (positive if any) zero, or its Math::BigFloat implementation otherwise.
+
+=cut
+
+sub pos_zero {
+    my ($class) = @_;
+    return $POS_ZERO;
+}
+
+=head2 neg_zero($class)
+
+Class method that returns the host implementation of (negative if any) zero, or its Math::BigFloat implementation otherwise.
+
+=cut
+
+sub neg_zero {
+    my ($class) = @_;
+    return $NEG_ZERO;
+}
+
+=head2 pos_infinity($class)
+
+Class method that returns the host implementation of (positive if any) infinity, or its Math::BigFloat implementation otherwise.
+
+=cut
+
+sub pos_infinity {
+    my ($class) = @_;
+    return $POS_INF;
+}
+
+=head2 neg_infinity($class)
+
+Class method that returns the host implementation of (negative if any) infinity, or its Math::BigFloat implementation otherwise.
+
+=cut
+
+sub neg_infinity {
+    my ($class) = @_;
+    return $NEG_INF;
+}
+
+=head2 nan($class)
+
+Class method that returns the host implementation of NaN, or its Math::BigFloat implementation otherwise.
+
+=cut
+
+sub nan {
+    my ($class) = @_;
+    return $NAN;
+}
+
+=head2 is_zero($class, $value)
+
+Class method that returns true or false if $value is zero. In case $value would be a blessed object, $value->is_zero() is returned if $value can do this method, otherwise undef is returned.
+
+=cut
+
+sub is_zero {
+    my ($class, $value) = @_;
+    my $blessed = blessed($value) || '';
+    if (! $blessed) {
+	#
+	# float_is_zero never fails
+	#
+	return Data::Float::float_is_zero($value);
+    } elsif ($value->can('is_zero')) {
+	return $value->is_zero();
+    } else {
+	return undef;
+    }
+}
+
+=head2 is_infinite($class, $value)
+
+Class method that returns true or false if $value is infinite. In case $value would be a blessed object, $value->is_inf() is returned if $value can do this method, otherwise undef is returned.
+
+=cut
+
+sub is_infinite {
+    my ($class, $value) = @_;
+    my $blessed = blessed($value) || '';
+    if (! $blessed) {
+	#
+	# isinf() never fails
+	#
+	return isinf($value);
+    } elsif ($value->can('is_inf')) {
+	return $value->is_inf();
+    } else {
+	return undef;
+    }
+}
+
+=head2 is_nan($class, $value)
+
+Class method that returns true or false if $value is NaN. In case $value would be a blessed object, $value->is_nan() is returned if $value can do this method, otherwise undef is returned.
+
+=cut
+
+sub is_nan {
+    my ($class, $value) = @_;
+    my $blessed = blessed($value) || '';
+    if (! $blessed) {
+	#
+	# isnan() never fails
+	#
+	return isnan($value);
+    } elsif ($value->can('is_nan')) {
+	return $value->is_nan();
+    } else {
+	return undef;
+    }
 }
 
 1;
