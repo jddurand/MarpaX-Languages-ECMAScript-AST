@@ -1,7 +1,14 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.010 2014-02-09T00:59:26
+0.011 2014-02-09T23:25:54
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Impl/Singleton.pm: Removed some debug statement
+ - t/stringNumericLiteralBigFloat.t: on some old Math::BigInt, 0x is not
+   optional in from_hex
+
+0.010 2014-02-09T01:01:49
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Release of version 0.010
  - Float wooes
  - StringNumericLiteral/NativeNumberSemantics.pm: do {my $n = 2; $n *= $n
    while $n < $n*$n; $n} only when absolutely necessary
