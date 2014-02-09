@@ -31,7 +31,7 @@ my %DATA = (
     '0123.0850'  => sub {my $rc = shift; ok(Math::BigFloat->new("123.085")->bcmp($rc) == 0, 'input: "0123.0850"' . "=> $rc")},
     '$123.85'    => sub {my $rc = shift; ok(MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics->is_nan($rc), 'input: "$123.85"' . "=> $rc")},
     'three'      => sub {my $rc = shift; ok(MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics->is_nan($rc), 'input: "three"' . "=> $rc")},
-    '0xFF'       => sub {my $rc = shift; ok(Math::BigFloat->from_hex("FF")->bcmp($rc) == 0, 'input: "0xFF"' . "=> $rc")},
+    '0xFF'       => sub {my $rc = shift; ok(Math::BigFloat->from_hex("0xFF")->bcmp($rc) == 0, 'input: "0xFF"' . "=> $rc")},
     '3.14'       => sub {my $rc = shift; ok(Math::BigFloat->new("3.14")->bcmp($rc) == 0, 'input: "3.14' . "=> $rc")},
     '0.0314E+02' => sub {my $rc = shift; ok(Math::BigFloat->new("3.14")->bcmp($rc) == 0, 'input: "0.0314E+02"' . "=> $rc")},
     '.0314E+02'  => sub {my $rc = shift; ok(Math::BigFloat->new("3.14")->bcmp($rc) == 0, 'input: ".0314E+02"' . "=> $rc")},
