@@ -1,7 +1,12 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.011 2014-02-09T23:25:54
+0.012 2014-02-14T21:18:33
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - use File::HomeDir 0.93; because of my_dist_data
+
+0.011 2014-02-09T23:30:10
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Release of version 0.011
  - Impl/Singleton.pm: Removed some debug statement
  - t/stringNumericLiteralBigFloat.t: on some old Math::BigInt, 0x is not
    optional in from_hex
