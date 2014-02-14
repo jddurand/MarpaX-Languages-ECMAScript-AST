@@ -8,7 +8,7 @@ package MarpaX::Languages::ECMAScript::AST;
 use MarpaX::Languages::ECMAScript::AST::Grammar qw//;
 use Digest::MD4 qw/md4_hex/;
 use CHI;
-use File::HomeDir;
+use File::HomeDir 0.93;
 use version 0.77;
 use Log::Any qw/$log/;
 use Module::Util qw/find_installed/;
