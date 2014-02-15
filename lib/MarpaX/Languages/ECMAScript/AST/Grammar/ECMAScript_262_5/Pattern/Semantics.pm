@@ -674,11 +674,7 @@ sub _AtomEscape_CharacterEscape {
 sub _AtomEscape_CharacterClassEscape {
     my ($self, $characterClassEscape) = @_;
 
-    #
-    # Note: CharacterClassEscape RHS is an anonymous lexeme, default lexeme value is [start,length,value]
-    #
-    my $A = $characterClassEscape->[2];
-    return $self->_characterSetMatcher($A, 0);
+    return $self->_characterSetMatcher($characterClassEscape, 0);
 }
 
 sub _CharacterEscape_ControlEscape {
