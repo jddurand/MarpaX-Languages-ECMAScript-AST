@@ -9,6 +9,15 @@ use constant {
   ASSERTION_IS_NOT_MATCHER => 0,
   ASSERTION_IS_MATCHER     => 1
 };
+use constant {
+    ORD_a => ord('a'),
+    ORD_z => ord('z'),
+    ORD_A => ord('A'),
+    ORD_Z => ord('Z'),
+    ORD_0 => ord('0'),
+    ORD_9 => ord('9'),
+    ORD__ => ord('_'),
+};
 
 # ABSTRACT: ECMAScript 262, Edition 5, pattern grammar default semantics package
 
@@ -317,17 +326,17 @@ sub _isWordChar {
     #
     # This really refers to ASCII characters, so it is ok to test the ord directly
     #
-    my $c = substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $e, 1);
+    my $c = ord(substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $e, 1));
     #
     # I put the most probables (corresponding also to the biggest ranges) first
     if (
-	($c >= 'a' && $c <= 'z')
+	($c >= ORD_a && $c <= ORD_z)
 	||
-	($c >= 'A' && $c <= 'Z')
+	($c >= ORD_A && $c <= ORD_Z)
 	||
-	($c >= '0' && $c <= '9')
+	($c >= ORD_0 && $c <= ORD_9)
 	||
-	($c == '_')
+	($c == ORD__)
 	) {
 	return 1;
     }
