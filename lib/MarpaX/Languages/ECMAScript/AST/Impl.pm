@@ -5,7 +5,7 @@ package MarpaX::Languages::ECMAScript::AST::Impl;
 
 # ABSTRACT: Implementation of Marpa's interface
 
-use Marpa::R2 2.079015;
+use Marpa::R2 2.079_015;
 use MarpaX::Languages::ECMAScript::AST::Exceptions qw/:all/;
 use MarpaX::Languages::ECMAScript::AST::Impl::Logger;
 use MarpaX::Languages::ECMAScript::AST::Impl::Singleton;
