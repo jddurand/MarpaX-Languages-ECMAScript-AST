@@ -6,6 +6,14 @@ use MarpaX::Languages::ECMAScript::AST::Exceptions qw/:all/;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses;
 use List::Compare::Functional 0.21 qw/get_union_ref/;
 use Unicode::Normalize qw/NFD NFC/;
+use Import::Into;
+
+#
+# Credit goes to utf8::all
+#
+if ($^V >= v5.11.0) {
+    'feature'->import::into(__PACKAGE__, qw/unicode_strings/);
+}
 
 use constant {
   ASSERTION_IS_NOT_MATCHER => 0,
@@ -111,13 +119,12 @@ sub _Pattern_Disjunction {
 	$multiline //= 0;
 	$ignoreCase //= 0;
 	$upperCase //= sub {
-	    if ($^V ge v5.12.0) {
+	    if ($^V >= v5.11.0) {
 		#
 		# C.f. http://www.effectiveperlprogramming.com/2012/02/fold-cases-properly/
 		# Please note that we really want only the upper case version as per
 		# ECMAScript specification
 		#
-		use feature 'unicode_strings';
 		return uc($_[0]);
 	    } else {
 		#
