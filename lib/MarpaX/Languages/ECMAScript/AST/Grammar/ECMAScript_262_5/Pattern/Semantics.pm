@@ -732,7 +732,7 @@ sub _CharacterEscape_ControlLetter {
 #
 # Note: _HexDigit is a lexeme, default lexeme value is [start,length,value]
 #
-sub _HexEscapeSequence { return chr(16 * hex($_[1]->[2]) + hex($_[2]->[2])); }
+sub _HexEscapeSequence { return chr(16 * hex($_[2]->[2]) + hex($_[3]->[2])); }
 sub _UnicodeEscapeSequence { return chr(4096 * hex($_[2]->[2]) + 256 * hex($_[3]->[2]) + 16 * hex($_[4]->[2]) + hex($_[5]->[2])); }
 
 sub _CharacterEscape_HexEscapeSequence {
