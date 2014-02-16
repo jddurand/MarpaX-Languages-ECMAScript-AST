@@ -129,6 +129,13 @@ my %DATA = (
                                   ],
     '([\\10])'                    => [[ "\N{U+000A}",  0,        0,         0,  [1, ["\N{U+000A}"] ] ],
                                   ],
+    #
+    # Inspired by http://stackoverflow.com/questions/17438100/whats-the-use-of-the-b-backspace-regex
+    #
+    '([\\b])'                     => [[ "\N{U+0008}test",  0,    0,          0,  [1, ["\N{U+0008}"] ] ],
+                                  ],
+    '([\\u0008])'                 => [[ "\N{U+0008}test",  0,    0,          0,  [1, ["\N{U+0008}"] ] ],
+                                  ],
 
     );
 my $ntest = 0;
