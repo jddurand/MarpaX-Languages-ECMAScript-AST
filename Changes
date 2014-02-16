@@ -1,7 +1,12 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.013 2014-02-16T15:18:24
+0.014 2014-02-16T21:06:30
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Pattern/Semantics.pm: revisited way to condtionnaly use perl feature
+
+0.013 2014-02-16T15:21:39
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Release of version 0.013
  - use Marpa::R2 2.079015 rewritten as use Marpa::R2 2.079_015
  - t/pattern.t: full coverage of Pattern/Semantics.pm
  - Pattern/Semantics.pm: _HexEscapeSequence fix
