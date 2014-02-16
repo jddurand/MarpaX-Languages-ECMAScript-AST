@@ -888,7 +888,7 @@ sub _charsetUnion {
     my ($self, $A, $B) = @_;
 
     my ($Anegation, $Arange) = @{$A};
-    my ($Bnegation, $Brange) = @{$A};
+    my ($Bnegation, $Brange) = @{$B};
 
     if ($Anegation == $Bnegation) {
 	#
