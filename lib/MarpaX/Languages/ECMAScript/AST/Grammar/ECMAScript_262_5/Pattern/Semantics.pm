@@ -95,6 +95,7 @@ sub lparen {
 # on perl.
 #
 our @LINETERMINATOR = @{MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::LineTerminator()};
+our %HASHLINETERMINATOR = map {$_ => 1} @LINETERMINATOR;
 our @WHITESPACE = @{MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses::WhiteSpace()};
 
 sub _Pattern_Disjunction {
@@ -301,6 +302,7 @@ sub _Assertion_Caret {
             sub {
               my ($x) = @_;
 
+
               my $e = $x->[0];
               if ($e == 0) {
                 return 1;
@@ -308,8 +310,8 @@ sub _Assertion_Caret {
               if (! $MarpaX::Languages::ECMAScript::AST::Pattern::multiline) {
                 return 0;
               }
-              my $c = substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $e, 1);
-              if (grep {$c == $_} @LINETERMINATOR) {
+              my $c = substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $e-1, 1);
+              if (exists($HASHLINETERMINATOR{$c})) {
                 return 1;
               }
 
@@ -332,7 +334,7 @@ sub _Assertion_Dollar {
                 return 0;
               }
               my $c = substr($MarpaX::Languages::ECMAScript::AST::Pattern::input, $e, 1);
-              if (grep {$c == $_} @LINETERMINATOR) {
+              if (exists($HASHLINETERMINATOR{$c})) {
                 return 1;
               }
 
