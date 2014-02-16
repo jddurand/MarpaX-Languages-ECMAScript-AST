@@ -20,6 +20,14 @@ my %DATA = (
                                   ],
     'a[a-z]{2,4}'              => [[ 'abcdefghi',  0,         0,  [ 5, [] ] ],
                                   ],
+    'a[a-z]{2,4}'              => [[ 'ABabEFcdI',  0,         1,  [ 5, [] ] ],
+                                  ],
+    'a[a-z]{2,4}'              => [[ "\N{U+00D7}",   0,       1,  0 ],
+                                  ],
+    "[\N{U+00DF}]"             => [[ "\N{U+00DF}",   0,       1,  [ 1, [] ] ],
+                                  ],
+    'a[a-z]{6,4}'              => [[ 'abcdefghi',  0,         0,  undef ],
+                                  ],
     '(a[a-z]{2,4})'            => [[ 'abcdefghi',  0,         0,  [ 5, ['abcde'] ] ],
                                   ],
     'a[a-z]{2,4}?'             => [[ 'abcdefghi',  0,         0,  [ 3, [] ] ],
@@ -47,6 +55,8 @@ my %DATA = (
                                   ],
     '\\d{3}\\-?\\d{2}\\-?\\d{4}' => [[ '123-45-6789', 0,      0,  [11, [] ] ],
                                   ],
+    '\\d{1,}\\-?\\d{2}\\-?\\d{4}' => [[ '123-45-6789', 0,      0,  [11, [] ] ],
+                                  ],
     '^\\d{3}\\-?\\d{2}\\-?\\d{4}' => [[ '123-45-6789', 0,     0,  [11, [] ] ],
                                   ],
     '\\d{3}\\-?\\d{2}\\-?\\d{4}$' => [[ '123-45-6789', 0,     0,  [11, [] ] ],
@@ -54,28 +64,46 @@ my %DATA = (
     #
     # Inspired from http://javascript.info/tutorial/word-boundary
     #
-    '(\\bdog\\b)'                   => [[ 'dog',   0,        0,  [3, ['dog'] ] ],
+    '(\\bdog\\b)'                 => [[ 'dog',   0,        0,  [3, ['dog'] ] ],
                                   ],
-    '(\\b0og\\b)'                   => [[ '0og',   0,        0,  [3, ['0og'] ] ],
+    '(\\b0og\\b)'                 => [[ '0og',   0,        0,  [3, ['0og'] ] ],
                                   ],
-    '(\\bDog\\b)'                   => [[ 'Dog',   0,        0,  [3, ['Dog'] ] ],
+    '(\\bDog\\b)'                 => [[ 'Dog',   0,        0,  [3, ['Dog'] ] ],
                                   ],
-    '(\\b_og\\b)'                   => [[ '_og',   0,        0,  [3, ['_og'] ] ],
+    '(\\b_og\\b)'                 => [[ '_og',   0,        0,  [3, ['_og'] ] ],
                                   ],
-    '(\\bdog\\b)'                   => [[ ' og',   0,        0,  0 ],
+    '(\\bdog\\b)'                 => [[ ' og',   0,        0,  0 ],
                                   ],
-    '(\\Bdog\\b)'                   => [[ 'dog',   0,        0,  0 ],
+    '(\\bdog\\b)'                 => [[ '!og',   0,        0,  0 ],
                                   ],
-    '(\\bdog\\B)'                   => [[ 'dog',   0,        0,  0 ],
+    '(\\bdog\\b)'                 => [[ ':og',   0,        0,  0 ],
                                   ],
-    '(\\bdog\\B)orcat'              => [[ 'dogorcat',  0,    0,  [8, ['dog'] ] ],
+    '(\\bdog\\b)'                 => [[ '^og',   0,        0,  0 ],
+                                  ],
+    '(\\bdog\\b)'                 => [[ '|og',   0,        0,  0 ],
+                                  ],
+    '(\\Bdog\\b)'                 => [[ 'dog',   0,        0,  0 ],
+                                  ],
+    '(\\bdog\\B)'                 => [[ 'dog',   0,        0,  0 ],
+                                  ],
+    '(\\bdog\\B)orcat'            => [[ 'dogorcat',  0,    0,  [8, ['dog'] ] ],
+                                  ],
+    '(\\d\\s\\w\\w\\w\\w)'        => [[ '1 year',  0,      0,  [6, ['1 year'] ] ],
+                                  ],
+    '(\\W)'                       => [[ "'",     0,        0,  [1, ["'"] ] ],
+                                  ],
+    '(ch.r)'                      => [[ 'char',  0,        0,  [4, ['char'] ] ],
+                                  ],
+    '(ch.r)'                      => [[ 'ch r',  0,        0,  [4, ['ch r'] ] ],
+                                  ],
+    '(ch.r)'                      => [[ 'chr',  0,         0,  0 ],
                                   ],
     );
 my $ntest = 0;
 foreach (keys %DATA) {
     my $regexp = $_;
-    my $parse = $pattern->{grammar}->parse($regexp, $pattern->{impl});
-    my $code = eval { $pattern->{grammar}->value($pattern->{impl}) };
+    my $parse = eval {$pattern->{grammar}->parse($regexp, $pattern->{impl})};
+    my $code = defined($parse) ? eval { $pattern->{grammar}->value($pattern->{impl}) } : sub {undef};
     if ($@) {
         print STDERR $@;
         $code = sub {undef};
@@ -83,7 +111,7 @@ foreach (keys %DATA) {
     foreach (@{$DATA{$_}}) {
 	my ($input, $multiline, $ignoreCase, $result) = @{$_};
 	++$ntest;
-	my $value = &$code($input, 0);
+	my $value = eval {&$code($input, 0, $multiline, $ignoreCase)};
 	eq_or_diff($value, $result, "/$regexp/.exec(\"$input\")");
     }
 }
