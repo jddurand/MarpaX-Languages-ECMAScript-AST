@@ -1,7 +1,28 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.012 2014-02-14T21:18:33
+0.013 2014-02-16T15:18:24
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - use Marpa::R2 2.079015 rewritten as use Marpa::R2 2.079_015
+ - t/pattern.t: full coverage of Pattern/Semantics.pm
+ - Pattern/Semantics.pm: _HexEscapeSequence fix
+ - t/pattern.c: escape parens test
+ - lexeme default = forgiving => 1 && DecimalDigits
+ - lexeme default = forgiving => 1
+ - t/pattern.t: Caret test not at the beginning of string
+ - Pattern/Semantics.pm: Caret assertino bug
+ - Pattern/Semantics.pm: bug in _charsetUnion
+ - t/pattern.t: more tests
+ - Pattern/Semantics.pm: one more parameter for regexp, a routine to
+   eventually do its own upper case
+ - t/pattern.t: Assertion \b and \B tests conted
+ - t/pattern.t: Assertion \\b and \\B tests
+ - Pattern/Semantics.pm: bug fix in _isWordChar
+ - script/cover.sh
+ - _AtomEscape_CharacterClassEscape fix
+
+0.012 2014-02-14T21:21:11
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Release of version 0.012
  - use File::HomeDir 0.93; because of my_dist_data
 
 0.011 2014-02-09T23:30:10
