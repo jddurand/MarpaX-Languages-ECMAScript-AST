@@ -201,7 +201,7 @@ __DATA__
 #
 :start ::= Pattern
 :default ::= action => [values]
-lexeme default = action => [start,length,value]
+lexeme default = action => [start,length,value] forgiving => 1
 
 Pattern ::=
       Disjunction                             action => _Pattern_Disjunction
@@ -301,15 +301,18 @@ IdentityEscape ~
 DecimalEscape ::= # Lookahead not in decimal digit is automatic
     DecimalIntegerLiteral                           action => _DecimalEscape_DecimalIntegerLiteral
 
-DecimalIntegerLiteral ::=
-    '0'                                             action => _DecimalIntegerLiteral_Zero
-  | _NonZeroDigit                                   action => _DecimalIntegerLiteral_NonZeroDigit
-  | _NonZeroDigit DecimalDigits                     action => _DecimalIntegerLiteral_NonZeroDigit_DecimalDigits
+DecimalIntegerLiteral ::= _DecimalIntegerLiteral    action => _DecimalIntegerLiteral
 
-DecimalDigits ::= _DecimalDigit+                    action => _DecimalDigits
+_DecimalIntegerLiteral ~
+    '0'
+  | _NonZeroDigit
+  | _NonZeroDigit __DecimalDigits
+
+__DecimalDigits ~ [\p{IsDecimalDigit}]+
+_DecimalDigits  ~ __DecimalDigits
+DecimalDigits ::= _DecimalDigits                    action => _DecimalDigits
 
 _NonZeroDigit      ~ [\p{IsNonZeroDigit}]
-_DecimalDigit      ~ [\p{IsDecimalDigit}]
 
 CharacterClassEscape ::=
       [dDsSwW]                                      action => _CharacterClassEscape

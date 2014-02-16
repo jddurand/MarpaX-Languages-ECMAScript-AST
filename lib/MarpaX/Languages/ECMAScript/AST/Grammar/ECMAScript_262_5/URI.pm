@@ -59,7 +59,7 @@ __DATA__
 #
 :start ::= uri
 :default ::= action => [values]
-lexeme default = action => [start,length,value]
+lexeme default = action => [start,length,value] forgiving => 1
 
 uri           ::= uriCharactersopt
 

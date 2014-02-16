@@ -515,7 +515,7 @@ __DATA__
 #
 :start ::= Program
 :default ::= action => valuesAndRuleId # bless => ::lhs
-lexeme default = action => [start,length,value]
+lexeme default = action => [start,length,value] forgiving => 1 
 
 #
 # Literal definition as per lexical grammar

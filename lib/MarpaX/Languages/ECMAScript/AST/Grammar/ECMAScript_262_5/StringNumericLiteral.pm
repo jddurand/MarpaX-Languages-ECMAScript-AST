@@ -208,6 +208,7 @@ __DATA__
 # ================================================
 #
 :start ::= StringNumericLiteral
+lexeme default = forgiving => 1
 
 StrWhiteSpaceopt ::= StrWhiteSpace
 StrWhiteSpaceopt ::=

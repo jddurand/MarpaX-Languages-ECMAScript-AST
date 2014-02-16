@@ -77,6 +77,7 @@ __DATA__
 #
 :start ::= __StringLiteral
 :default ::= action => ::first
+lexeme default = forgiving => 1
 
 #
 # DO NOT REMOVE NOR MODIFY THIS LINE

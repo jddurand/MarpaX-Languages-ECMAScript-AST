@@ -65,7 +65,7 @@ __DATA__
 #
 :start ::= __NumericLiteral
 :default ::= action => [values] bless => ::lhs
-lexeme default = action => [start,length,value]
+lexeme default = action => [start,length,value] forgiving => 1
 
 __NumericLiteral ::=
     __DecimalLiteral

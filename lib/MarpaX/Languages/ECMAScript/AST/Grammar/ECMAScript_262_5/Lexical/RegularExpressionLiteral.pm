@@ -64,7 +64,7 @@ __DATA__
 # tokens, line terminators, comments, or white space.
 #
 :start ::= __RegularExpressionLiteral
-lexeme default = action => [start,length,value]
+lexeme default = action => [start,length,value] forgiving => 1
 
 #
 # DO NOT REMOVE NOR MODIFY THIS LINE
