@@ -5,6 +5,8 @@ package MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::
 use MarpaX::Languages::ECMAScript::AST::Exceptions qw/:all/;
 use MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses;
 use List::Compare::Functional 0.21 qw/get_union_ref/;
+use Unicode::Normalize qw/NFD NFC/;
+
 use constant {
   ASSERTION_IS_NOT_MATCHER => 0,
   ASSERTION_IS_MATCHER     => 1
@@ -53,6 +55,10 @@ perl's scalar boolean, saying if this is a multiline match. Default is a false v
 
 perl's scalar boolean, saying if this is an insensitive match. Default is a false value.
 
+=item $upperCase
+
+CODE reference to a function that take a single argument, a code point, and returns its upper case version. Default to a builtin subroutine reference that returns Unicode's uppercase.
+
 =back
 
 This new routine is instanciated by a call to Marpa as a "semantics_package" recognizer option, and until one can pass directly arguments to it, it is using the localized variable $MarpaX::Languages::ECMAScript::AST::Grammar::Pattern::lparen, that is an array reference of left-parenthesis capture disjunctions's offsets.
@@ -100,9 +106,25 @@ sub _Pattern_Disjunction {
 	#
 	# Note: $str is a true perl string, $index is a true perl scalar
 	#
-	my ($str, $index, $multiline, $ignoreCase) = @_;
+	my ($str, $index, $multiline, $ignoreCase, $upperCase) = @_;
 	$multiline //= 0;
 	$ignoreCase //= 0;
+	$upperCase //= sub {
+	    if ($^V ge v5.12.0) {
+		#
+		# C.f. http://www.effectiveperlprogramming.com/2012/02/fold-cases-properly/
+		# Please note that we really want only the upper case version as per
+		# ECMAScript specification
+		#
+		use feature 'unicode_strings';
+		return uc($_[0]);
+	    } else {
+		#
+		# C.f. uc from Unicode::Tussle
+		#
+		return NFC(uc(NFD($_[0])));
+	    }
+	};
 	#
 	# We localize input, input length, mutiline and ignoreCase
 	#
@@ -110,6 +132,7 @@ sub _Pattern_Disjunction {
 	local $MarpaX::Languages::ECMAScript::AST::Pattern::inputLength = length($str);
 	local $MarpaX::Languages::ECMAScript::AST::Pattern::multiline = $multiline;
 	local $MarpaX::Languages::ECMAScript::AST::Pattern::ignoreCase = $ignoreCase;
+	local $MarpaX::Languages::ECMAScript::AST::Pattern::upperCase = $upperCase;
 
 	my $c = sub {
 	    my ($state) = @_;
@@ -260,7 +283,7 @@ sub _Term_Atom_Quantifier {
     my $m = $atom;
     my ($min, $max, $greedy) = @{$quantifier};
     if (defined($max) && $max < $min) {
-      SyntaxError("$max < $min");
+      SyntaxError("Bad quantifier {$min,$max} in regular expression");
     }
     my $hashp = $self->_parenIndexAndCount();
 
@@ -501,15 +524,11 @@ sub _canonicalize {
     if (! $MarpaX::Languages::ECMAScript::AST::Pattern::ignoreCase) {
 	return $ch;
     }
-    #
-    # Note: we use the Unicode Case-Folding feature of perl, i.e. lowercase
-    # instead of uppercase - no change in the resulting logic
-    #
-    my $u = uc($ch);
+
+    my $u = &$MarpaX::Languages::ECMAScript::AST::Pattern::upperCase($ch);
     if (length($u) != 1) {
 	#
-	# This is where ECMAScript logic is broken, I don't know why it has
-	# been designed like that.
+	# I don't know why it has been designed like that -;
 	#
 	return $ch;
     }
