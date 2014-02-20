@@ -125,6 +125,31 @@ sub host_neg {
     return $_[0];
 }
 
+=head2 host_abs($self)
+
+Host implementation of absolute value applied to $self. Returns $self.
+
+=cut
+
+sub host_abs {
+    $_[0]->{_number} = abs($_[0]->{_number});
+    return $_[0];
+}
+
+=head2 host_sign($self)
+
+Host implementation of sign applied to $self. Returns a new instance containing the sign, whose host value will be -1 if $self's value is negative, +1 if $self's value is positive, nan if $self's value is not a number.
+
+=cut
+
+sub host_sign {
+  if (__PACKAGE__->is_nan($_[0])) {
+    return $_[0]->host_class->new->host_int("$_[0]->{_length}");
+  }
+    $_[0]->{_number} = abs($_[0]->{_number});
+    return $_[0];
+}
+
 =head2 host_add($self, $addobj)
 
 Host implementation of $addobj added to $self. Returns $self.
@@ -221,6 +246,17 @@ sub pos_infinity {
     return $POS_INF;
 }
 
+=head2 pos_inf($class)
+
+Proxy method to pos_infinity.
+
+=cut
+
+sub pos_inf {
+    my ($class) = @_;
+    return $class->pos_infinity;
+}
+
 =head2 neg_infinity($class)
 
 Class method that returns the host implementation of (negative if any) infinity, or its Math::BigFloat implementation otherwise.
@@ -230,6 +266,17 @@ Class method that returns the host implementation of (negative if any) infinity,
 sub neg_infinity {
     my ($class) = @_;
     return $NEG_INF;
+}
+
+=head2 neg_inf($class)
+
+Proxy method to neg_infinity.
+
+=cut
+
+sub neg_inf {
+    my ($class) = @_;
+    return $class->neg_infinity;
 }
 
 =head2 nan($class)
@@ -264,6 +311,50 @@ sub is_zero {
     }
 }
 
+=head2 is_pos($class, $value)
+
+Class method that returns true if $value is positive zero, false otherwise. In case $value would be a blessed object, $value->is_pos() is returned if $value can do this method, otherwise undef is returned.
+
+=cut
+
+sub is_pos {
+    my ($class, $value) = @_;
+    my $blessed = blessed($value) || '';
+    if (! $blessed) {
+      if ($class->is_nan($value)) {
+        return 0;
+      } else {
+        return (Data::Float::signbit($value) == 0) ? 1 : 0;
+      }
+    } elsif ($value->can('is_pos')) {
+	return $value->is_pos();
+    } else {
+	return undef;
+    }
+}
+
+=head2 is_neg($class, $value)
+
+Class method that returns true if $value is negative zero, false otherwise. In case $value would be a blessed object, $value->is_neg() is returned if $value can do this method, otherwise undef is returned.
+
+=cut
+
+sub is_neg {
+    my ($class, $value) = @_;
+    my $blessed = blessed($value) || '';
+    if (! $blessed) {
+      if ($class->is_nan($value)) {
+        return 0;
+      } else {
+        return (Data::Float::signbit($value) == 0) ? 0 : 1;
+      }
+    } elsif ($value->can('is_neg')) {
+	return $value->is_neg();
+    } else {
+	return undef;
+    }
+}
+
 =head2 is_infinite($class, $value)
 
 Class method that returns true or false if $value is infinite. In case $value would be a blessed object, $value->is_inf() is returned if $value can do this method, otherwise undef is returned.
@@ -283,6 +374,17 @@ sub is_infinite {
     } else {
 	return undef;
     }
+}
+
+=head2 is_inf($class, $value)
+
+Proxy method to is_infinite.
+
+=cut
+
+sub is_inf {
+    my ($class, $value) = @_;
+    return $class->is_infinite($value);
 }
 
 =head2 is_nan($class, $value)
