@@ -4,10 +4,6 @@ use warnings FATAL => 'all';
 use Test::More;
 use Math::BigFloat;
 
-#
-# The "External" semantic package will force zero to nan
-#
-
 BEGIN {
     use_ok( 'MarpaX::Languages::ECMAScript::AST' ) || print "Bail out!\n";
     use_ok( 'MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics' ) || print "Bail out!\n";
