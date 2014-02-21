@@ -107,11 +107,11 @@ sub _secondArg {
 }
 
 sub _value {
-    return _secondArg(@_)->host_round->host_value;
+    return _secondArg(@_)->host_round->value;
 }
 
 sub _value_zero {
-    return $_[0]->host_pos_zero->host_value;
+    return $_[0]->host_pos_zero->value;
 }
 
 sub _Infinity {
@@ -122,7 +122,7 @@ sub _Infinity {
 # Note that HexIntegerLiteral output is a HexDigit modified
 #
 sub _HexIntegerLiteral_HexDigit {
-    my $sixteen = $_[0]->host_class->new->host_int("16");
+    my $sixteen = $_[0]->clone_init->host_int("16");
 
     return $_[1]->host_mul($sixteen)->host_add($_[2]);
 }
@@ -131,13 +131,13 @@ sub _HexIntegerLiteral_HexDigit {
 # Note that DecimalDigits output is a DecimalDigit modified
 #
 sub _DecimalDigits_DecimalDigit {
-    my $ten = $_[0]->host_class->new->host_int("10");
+    my $ten = $_[0]->clone_init->host_int("10");
     return $_[1]->host_mul($ten)->host_add($_[2])->host_inc_length;
 }
 
 sub _Dot_DecimalDigits_ExponentPart {
-    my $n = $_[2]->host_new_from_length;
-    my $tenpowexponentminusn = $_[0]->host_class->new->host_int("10")->host_pow($_[3]->host_sub($n));
+    my $n = $_[2]->new_from_length;
+    my $tenpowexponentminusn = $_[0]->clone_init->host_int("10")->host_pow($_[3]->host_sub($n));
 
     return $_[2]->host_mul($tenpowexponentminusn);
 }
@@ -155,7 +155,7 @@ sub _DecimalDigits_Dot_DecimalDigits_ExponentPart {
 }
 
 sub _DecimalDigits_Dot_ExponentPart {
-    my $tenpowexponent = $_[0]->host_class->new->host_int("10")->host_pow($_[3]);
+    my $tenpowexponent = $_[0]->clone_init->host_int("10")->host_pow($_[3]);
     return $_[1]->host_mul($tenpowexponent);
 }
 
@@ -164,23 +164,23 @@ sub _DecimalDigits_Dot_DecimalDigits {
 }
 
 sub _Dot_DecimalDigits {
-    my $n = $_[2]->host_new_from_length;
-    my $tenpowminusn = $_[0]->host_class->new->host_int("10")->host_pow($n->host_neg);
+    my $n = $_[2]->new_from_length;
+    my $tenpowminusn = $_[0]->clone_init->host_int("10")->host_pow($n->host_neg);
     return $_[2]->host_mul($tenpowminusn);
 }
 
 sub _DecimalDigits_ExponentPart {
-    my $tenpowexponent = $_[0]->host_class->new->host_int("10")->host_pow($_[2]);
+    my $tenpowexponent = $_[0]->clone_init->host_int("10")->host_pow($_[2]);
 
     return $_[1]->host_mul($tenpowexponent);
 }
 
 sub _HexDigit {
-    return $_[0]->host_class->new->host_hex("$_[1]");
+    return $_[0]->clone_init->host_hex("$_[1]");
 }
 
 sub _DecimalDigit {
-    return $_[0]->host_class->new->host_int("$_[1]");
+    return $_[0]->clone_init->host_int("$_[1]");
 }
 
 sub _neg {
