@@ -107,46 +107,53 @@ sub _secondArg {
 }
 
 sub _value {
-    return _secondArg(@_)->host_round->value;
+    return _secondArg(@_)->host_value;
 }
 
 sub _value_zero {
-    return $_[0]->host_pos_zero->value;
+    return $_[0]->pos_zero->host_value;
 }
 
 sub _Infinity {
-    return $_[0]->host_pos_inf;
+    return $_[0]->pos_inf;
 }
 
 #
 # Note that HexIntegerLiteral output is a HexDigit modified
 #
 sub _HexIntegerLiteral_HexDigit {
-    my $sixteen = $_[0]->clone_init->host_int("16");
+    my $sixteen = $_[0]->clone_init->int("16");
 
-    return $_[1]->host_mul($sixteen)->host_add($_[2]);
+    return $_[1]->mul($sixteen)->add($_[2]);
 }
 
 #
 # Note that DecimalDigits output is a DecimalDigit modified
 #
 sub _DecimalDigits_DecimalDigit {
-    my $ten = $_[0]->clone_init->host_int("10");
-    return $_[1]->host_mul($ten)->host_add($_[2])->host_inc_length;
+    my $ten = $_[0]->clone_init->int("10");
+    return $_[1]->mul($ten)->add($_[2])->inc_length;
 }
 
 sub _Dot_DecimalDigits_ExponentPart {
     my $n = $_[2]->new_from_length;
-    my $tenpowexponentminusn = $_[0]->clone_init->host_int("10")->host_pow($_[3]->host_sub($n));
+    my $tenpowexponentminusn = $_[0]->clone_init->int("10")->pow($_[3]->sub($n));
 
-    return $_[2]->host_mul($tenpowexponentminusn);
+    $_[2]->decimalOn;
+    return $_[2]->mul($tenpowexponentminusn);
+}
+
+sub _DecimalDigits_Dot {
+    $_[1]->decimalOn;
+    return $_[1];
 }
 
 sub _DecimalDigits_Dot_DecimalDigits_ExponentPart {
     #
     # Done using polish logic -;
     #
-    return $_[1]->host_add(
+    $_[1]->decimalOn;
+    return $_[1]->add(
 	_DecimalDigits_ExponentPart(
 	    $_[0],
             _Dot_DecimalDigits($_[0], '.', $_[3]),
@@ -155,36 +162,40 @@ sub _DecimalDigits_Dot_DecimalDigits_ExponentPart {
 }
 
 sub _DecimalDigits_Dot_ExponentPart {
-    my $tenpowexponent = $_[0]->clone_init->host_int("10")->host_pow($_[3]);
-    return $_[1]->host_mul($tenpowexponent);
+    my $tenpowexponent = $_[0]->clone_init->int("10")->pow($_[3]);
+    $_[1]->decimalOn;
+    return $_[1]->mul($tenpowexponent);
 }
 
 sub _DecimalDigits_Dot_DecimalDigits {
-    return $_[1]->host_add(_Dot_DecimalDigits($_[0], '.', $_[3]));
+    $_[1]->decimalOn;
+    return $_[1]->add(_Dot_DecimalDigits($_[0], '.', $_[3]));
 }
 
 sub _Dot_DecimalDigits {
     my $n = $_[2]->new_from_length;
-    my $tenpowminusn = $_[0]->clone_init->host_int("10")->host_pow($n->host_neg);
-    return $_[2]->host_mul($tenpowminusn);
+    my $tenpowminusn = $_[0]->clone_init->int("10")->pow($n->neg);
+    $_[2]->decimalOn;
+    return $_[2]->mul($tenpowminusn);
 }
 
 sub _DecimalDigits_ExponentPart {
-    my $tenpowexponent = $_[0]->clone_init->host_int("10")->host_pow($_[2]);
+    my $tenpowexponent = $_[0]->clone_init->int("10")->pow($_[2]);
 
-    return $_[1]->host_mul($tenpowexponent);
+    $_[1]->decimalOn;
+    return $_[1]->mul($tenpowexponent);
 }
 
 sub _HexDigit {
-    return $_[0]->clone_init->host_hex("$_[1]");
+    return $_[0]->clone_init->hex("$_[1]");
 }
 
 sub _DecimalDigit {
-    return $_[0]->clone_init->host_int("$_[1]");
+    return $_[0]->clone_init->int("$_[1]");
 }
 
 sub _neg {
-  return $_[2]->host_neg;
+  return $_[2]->neg;
 }
 
 =head1 SEE ALSO
@@ -236,7 +247,7 @@ StrDecimalLiteral ::=
 
 StrUnsignedDecimalLiteral ::=
     'Infinity'                                             action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_Infinity
-  | DecimalDigits '.'                                      action => ::first
+  | DecimalDigits '.'                                      action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_DecimalDigits_Dot
   | DecimalDigits '.' DecimalDigits                        action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_DecimalDigits_Dot_DecimalDigits
   | DecimalDigits '.' ExponentPart                         action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_DecimalDigits_Dot_ExponentPart
   | DecimalDigits '.' DecimalDigits ExponentPart           action => MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::_DecimalDigits_Dot_DecimalDigits_ExponentPart

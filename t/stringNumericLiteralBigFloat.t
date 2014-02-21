@@ -12,56 +12,9 @@ BEGIN {
     use_ok( 'MarpaX::Languages::ECMAScript::AST' ) || print "Bail out!\n";
     use_ok( 'MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics' ) || print "Bail out!\n";
 }
+our $impl = 'MyActions';
 
-my $ecmaAst = MarpaX::Languages::ECMAScript::AST->new(
-    'StringNumericLiteral' => { semantics_package => 'MyActions'}
-    );
-my $stringNumericLiteral = $ecmaAst->stringNumericLiteral;
-
-my %DATA = (
-    'ff'         => sub {my $rc = shift; ok(MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics->is_nan($rc), 'input: "ff"' . "=> $rc")},
-    '09'         => sub {my $rc = shift; ok(Math::BigFloat->new("9")->bcmp($rc) == 0, 'input: "09"' . "=> $rc")},
-    '+09'        => sub {my $rc = shift; ok(Math::BigFloat->new("9")->bcmp($rc) == 0, 'input: "+09"' . "=> $rc")},
-    '-000000009' => sub {my $rc = shift; ok(Math::BigFloat->new("-9")->bcmp($rc) == 0, 'input: "-000000009"' . "=> $rc")},
-    '          ' => sub {my $rc = shift; ok(MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics->is_zero($rc), 'input: "          "' . "=> $rc")},
-    "    \n    " => sub {my $rc = shift; ok(MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics->is_zero($rc), 'input: "    \n    "' . "=> $rc")},
-    '123.85'     => sub {my $rc = shift; ok(Math::BigFloat->new("123.85")->bcmp($rc) == 0, 'input: "123.85"' . "=> $rc")},
-    '0123.85'    => sub {my $rc = shift; ok(Math::BigFloat->new("123.85")->bcmp($rc) == 0, 'input: "0123.85"' . "=> $rc")},
-    '0123.085'   => sub {my $rc = shift; ok(Math::BigFloat->new("123.085")->bcmp($rc) == 0, 'input: "0123.085"' . "=> $rc")},
-    '0123.0850'  => sub {my $rc = shift; ok(Math::BigFloat->new("123.085")->bcmp($rc) == 0, 'input: "0123.0850"' . "=> $rc")},
-    '$123.85'    => sub {my $rc = shift; ok(MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics->is_nan($rc), 'input: "$123.85"' . "=> $rc")},
-    'three'      => sub {my $rc = shift; ok(MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics->is_nan($rc), 'input: "three"' . "=> $rc")},
-    '0xFF'       => sub {my $rc = shift; ok(Math::BigFloat->from_hex("0xFF")->bcmp($rc) == 0, 'input: "0xFF"' . "=> $rc")},
-    '3.14'       => sub {my $rc = shift; ok(Math::BigFloat->new("3.14")->bcmp($rc) == 0, 'input: "3.14' . "=> $rc")},
-    '0.0314E+02' => sub {my $rc = shift; ok(Math::BigFloat->new("3.14")->bcmp($rc) == 0, 'input: "0.0314E+02"' . "=> $rc")},
-    '.0314E+02'  => sub {my $rc = shift; ok(Math::BigFloat->new("3.14")->bcmp($rc) == 0, 'input: ".0314E+02"' . "=> $rc")},
-    '314.E-2'    => sub {my $rc = shift; ok(Math::BigFloat->new("3.14")->bcmp($rc) == 0, 'input: "314.E-2"' . "=> $rc")},
-    '314.E-0002' => sub {my $rc = shift; ok(Math::BigFloat->new("3.14")->bcmp($rc) == 0, 'input: "314.E-0002"' . "=> $rc")},
-    '00314.E-02' => sub {my $rc = shift; ok(Math::BigFloat->new("3.14")->bcmp($rc) == 0, 'input: "00314.E-02"' . "=> $rc")},
-    " 1.0 "      => sub {my $rc = shift; ok(Math::BigFloat->bone->bcmp($rc) == 0, 'input: " 1.0 "' . "=> $rc")},
-    ""           => sub {my $rc = shift; ok(MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics->is_zero($rc), 'input: ""' . "=> $rc")},
-    "Infinity"   => sub {my $rc = shift; ok(MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics->is_infinite($rc), 'input: "Infinity"' . "=> $rc")},
-    "+Infinity"  => sub {my $rc = shift; ok(MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics->is_infinite($rc), 'input: "+Infinity"' . "=> $rc")},
-    "-Infinity"  => sub {my $rc = shift; ok(MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics->is_infinite($rc), 'input: "-Infinity"' . "=> $rc")},
-    );
-foreach (keys %DATA) {
-    my $value;
-    if (length("$_") <= 0) {
-	$value = Math::BigFloat->new()->bzero();
-    } else {
-	eval{
-	    my $parse = $stringNumericLiteral->{grammar}->parse("$_",
-								$stringNumericLiteral->{impl});
-	    $value = $stringNumericLiteral->{grammar}->value($stringNumericLiteral->{impl});
-	};
-        if ($@) {
-            $value = Math::BigFloat->new()->bnan();
-        }
-    }
-    $DATA{$_}($value);
-}
-
-done_testing(2 + scalar(keys %DATA));
+require File::Spec->catfile('inc', 'stringNumericLiteralDoTests.pl');
 
 1;
 
@@ -71,6 +24,7 @@ done_testing(2 + scalar(keys %DATA));
 package MyActions;
 use Math::BigFloat;
 use Scalar::Util qw/blessed/;
+use parent 'MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics';
 
 #
 # Precision nor accurracy being setted, default applied, i.e. up to 40 digits.
@@ -81,18 +35,33 @@ use constant {
   ROUND_MODE => 'even'     # Round mode
 };
 
-sub host_pos_zero        { $_[0]->{_bigfloat}->bzero();                                                           return $_[0]; }
-sub new                  { return bless({_bigfloat => Math::BigFloat->new("0"), length => 0}, $_[0]);                           }
-sub host_mul             { $_[0]->{_bigfloat}->bmul($_[1]->{_bigfloat});                                          return $_[0]; }
-sub host_round           { $_[0]->{_bigfloat}->round(ACCURACY, undef, ROUND_MODE);                                return $_[0]; }
-sub host_pos_inf         { $_[0]->{_bigfloat}->binf();                                                            return $_[0]; }
-sub host_pow             { $_[0]->{_bigfloat}->bpow($_[1]->{_bigfloat});                                          return $_[0]; }
-sub host_int             { $_[0]->{_bigfloat} = Math::BigFloat->new("$_[1]"); $_[0]->{_length} = length("$_[1]"); return $_[0]; }
-sub host_hex             { $_[0]->{_bigfloat} = Math::BigFloat->new(hex("$_[1]"));                                return $_[0]; }
-sub host_neg             { $_[0]->{_bigfloat}->bneg();                                                            return $_[0]; }
-sub host_add             { $_[0]->{_bigfloat}->badd($_[1]->{_bigfloat});                                          return $_[0]; }
-sub host_sub             { $_[0]->{_bigfloat}->bsub($_[1]->{_bigfloat});                                          return $_[0]; }
-sub host_inc_length      { ++$_[0]->{_length};                                                                    return $_[0]; }
-sub host_new_from_length { return $_[0]->host_class->new->host_int("$_[0]->{_length}");                                         }
-sub host_class           { return blessed($_[0]);                                                                               }
-sub host_value           { return $_[0]->{_bigfloat};                                                                           }
+sub new {
+  my ($class, %opts) = @_;
+  my $self = {_number => $opts{number}    // Math::BigFloat->new('0'),
+              _length => $opts{length}    // 0,
+              _decimal => $opts{decimal } // 0};
+  bless($self, $class);
+  return $self;
+}
+
+sub clone {
+  my ($self) = @_;
+  return (ref $self)->new(number => $self->{_number}->copy,
+                          length => $self->{_length},
+                          decimal => $self->{_decimal});
+}
+
+sub mul             { $_[0]->{_number}->bmul($_[1]->{_number});                                            return $_[0]; }
+sub nan             { $_[0]->{_number}->bnan();                                                            return $_[0]; }
+sub pos_one         { $_[0]->{_number}->bone();                                                            return $_[0]; }
+sub neg_one         { $_[0]->{_number}->bone('-');                                                         return $_[0]; }
+sub pos_zero        { $_[0]->{_number}->bzero();                                                           return $_[0]; }
+sub pos_inf         { $_[0]->{_number}->binf();                                                            return $_[0]; }
+sub pow             { $_[0]->{_number}->bpow($_[1]->{_number});                                            return $_[0]; }
+sub int             { $_[0]->{_number} = Math::BigFloat->new("$_[1]"); $_[0]->{_length} = length("$_[1]"); return $_[0]; }
+sub hex             { $_[0]->{_number} = Math::BigFloat->new(hex("$_[1]"));                                return $_[0]; }
+sub neg             { $_[0]->{_number}->bneg();                                                            return $_[0]; }
+sub abs             { $_[0]->{_number}->babs();                                                            return $_[0]; }
+sub add             { $_[0]->{_number}->badd($_[1]->{_number});                                            return $_[0]; }
+sub sub             { $_[0]->{_number}->bsub($_[1]->{_number});                                            return $_[0]; }
+sub host_value      { $_[0]->{_number}->round(ACCURACY, undef, ROUND_MODE);                     return $_[0]->{_number}; }
