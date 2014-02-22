@@ -1,7 +1,23 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.014 2014-02-16T21:06:30
+0.015 2014-02-22T08:32:11
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Grammar/Base.pm: Fixed show of last expression in case of error
+ - Revert "Use slr->ambiguity_metric to detect ambiguous parse"
+   
+   This reverts commit 510867cf17ba5b65515f76af8ed34a33f7445659.
+ - dev+
+ - dev+
+ - dev+
+ - dev+
+ - Merge branch 'master' of
+   https://github.com/jddurand/MarpaX-Languages-ECMAScript-AST
+ - AST/Impl.pm: use Marpa::R2 2.080000
+ - Use slr->ambiguity_metric to detect ambiguous parse
+
+0.014 2014-02-16T21:10:23
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Release of version 0.014
  - Pattern/Semantics.pm: revisited way to condtionnaly use perl feature
 
 0.013 2014-02-16T15:21:39

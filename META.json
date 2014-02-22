@@ -55,7 +55,7 @@
             "Import::Into" : "0",
             "List::Compare::Functional" : "0.21",
             "Log::Any" : "0",
-            "Marpa::R2" : "2.079_015",
+            "Marpa::R2" : "2.080000",
             "Math::BigFloat" : "0",
             "Module::Util" : "0",
             "SUPER" : "0",
@@ -94,107 +94,107 @@
    "provides" : {
       "MarpaX::Languages::ECMAScript::AST" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Exceptions" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Exceptions.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::Base" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/Base.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::Base::DefaultSemanticsPackage" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/Base/DefaultSemanticsPackage.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::CharacterClasses" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/CharacterClasses.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Base" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5/Base.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::CharacterClasses" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5/CharacterClasses.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::JSON" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5/JSON.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::NumericLiteral" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5/Lexical/NumericLiteral.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::RegularExpressionLiteral" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5/Lexical/RegularExpressionLiteral.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5/Lexical/StringLiteral.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Lexical::StringLiteral::Semantics" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5/Lexical/StringLiteral/Semantics.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5/Pattern.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Pattern::Semantics" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5/Pattern/Semantics.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5/Program.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Program::Semantics" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5/Program/Semantics.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5/StringNumericLiteral.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5/StringNumericLiteral/NativeNumberSemantics.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::Template" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5/Template.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::URI" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Grammar/ECMAScript_262_5/URI.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Impl" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Impl.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Impl::Logger" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Impl/Logger.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Impl::Singleton" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Impl/Singleton.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       },
       "MarpaX::Languages::ECMAScript::AST::Util" : {
          "file" : "lib/MarpaX/Languages/ECMAScript/AST/Util.pm",
-         "version" : "0.014"
+         "version" : "0.015"
       }
    },
    "release_status" : "stable",
@@ -210,7 +210,7 @@
          "web" : "https://github.com/jddurand/marpax-languages-ecmascript-ast"
       }
    },
-   "version" : "0.014",
+   "version" : "0.015",
    "x_contributors" : [
       "jddurand <jeandamiendurand@free.fr>"
    ]
