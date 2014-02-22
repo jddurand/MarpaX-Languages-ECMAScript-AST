@@ -362,15 +362,14 @@ Return the parse tree (unique) value. $impl is the recognizer instance for the g
 sub value {
   my ($self, $impl) = @_;
 
-  if ($impl->ambiguity_metric() != 1) {
-      $impl->destroy_R;
-      InternalError(error => 'Parse is not unambiguous');
-  }
-
   my $rc = $impl->value() || do {$impl->destroy_R; InternalError(error => sprintf('%s', _show_last_expression($self, $impl)))};
   if (! defined($rc)) {
       $impl->destroy_R;
       InternalError(error => 'Undefined parse tree value');
+  }
+  if (defined($impl->value())) {
+      $impl->destroy_R;
+      InternalError(error => 'More than one parse tree value');
   }
   $impl->destroy_R;
 

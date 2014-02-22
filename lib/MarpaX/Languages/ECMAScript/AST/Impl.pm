@@ -364,16 +364,6 @@ sub symbol_name {
   return $_[0]->{grammar}->symbol_name(@_[1..$#_]);
 }
 
-=head2 ambiguity_metric($self)
-
-Returns Marpa's recognizer's ambiguity_metric.
-
-=cut
-
-sub ambiguity_metric {
-  return $_[0]->{recce}->ambiguity_metric();
-}
-
 =head1 SEE ALSO
 
 L<Marpa::R2::Scanless::G>
