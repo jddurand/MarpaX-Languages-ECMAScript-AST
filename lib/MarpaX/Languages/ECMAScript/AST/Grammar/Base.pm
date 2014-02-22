@@ -362,7 +362,11 @@ Return the parse tree (unique) value. $impl is the recognizer instance for the g
 sub value {
   my ($self, $impl) = @_;
 
-  my $rc = $impl->value() || do {$impl->destroy_R; InternalError(error => sprintf('%s', _show_last_expression($self, $impl)))};
+  my $rc = $impl->value() || do {
+      my $lastExpression = _show_last_expression($self, $impl);
+      $impl->destroy_R;
+      InternalError(error => sprintf('%s', $lastExpression))
+  };
   if (! defined($rc)) {
       $impl->destroy_R;
       InternalError(error => 'Undefined parse tree value');
