@@ -19,7 +19,6 @@ require File::Spec->catfile('inc', 'stringNumericLiteralDoTests.pl');
 #
 package MyActions;
 use Math::BigFloat;
-use Scalar::Util qw/blessed/;
 use parent 'MarpaX::Languages::ECMAScript::AST::Grammar::ECMAScript_262_5::StringNumericLiteral::NativeNumberSemantics';
 
 #
