@@ -142,6 +142,20 @@ sub make_semantics_package {
     return join('::', $class, 'Semantics');
 }
 
+=head2 spacesAny($self, $spacesAny)
+
+Getter/Setter of a SpacesAny grammar implementation, used internally by the Program grammar.
+
+=cut
+
+sub spacesAny {
+    my $self = shift;
+    if (@_) {
+	$self->{_spacesAny} = shift;
+    }
+    return $self->{_spacesAny};
+}
+
 =head2 parse($self, $source, $impl)
 
 Parse the source given as $source using implementation $impl.
@@ -405,22 +419,10 @@ sub _isDecimalDigit {
 sub _isEnd {
     # my ($self, $source, $pos, $impl) = @_;
 
-  my $rc = 0;
-
-  my $prevpos = pos($_[1]);
-  pos($_[1]) = $_[2];
-
-  if ($_[1] =~ $isEnd) {
-    $rc = 1;
-  }
-
-  #if ($rc) {
-  #  $log->tracef('[_isEnd] Only spaces up to the end');
-  #}
-
-  pos($_[1]) = $prevpos;
-
-  return $rc;
+    my $grammar     = $_[0]->spacesAny->{grammar};
+    my $impl        = $_[0]->spacesAny->{impl};
+    $grammar->parse($_[1], $impl, $_[2]);
+    return $grammar->endReached;
 }
 
 sub _insertSemiColon {

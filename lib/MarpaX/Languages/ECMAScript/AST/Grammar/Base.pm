@@ -202,9 +202,9 @@ sub make_semantics_package {
     return join('::', __PACKAGE__, 'DefaultSemanticsPackage');
 }
 
-=head2 parse($self, $source, [$optionsp], [$start], [$length])
+=head2 parse($self, $source, $impl, [$optionsp], [$start], [$length])
 
-Parse the source given as reference to a scalar, an optional reference to a options that is a hash that can contain:
+Parse the source given as reference to a scalar, using implementation $impl, an optional reference to a options that is a hash that can contain:
 
 =over
 
@@ -245,7 +245,7 @@ sub _callback {
 
   eval {$rc = &$callbackp(@args, $source, $pos, $max, $impl)};
   if ($@) {
-    my $callackErrorString = $@;
+    my $callbackErrorString = $@;
     my $line_columnp;
     eval {$line_columnp = lineAndCol($impl)};
     my $context = _context($self, $impl);
@@ -255,15 +255,15 @@ sub _callback {
     $impl->destroy_R;
     if (! $@) {
       if (defined($originalErrorString) && $originalErrorString) {
-        SyntaxError(error => sprintf("%s\n%s\n\n%s%s", $originalErrorString, $callackErrorString, showLineAndCol(@{$line_columnp}, $source), $context));
+        SyntaxError(error => sprintf("%s\n%s\n\n%s%s", $originalErrorString, $callbackErrorString, showLineAndCol(@{$line_columnp}, $source), $context));
       } else {
-        SyntaxError(error => sprintf("%s\n\n%s%s", $callackErrorString, showLineAndCol(@{$line_columnp}, $source), $context));
+        SyntaxError(error => sprintf("%s\n\n%s%s", $callbackErrorString, showLineAndCol(@{$line_columnp}, $source), $context));
       }
     } else {
       if (defined($originalErrorString) && $originalErrorString) {
-        SyntaxError(error => sprintf("%s\n%s\n%s", $originalErrorString, $callackErrorString, $context));
+        SyntaxError(error => sprintf("%s\n%s\n%s", $originalErrorString, $callbackErrorString, $context));
       } else {
-        SyntaxError(error => sprintf("%s\n%s", $callackErrorString, $context));
+        SyntaxError(error => sprintf("%s\n%s", $callbackErrorString, $context));
       }
     }
   }
@@ -288,10 +288,16 @@ sub parse {
   $start //= 0;
   $length //= -1;
 
+  my $sourceMaxPos = length($source) - 1;
+  if ($start < 0) {
+      $start += $sourceMaxPos + 1;
+  }
+  my $max = ($length < 0) ? ($length + $sourceMaxPos + 1) : ($start + $length);
+
   my $pos = $start;
-  my $max = length($source) - $start + $length;
   my $stop;
   my $newpos;
+
   #
   # Create a recognizer
   #

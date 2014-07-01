@@ -108,7 +108,7 @@ sub template {
 
 =head2 stringNumericLiteral($self)
 
-Returns the generic stringNumericLiteral associated to grammarName.
+Returns the stringNumericLiteral grammar.
 
 =cut
 
@@ -119,7 +119,7 @@ sub stringNumericLiteral {
 
 =head2 pattern($self)
 
-Returns the generic pattern associated to grammarName.
+Returns the pattern grammar.
 
 =cut
 
@@ -130,7 +130,7 @@ sub pattern {
 
 =head2 JSON($self)
 
-Returns the generic JSON associated to grammarName.
+Returns the JSON grammar.
 
 =cut
 
@@ -141,13 +141,24 @@ sub JSON {
 
 =head2 URI($self)
 
-Returns the generic URI associated to grammarName.
+Returns the URI grammar.
 
 =cut
 
 sub URI {
     my ($self) = @_;
     return $self->{_grammar}->URI;
+}
+
+=head2 spacesAny($self)
+
+Returns the spacesAny grammar.
+
+=cut
+
+sub spacesAny {
+    my ($self) = @_;
+    return $self->{_grammar}->spacesAny;
 }
 
 =head1 SEE ALSO
