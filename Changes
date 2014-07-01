@@ -1,7 +1,13 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.015 2014-02-22T08:32:11
+0.016 2014-07-01T22:42:23
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Code that throws a "subexpression recursion limit exception". (#1)
+ - number dev+
+
+0.015 2014-02-22T08:34:45
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Release of version 0.015
  - Grammar/Base.pm: Fixed show of last expression in case of error
  - Revert "Use slr->ambiguity_metric to detect ambiguous parse"
    
