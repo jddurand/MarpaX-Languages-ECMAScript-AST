@@ -57,7 +57,9 @@ sub valuesAndRuleId {
   # Note: we do not include Marpa explicitely: this is done in one unique
   # place, i.e. Impl.pm.
   #
-  return {values => [ @_ ], ruleId => $Marpa::R2::Context::rule};
+  my $ruleId = $Marpa::R2::Context::rule;
+  my ($lhs, @rhs) = $Marpa::R2::Context::grammar->rule($ruleId);
+  return {values => [ @_ ], ruleId => $ruleId, lhs => $lhs, rhs => \@rhs};
 }
 
 =head2 StringLiteral($self, $lexemeActionValuep)
