@@ -191,6 +191,15 @@ sub _eventCallback {
   my %lastLexeme = ();
   my $lastLexemeDoneb = 0;
 
+  #
+  # Cache of some call results
+  #
+  $self->{_isIdentifierStart} = {};
+  $self->{_isDecimalDigit} = {};
+  $self->{_preSLength} = {};
+  $self->{_isEnd} = {};
+  $self->{_postLineTerminatorLength} = {};
+
   foreach (@{$impl->events()}) {
     my ($name) = @{$_};
     #
@@ -204,15 +213,15 @@ sub _eventCallback {
 	#
 	# Program$ will happen rarely, so even it does cost it is ok to do so
 	#
-	$self->{programCompleted} = $self->_isEnd($source, $pos, $impl);
+	$self->{programCompleted} = ($self->{_isEnd}->{$pos} //= $self->_isEnd($source, $pos, $impl));
     }
     elsif ($name eq 'NumericLiteral$') {
       #
       # The source character immediately following a NumericLiteral must not be
       # an IdentifierStart or DecimalDigit
       #
-      if ($self->_isIdentifierStart($source, $pos, $impl) ||
-          $self->_isDecimalDigit($source, $pos, $impl)) {
+      if (($self->{_isIdentifierStart}->{$pos} //= $self->_isIdentifierStart($source, $pos, $impl)) ||
+          ($self->{_isDecimalDigit}->{$pos} //= $self->_isDecimalDigit($source, $pos, $impl))) {
         my ($start, $end) = $impl->last_completed_range('NumericLiteral');
         my $lastNumericLiteral = $impl->range_to_string($start, $end);
         SyntaxError(error => "NumericLiteral $lastNumericLiteral must not be immediately followed by an IdentifierStart or DecimalDigit");
@@ -244,7 +253,7 @@ sub _eventCallback {
 	    $self->getLastLexeme(\%lastLexeme, $impl);
 	    $lastLexemeDoneb = 1;
 	}
-	my $Slength = $self->_preSLength($source, $rc, $impl);
+	my $Slength = ($self->{_preSLength}->{$rc} //= $self->_preSLength($source, $rc, $impl));
 	$self->_insertInvisibleSemiColon($impl, $rc, $Slength);
 	$rc += $Slength;
     }
@@ -257,7 +266,7 @@ sub _eventCallback {
 	    $lastLexemeDoneb = 1;
 	}
       my $postLineTerminatorPos = $lastLexeme{start} + $lastLexeme{length};
-      my $postLineTerminatorLength = $self->_postLineTerminatorLength($source, $postLineTerminatorPos, $impl);
+      my $postLineTerminatorLength = ($self->{_postLineTerminatorLength}->{$postLineTerminatorPos} //= $self->_postLineTerminatorLength($source, $postLineTerminatorPos, $impl));
       if ($postLineTerminatorLength > 0) {
 	  $impl->lexeme_read('SEMICOLON', $postLineTerminatorPos, $postLineTerminatorLength, ';');
       }
@@ -271,7 +280,7 @@ sub _eventCallback {
     # ^^DIV (because of REGULAREXPRESSIONLITERAL that can eat it)
     # -----------------------------------------------------------
     elsif ($name eq '^^DIV') {
-	my $realpos = $rc + $self->_preSLength($source, $rc, $impl);
+	my $realpos = $rc + ($self->{_preSLength}->{$rc} //= $self->_preSLength($source, $rc, $impl));
       if (index($source, '/',  $realpos) == $realpos &&
           index($source, '/=', $realpos) != $realpos &&
           index($source, '//', $realpos) != $realpos &&
@@ -284,7 +293,7 @@ sub _eventCallback {
     # ^^DIVASSIGN  (because of REGULAREXPRESSIONLITERAL that can eat it)
     # ------------------------------------------------------------------
     elsif ($name eq '^^DIVASSIGN') {
-	my $realpos = $rc + $self->_preSLength($source, $rc, $impl);
+	my $realpos = $rc + ($self->{_preSLength}->{$rc} //= $self->_preSLength($source, $rc, $impl));
       if (index($source, '/=', $realpos) == $realpos &&
           index($source, '//', $realpos) != $realpos &&
           index($source, '/*', $realpos) != $realpos) {
@@ -293,6 +302,15 @@ sub _eventCallback {
       }
     }
   }
+
+  #
+  # Remove cache
+  #
+  delete($self->{_isIdentifierStart});
+  delete($self->{_isDecimalDigit});
+  delete($self->{_preSLength});
+  delete($self->{_isEnd});
+  delete($self->{_postLineTerminatorLength});
 
   #if ($rc != $pos) {
   #  $log->tracef('[_eventCallback] Resuming at position %d (was %d when called)', $rc, $pos);
