@@ -58,8 +58,15 @@ sub valuesAndRuleId {
   # place, i.e. Impl.pm.
   #
   my $ruleId = $Marpa::R2::Context::rule;
-  my ($lhs, @rhs) = $Marpa::R2::Context::grammar->rule($ruleId);
-  return {values => [ @_ ], ruleId => $ruleId, lhs => $lhs, rhs => \@rhs};
+  #
+  # Note: $Marpa::R2::Context::grammar->rule($ruleId) returns an array
+  #
+  if (! defined($self->{ruleId2Lhs}->[$ruleId])) {
+    my ($lhs, @rhs) = $Marpa::R2::Context::grammar->rule($ruleId);
+    $self->{ruleId2Lhs}->[$ruleId] = $lhs;
+    $self->{ruleId2Rhs}->[$ruleId] = \@rhs;;
+  }
+  return {values => [ @_ ], ruleId => $ruleId, lhs => $self->{ruleId2Lhs}->[$ruleId], rhs => $self->{ruleId2Rhs}->[$ruleId]};
 }
 
 =head2 StringLiteral($self, $lexemeActionValuep)
