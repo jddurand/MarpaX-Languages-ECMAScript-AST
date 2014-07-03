@@ -1,7 +1,20 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.016 2014-07-01T22:42:23
+0.017 2014-07-03T21:39:16
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - ECMAScript_262_5 Generic Template for version 0.017
+ - Program/Semantics.pm: optimization
+ - Merge branch 'master' of
+   https://github.com/jddurand/MarpaX-Languages-ECMAScript-AST
+ - Program/Semantics.pm: add lhs and rhs information in value -
+   StringLiteral: documentation and behaviour mismatch #2
+ - ECMAScript_262_5/Program.pm: few optimizations
+ - ECMAScript_262_5 Generic Template for version 0.017
+ - t/github_issue_0001.t: Removed logging
+
+0.016 2014-07-01T22:45:04
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Release of version 0.016
  - Code that throws a "subexpression recursion limit exception". (#1)
  - number dev+
 
