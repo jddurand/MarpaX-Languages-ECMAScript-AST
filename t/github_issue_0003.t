@@ -12,5 +12,5 @@ my $x = MarpaX::Languages::ECMAScript::AST->new->parse(<< 'EoC');
     ///////////////////////////////////////////////////////////////////////////
 EoC
 
-ok(defined($x), 'Code that throws a "lexer Earley item count exceeds warning threshold". (github issue #1)');
+ok(defined($x), 'Code that throws a "lexer Earley item count exceeds warning threshold". (github issue #3)');
 done_testing(2);
