@@ -179,10 +179,10 @@ sub make_recce_option {
     my ($class, $spec) = @_;
     return {ranking_method => $class->make_ranking_method,
             semantics_package => $class->make_semantics_package,
-            too_many_earley_items => 0};
+            too_many_earley_items => $class->make_too_many_earley_items};
 }
 
-=head2 ranking_method($class)
+=head2 make_ranking_method($class)
 
 Class method that returns recommended recce ranking_method
 
@@ -193,7 +193,7 @@ sub make_ranking_method {
     return 'high_rule_only';
 }
 
-=head2 semantics_package($class)
+=head2 make_semantics_package($class)
 
 Class method that returns a default recce semantics_package, doing nothing else but a new().
 
@@ -202,6 +202,17 @@ Class method that returns a default recce semantics_package, doing nothing else 
 sub make_semantics_package {
     my ($class) = @_;
     return join('::', __PACKAGE__, 'DefaultSemanticsPackage');
+}
+
+=head2 make_too_many_earley_items($class)
+
+Class method that returns a default recce too_many_earley_items option, default is 0 i.e. disable them.
+
+=cut
+
+sub make_too_many_earley_items {
+    my ($class) = @_;
+    return 0;
 }
 
 =head2 parse($self, $source, $impl, [$optionsp], [$start], [$length])
