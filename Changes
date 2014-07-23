@@ -1,7 +1,22 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.017 2014-07-03T21:39:16
+0.018 2014-07-23T20:06:33
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - t/github_issue_0004.t: More than one parse tree value #4
+ - t/github_issue_0003.t: fix comment
+ - github issue #3
+ - ECMAScript_262_5 Generic Template for version 0.018
+ - Grammar/Base.pm: too_many_earley_items as a class method
+ - Grammar/Base.pm: too_many_earley_items => 0
+ - ECMASCript/Program.pm: fix ExpressionStatement ambiguity with Block or
+   FunctionDeclaration
+ - Grammar/Base.pm: support of eventual traverser
+ - ECMAScript_262_5 Generic Template for version 0.018
+ - AST/Impl.pm: fix recce method
+
+0.017 2014-07-03T21:41:45
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Release of version 0.017
  - ECMAScript_262_5 Generic Template for version 0.017
  - Program/Semantics.pm: optimization
  - Merge branch 'master' of
