@@ -1,6 +1,6 @@
 #
 # This is a generated file using the command:
-# /usr/bin/perl script/generateTemplate.pl ECMAScript-262-5
+# C:\perl-5.18\perl\bin\perl.exe script/generateTemplate.pl ECMAScript-262-5
 #
 use strict;
 use warnings FATAL => 'all';
@@ -4018,7 +4018,7 @@ sub G1_155 {
 
 =head2 G1_156($self, $value, $index)
 
-Transpilation of G1 rule No 156, i.e. Block ::= LCURLY StatementListopt RCURLY
+Transpilation of G1 rule No 156, i.e. Block ::= LCURLY_BLOCK StatementListopt RCURLY
 
 $value is the value of RHS No $index (starting at 0).
 
@@ -4029,14 +4029,14 @@ sub G1_156 {
 
     my $rc = '';
 
-    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 156, $value, $index, 'Block', 'LCURLY', 'StatementListopt', 'RCURLY')) {
+    if (&{$self->{_g1Callback}}(@{$self->{_g1CallbackArgs}}, \$rc, 156, $value, $index, 'Block', 'LCURLY_BLOCK', 'StatementListopt', 'RCURLY')) {
         if ($index == 0) {
-            $rc = $self->lexeme('LCURLY', 156, $value, 0, 'Block', 'LCURLY', 'StatementListopt', 'RCURLY');
+            $rc = $self->lexeme('LCURLY_BLOCK', 156, $value, 0, 'Block', 'LCURLY_BLOCK', 'StatementListopt', 'RCURLY');
         }
         elsif ($index == 1) {
         }
         elsif ($index == 2) {
-            $rc = $self->lexeme('RCURLY', 156, $value, 2, 'Block', 'LCURLY', 'StatementListopt', 'RCURLY');
+            $rc = $self->lexeme('RCURLY', 156, $value, 2, 'Block', 'LCURLY_BLOCK', 'StatementListopt', 'RCURLY');
         }
     }
 
