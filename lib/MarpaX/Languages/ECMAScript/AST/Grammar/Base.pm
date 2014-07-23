@@ -177,7 +177,9 @@ Class method that returns default recce options for a given ECMA specification $
 
 sub make_recce_option {
     my ($class, $spec) = @_;
-    return {ranking_method => $class->make_ranking_method, semantics_package => $class->make_semantics_package};
+    return {ranking_method => $class->make_ranking_method,
+            semantics_package => $class->make_semantics_package,
+            too_many_earley_items => 0};
 }
 
 =head2 ranking_method($class)
