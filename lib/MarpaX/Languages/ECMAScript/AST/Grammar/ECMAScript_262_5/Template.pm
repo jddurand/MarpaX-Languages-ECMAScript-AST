@@ -1,6 +1,6 @@
 #
 # This is a generated file using the command:
-# C:\perl-5.18\perl\bin\perl.exe script/generateTemplate.pl ECMAScript-262-5
+# /usr/bin/perl script/generateTemplate.pl ECMAScript-262-5
 #
 use strict;
 use warnings FATAL => 'all';
