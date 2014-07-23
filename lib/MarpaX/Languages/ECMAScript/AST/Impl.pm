@@ -321,7 +321,7 @@ Returns a Marpa::R2::Scanless::R object of this grammar.
 =cut
 
 sub recce {
-  return $_[0]->{grammar};
+  return $_[0]->{recce};
 }
 
 =head2 R($self)
