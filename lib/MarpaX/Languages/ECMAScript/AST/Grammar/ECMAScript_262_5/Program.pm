@@ -272,13 +272,25 @@ sub _eventCallback {
 	}
       my $postLineTerminatorPos = $lastLexeme{start} + $lastLexeme{length};
       my $postLineTerminatorLength = ($self->{_postLineTerminatorLength}->{$postLineTerminatorPos} //= $self->_postLineTerminatorLength($source, $postLineTerminatorPos, $impl));
+      my $asi = 0;
       if ($postLineTerminatorLength > 0) {
-	  $impl->lexeme_read('SEMICOLON', $postLineTerminatorPos, $postLineTerminatorLength, ';');
+	  if (! $impl->lexeme_read('SEMICOLON', $postLineTerminatorPos, $postLineTerminatorLength, ';')) {
+	      SyntaxError(error => "SEMICOLON lexeme_read failure at position $rc");
+	  }
+	  $asi = 1;
       }
       my $lname = $name;
       substr($lname, 0, 1, '');
       my $lvalue = ($lname eq 'PLUSPLUS_POSTFIX') ? '++' : '--';
-      $impl->lexeme_read($lname, $rc, 2, $lvalue);
+      #
+      # The value does not change if ASI was performed. But the name, yes.
+      #
+      if ($asi) {
+	  $lname = ($lname eq 'PLUSPLUS_POSTFIX') ? 'PLUSPLUS' : 'MINUSMINUS';
+      }
+      if (! $impl->lexeme_read($lname, $rc, 2, $lvalue)) {
+	  SyntaxError(error => "$lname lexeme_read failure at position $rc");
+      }
       $rc += 2;
     }
     #
@@ -290,7 +302,9 @@ sub _eventCallback {
           index($source, '/=', $realpos) != $realpos &&
           index($source, '//', $realpos) != $realpos &&
           index($source, '/*', $realpos) != $realpos) {
-        $impl->lexeme_read('DIV', $realpos, 1, '/');
+        if (! $impl->lexeme_read('DIV', $realpos, 1, '/')) {
+	    SyntaxError(error => "DIV lexeme_read failure at position $rc");
+	}
         $rc = $realpos + 1;
       }
     }
@@ -302,7 +316,9 @@ sub _eventCallback {
       if (index($source, '/=', $realpos) == $realpos &&
           index($source, '//', $realpos) != $realpos &&
           index($source, '/*', $realpos) != $realpos) {
-        $impl->lexeme_read('DIVASSIGN', $realpos, 2, '/=');
+        if (! $impl->lexeme_read('DIVASSIGN', $realpos, 2, '/=')) {
+	    SyntaxError(error => "DIVASSIGN lexeme_read failure at position $rc");
+	}
         $rc = $realpos + 2;
       }
     }
