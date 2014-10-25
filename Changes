@@ -1,7 +1,13 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.018 2014-07-23T20:06:33
+0.019 2014-10-25T22:15:15
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - ECMAScript_262_5/Program.pm: github issue #5
+ - t/asi.t: say more when there is a failure
+
+0.018 2014-07-23T20:09:04Z
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Release of version 0.018
  - t/github_issue_0004.t: More than one parse tree value #4
  - t/github_issue_0003.t: fix comment
  - github issue #3
@@ -14,7 +20,7 @@ Changelog for MarpaX-Languages-ECMAScript-AST
  - ECMAScript_262_5 Generic Template for version 0.018
  - AST/Impl.pm: fix recce method
 
-0.017 2014-07-03T21:41:45
+0.017 2014-07-03T21:41:45Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.017
  - ECMAScript_262_5 Generic Template for version 0.017
@@ -27,19 +33,18 @@ Changelog for MarpaX-Languages-ECMAScript-AST
  - ECMAScript_262_5 Generic Template for version 0.017
  - t/github_issue_0001.t: Removed logging
 
-0.016 2014-07-01T22:45:04
+0.016 2014-07-01T22:45:04Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.016
  - Code that throws a "subexpression recursion limit exception". (#1)
  - number dev+
 
-0.015 2014-02-22T08:34:45
+0.015 2014-02-22T08:34:45Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.015
  - Grammar/Base.pm: Fixed show of last expression in case of error
- - Revert "Use slr->ambiguity_metric to detect ambiguous parse"
-   
-   This reverts commit 510867cf17ba5b65515f76af8ed34a33f7445659.
+ - Revert "Use slr->ambiguity_metric to detect ambiguous parse" This
+   reverts commit 510867cf17ba5b65515f76af8ed34a33f7445659.
  - dev+
  - dev+
  - dev+
@@ -49,12 +54,12 @@ Changelog for MarpaX-Languages-ECMAScript-AST
  - AST/Impl.pm: use Marpa::R2 2.080000
  - Use slr->ambiguity_metric to detect ambiguous parse
 
-0.014 2014-02-16T21:10:23
+0.014 2014-02-16T21:10:23Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.014
  - Pattern/Semantics.pm: revisited way to condtionnaly use perl feature
 
-0.013 2014-02-16T15:21:39
+0.013 2014-02-16T15:21:39Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.013
  - use Marpa::R2 2.079015 rewritten as use Marpa::R2 2.079_015
@@ -75,26 +80,26 @@ Changelog for MarpaX-Languages-ECMAScript-AST
  - script/cover.sh
  - _AtomEscape_CharacterClassEscape fix
 
-0.012 2014-02-14T21:21:11
+0.012 2014-02-14T21:21:11Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.012
  - use File::HomeDir 0.93; because of my_dist_data
 
-0.011 2014-02-09T23:30:10
+0.011 2014-02-09T23:30:10Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.011
  - Impl/Singleton.pm: Removed some debug statement
  - t/stringNumericLiteralBigFloat.t: on some old Math::BigInt, 0x is not
    optional in from_hex
 
-0.010 2014-02-09T01:01:49
+0.010 2014-02-09T01:01:49Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.010
  - Float wooes
  - StringNumericLiteral/NativeNumberSemantics.pm: do {my $n = 2; $n *= $n
    while $n < $n*$n; $n} only when absolutely necessary
 
-0.009 2014-02-08T18:16:41
+0.009 2014-02-08T18:16:41Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.009
  - t/stringNumericLiteral*.t: Infinity tests
@@ -102,7 +107,7 @@ Changelog for MarpaX-Languages-ECMAScript-AST
    platforms without pos_zero or pos_infinity
  - ECMAScript_262_5/Program.pm: Tiny optimization
 
-0.008 2014-02-07T19:36:39
+0.008 2014-02-07T19:36:39Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.008
  - ECMAScript_262_5 Generic Template for version 0.008
@@ -120,7 +125,7 @@ Changelog for MarpaX-Languages-ECMAScript-AST
  - AST/Impl.pm: Typo in POD
  - Pattern/Semantics.pm: Fix POD error
 
-0.007 2014-02-05T23:04:05
+0.007 2014-02-05T23:04:05Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.007
  - Refactorisation
@@ -132,7 +137,7 @@ Changelog for MarpaX-Languages-ECMAScript-AST
  - t/pattern.t: two more test with alternation
  - Pattern: Fix lexeme issue (longest match win)
 
-0.006 2014-02-03T22:18:19
+0.006 2014-02-03T22:18:19Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.006
  - use
@@ -143,13 +148,11 @@ Changelog for MarpaX-Languages-ECMAScript-AST
    matcher
  - Pattern: t+
  - Revert "ECMAScript_262_5/Pattern.pm :  missing track of lparens for
-   lookahead disjunctions"
-   
-   This reverts commit 71d04f099f953fde146afd4ec3d5b4b59279fa85.
+   lookahead disjunctions" This reverts commit
+   71d04f099f953fde146afd4ec3d5b4b59279fa85.
  - Revert "Pattern/DefaultSemanticsPackage.pm: support of lparens in
-   lookahead disjunctions"
-   
-   This reverts commit 72cfe8ac1f5a430bbc0e6e3d9820786ba53e3fbe.
+   lookahead disjunctions" This reverts commit
+   72cfe8ac1f5a430bbc0e6e3d9820786ba53e3fbe.
  - Pattern/DefaultSemanticsPackage.pm: support of lparens in lookahead
    disjunctions
  - ECMAScript_262_5/Pattern.pm :  missing track of lparens for lookahead
@@ -239,7 +242,7 @@ Changelog for MarpaX-Languages-ECMAScript-AST
  - Use range for character class when possible
  - RT #91120
 
-0.005 2013-11-30T21:38:48
+0.005 2013-11-30T21:38:48Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.005
  - Lexical/StringLiteral/Actions.pm; octal actions fixes
@@ -273,7 +276,7 @@ Changelog for MarpaX-Languages-ECMAScript-AST
  [jddurand <jeandamiendurand@free.fr>]
  - NumericLiteral: dev+
 
-0.004 2013-11-10T17:16:22
+0.004 2013-11-10T17:16:22Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.004
  - perl critic
@@ -321,7 +324,7 @@ Changelog for MarpaX-Languages-ECMAScript-AST
  - AST: describe() method, factorized _init()
  - Impl: g1_rule_ids() and rule()
 
-0.003 2013-11-03T21:48:28
+0.003 2013-11-03T21:48:28Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.003
  - Program: Insert a true semicolon in the AST where there is an invisible
@@ -334,7 +337,7 @@ Changelog for MarpaX-Languages-ECMAScript-AST
  - AST: use my_dist_data for cache root storage
  - AST: Fix synopsis, use CHI label and namespace
 
-0.002 2013-10-31T21:01:47
+0.002 2013-10-31T21:01:47Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.002
  - Cache via CHI and optimizations
@@ -342,7 +345,7 @@ Changelog for MarpaX-Languages-ECMAScript-AST
  - Fixed usage
  - Rebless explicitely NumericLiteral lexemes
 
-0.001 2013-10-30T18:05:36
+0.001 2013-10-30T18:05:36Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - Release of version 0.001
  - first commit
