@@ -32,7 +32,13 @@ foreach (keys %asi) {
     my $ecmaSourceCode = $_;
     my $value;
     eval {$value = $ecmaAst->parse($ecmaSourceCode)};
-    ok(defined($asi{$_}) ? defined($value) : ! defined($value), (defined($value) ? 'defined' : "<undef>"));
+    my $EventualFailureString = $@;
+    my $status = defined($asi{$_}) ? defined($value) : ! defined($value);
+    my $statusString = defined($value) ? 'defined' : '<undef>';
+    ok($status, $statusString);
+    if (! $status) {
+      print STDERR "\n********************************\nFailed test was with:--->\"$ecmaSourceCode\"<---.\n\nEventual \$\@ is:\n\"$EventualFailureString\"\n********************************\n";
+    }
 }
 
 done_testing(1 + scalar(keys %asi));
