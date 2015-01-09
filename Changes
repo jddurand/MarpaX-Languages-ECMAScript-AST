@@ -1,6 +1,10 @@
 Changelog for MarpaX-Languages-ECMAScript-AST
 
-0.019 2014-10-25T22:15:15
+0.020 2015-01-09T19:20:59
+ [Jean-Damien Durand <jeandamiendurand@free.fr>]
+ - Impl/Logger.pm: issue with latest Log::Any
+
+0.019 2014-10-25T22:15:15Z
  [Jean-Damien Durand <jeandamiendurand@free.fr>]
  - ECMAScript_262_5/Program.pm: github issue #5
  - t/asi.t: say more when there is a failure
