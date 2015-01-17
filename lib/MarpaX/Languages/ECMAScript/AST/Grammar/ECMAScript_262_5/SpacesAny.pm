@@ -151,30 +151,20 @@ _WhiteSpace                            ~ [\p{IsWhiteSpace}]
 # ------------------
 _SingleLineComment                     ~ '//' _SingleLineCommentCharsopt
 
-_SingleLineCommentChars                ~ _SingleLineCommentChar _SingleLineCommentCharsopt
-
-_SingleLineCommentCharsopt             ~ _SingleLineCommentChars
-
-_SingleLineCommentCharsopt             ~
-
-_SingleLineCommentChar                 ~ [\p{IsSourceCharacterButNotLineTerminator}]
+_SingleLineCommentCharsopt             ~ [\p{IsSourceCharacterButNotLineTerminator}]*
 
 # -----------------------------------
 # _MultiLineCommentWithLineTerminator
 # -----------------------------------
 _MultiLineCommentWithLineTerminator ~ '/*' _MultiLineCommentWithLineTerminatorCharsopt _LineTerminator _MultiLineCommentWithLineTerminatorCharsopt '*/'
 
-_MultiLineCommentWithLineTerminatorChars ~ _MultiLineWithLineTerminatorNotAsteriskChar _MultiLineCommentWithLineTerminatorCharsopt
-                                                          | '*' _PostAsteriskCommentWithLineTerminatorCharsopt
-
-_PostAsteriskCommentWithLineTerminatorChars ~ _MultiLineWithLineTerminatorNotForwardSlashOrAsteriskChar _MultiLineCommentWithLineTerminatorCharsopt
-                                                          | '*' _PostAsteriskCommentWithLineTerminatorCharsopt
-
-_MultiLineCommentWithLineTerminatorCharsopt ~ _MultiLineCommentWithLineTerminatorChars
 _MultiLineCommentWithLineTerminatorCharsopt ~
+_MultiLineCommentWithLineTerminatorCharsopt ~ _MultiLineWithLineTerminatorNotAsteriskChar _MultiLineCommentWithLineTerminatorCharsopt
+                                                          | '*' _PostAsteriskCommentWithLineTerminatorCharsopt
 
-_PostAsteriskCommentWithLineTerminatorCharsopt ~ _PostAsteriskCommentWithLineTerminatorChars
 _PostAsteriskCommentWithLineTerminatorCharsopt ~
+_PostAsteriskCommentWithLineTerminatorCharsopt ~ _MultiLineWithLineTerminatorNotForwardSlashOrAsteriskChar _MultiLineCommentWithLineTerminatorCharsopt
+                                                          | '*' _PostAsteriskCommentWithLineTerminatorCharsopt
 
 _MultiLineWithLineTerminatorNotAsteriskChar ~ [\p{IsSourceCharacterButNotStar}]
 _MultiLineWithLineTerminatorNotForwardSlashOrAsteriskChar ~ [\p{IsSourceCharacterButNotOneOfSlashOrStar}]
@@ -184,17 +174,13 @@ _MultiLineWithLineTerminatorNotForwardSlashOrAsteriskChar ~ [\p{IsSourceCharacte
 # -----------------------------------
 _MultiLineCommentWithoutLineTerminator ~ '/*' _MultiLineCommentWithoutLineTerminatorCharsopt '*/'
 
-_MultiLineCommentWithoutLineTerminatorChars ~ _MultiLineWithoutLineTerminatorNotAsteriskChar _MultiLineCommentWithoutLineTerminatorCharsopt
-                                                          | '*' _PostAsteriskCommentWithoutLineTerminatorCharsopt
-
-_PostAsteriskCommentWithoutLineTerminatorChars ~ _MultiLineWithoutLineTerminatorNotForwardSlashOrAsteriskChar _MultiLineCommentWithoutLineTerminatorCharsopt
-                                                          | '*' _PostAsteriskCommentWithoutLineTerminatorCharsopt
-
-_MultiLineCommentWithoutLineTerminatorCharsopt ~ _MultiLineCommentWithoutLineTerminatorChars
 _MultiLineCommentWithoutLineTerminatorCharsopt ~
+_MultiLineCommentWithoutLineTerminatorCharsopt ~ _MultiLineWithoutLineTerminatorNotAsteriskChar _MultiLineCommentWithoutLineTerminatorCharsopt
+                                                          | '*' _PostAsteriskCommentWithoutLineTerminatorCharsopt
 
-_PostAsteriskCommentWithoutLineTerminatorCharsopt ~ _PostAsteriskCommentWithoutLineTerminatorChars
 _PostAsteriskCommentWithoutLineTerminatorCharsopt ~
+_PostAsteriskCommentWithoutLineTerminatorCharsopt ~ _MultiLineWithoutLineTerminatorNotForwardSlashOrAsteriskChar _MultiLineCommentWithoutLineTerminatorCharsopt
+                                                          | '*' _PostAsteriskCommentWithoutLineTerminatorCharsopt
 
 _MultiLineWithoutLineTerminatorNotAsteriskChar ~ [\p{IsSourceCharacterButNotStarOrLineTerminator}]
 _MultiLineWithoutLineTerminatorNotForwardSlashOrAsteriskChar ~ [\p{IsSourceCharacterButNotOneOfSlashOrStarOrLineTerminator}]
