@@ -556,7 +556,7 @@ __DATA__
 #
 :start ::= Program
 :default ::= action => valuesAndRuleId # bless => ::lhs
-lexeme default = action => [start,length,value] forgiving => 1 
+lexeme default = action => [start,length,value] forgiving => 1
 
 #
 # Literal definition as per lexical grammar
@@ -998,7 +998,6 @@ _S ~
     _SNOLT
   | _SLT
 _S_MANY ~ _S+
-_S_ANY ~ _S*
 :discard ~ _S_MANY
 
 # - An invisible semicolon is a lexeme that should be at least as long as _S_MANY when _S_MANY matches.
@@ -1012,7 +1011,9 @@ _S_ANY ~ _S*
 # - Obviously, the presence of a true VISIBLE_SEMICOLON should have higher priority
 #
 :lexeme ~ <INVISIBLE_SEMICOLON> pause => before event => '^INVISIBLE_SEMICOLON'
-INVISIBLE_SEMICOLON ~ _S_ANY _SLT _S_ANY
+INVISIBLE_SEMICOLON ~ _SLT
+INVISIBLE_SEMICOLON ~ _SLT _S_MANY
+INVISIBLE_SEMICOLON ~ _S_MANY _SLT
 
 NullLiteral                           ::= NULL
 BooleanLiteral                        ::= TRUE | FALSE
@@ -1251,30 +1252,20 @@ _WhiteSpace                            ~ [\p{IsWhiteSpace}]
 # ------------------
 _SingleLineComment                     ~ '//' _SingleLineCommentCharsopt
 
-_SingleLineCommentChars                ~ _SingleLineCommentChar _SingleLineCommentCharsopt
-
-_SingleLineCommentCharsopt             ~ _SingleLineCommentChars
-
-_SingleLineCommentCharsopt             ~
-
-_SingleLineCommentChar                 ~ [\p{IsSourceCharacterButNotLineTerminator}]
+_SingleLineCommentCharsopt             ~ [\p{IsSourceCharacterButNotLineTerminator}]*
 
 # -----------------------------------
 # _MultiLineCommentWithLineTerminator
 # -----------------------------------
 _MultiLineCommentWithLineTerminator ~ '/*' _MultiLineCommentWithLineTerminatorCharsopt _LineTerminator _MultiLineCommentWithLineTerminatorCharsopt '*/'
 
-_MultiLineCommentWithLineTerminatorChars ~ _MultiLineWithLineTerminatorNotAsteriskChar _MultiLineCommentWithLineTerminatorCharsopt
-                                                          | '*' _PostAsteriskCommentWithLineTerminatorCharsopt
-
-_PostAsteriskCommentWithLineTerminatorChars ~ _MultiLineWithLineTerminatorNotForwardSlashOrAsteriskChar _MultiLineCommentWithLineTerminatorCharsopt
-                                                          | '*' _PostAsteriskCommentWithLineTerminatorCharsopt
-
-_MultiLineCommentWithLineTerminatorCharsopt ~ _MultiLineCommentWithLineTerminatorChars
 _MultiLineCommentWithLineTerminatorCharsopt ~
+_MultiLineCommentWithLineTerminatorCharsopt ~ _MultiLineWithLineTerminatorNotAsteriskChar _MultiLineCommentWithLineTerminatorCharsopt
+                                                          | '*' _PostAsteriskCommentWithLineTerminatorCharsopt
 
-_PostAsteriskCommentWithLineTerminatorCharsopt ~ _PostAsteriskCommentWithLineTerminatorChars
 _PostAsteriskCommentWithLineTerminatorCharsopt ~
+_PostAsteriskCommentWithLineTerminatorCharsopt ~ _MultiLineWithLineTerminatorNotForwardSlashOrAsteriskChar _MultiLineCommentWithLineTerminatorCharsopt
+                                                          | '*' _PostAsteriskCommentWithLineTerminatorCharsopt
 
 _MultiLineWithLineTerminatorNotAsteriskChar ~ [\p{IsSourceCharacterButNotStar}]
 _MultiLineWithLineTerminatorNotForwardSlashOrAsteriskChar ~ [\p{IsSourceCharacterButNotOneOfSlashOrStar}]
@@ -1284,17 +1275,13 @@ _MultiLineWithLineTerminatorNotForwardSlashOrAsteriskChar ~ [\p{IsSourceCharacte
 # -----------------------------------
 _MultiLineCommentWithoutLineTerminator ~ '/*' _MultiLineCommentWithoutLineTerminatorCharsopt '*/'
 
-_MultiLineCommentWithoutLineTerminatorChars ~ _MultiLineWithoutLineTerminatorNotAsteriskChar _MultiLineCommentWithoutLineTerminatorCharsopt
-                                                          | '*' _PostAsteriskCommentWithoutLineTerminatorCharsopt
-
-_PostAsteriskCommentWithoutLineTerminatorChars ~ _MultiLineWithoutLineTerminatorNotForwardSlashOrAsteriskChar _MultiLineCommentWithoutLineTerminatorCharsopt
-                                                          | '*' _PostAsteriskCommentWithoutLineTerminatorCharsopt
-
-_MultiLineCommentWithoutLineTerminatorCharsopt ~ _MultiLineCommentWithoutLineTerminatorChars
 _MultiLineCommentWithoutLineTerminatorCharsopt ~
+_MultiLineCommentWithoutLineTerminatorCharsopt ~ _MultiLineWithoutLineTerminatorNotAsteriskChar _MultiLineCommentWithoutLineTerminatorCharsopt
+                                                          | '*' _PostAsteriskCommentWithoutLineTerminatorCharsopt
 
-_PostAsteriskCommentWithoutLineTerminatorCharsopt ~ _PostAsteriskCommentWithoutLineTerminatorChars
 _PostAsteriskCommentWithoutLineTerminatorCharsopt ~
+_PostAsteriskCommentWithoutLineTerminatorCharsopt ~ _MultiLineWithoutLineTerminatorNotForwardSlashOrAsteriskChar _MultiLineCommentWithoutLineTerminatorCharsopt
+                                                          | '*' _PostAsteriskCommentWithoutLineTerminatorCharsopt
 
 _MultiLineWithoutLineTerminatorNotAsteriskChar ~ [\p{IsSourceCharacterButNotStarOrLineTerminator}]
 _MultiLineWithoutLineTerminatorNotForwardSlashOrAsteriskChar ~ [\p{IsSourceCharacterButNotOneOfSlashOrStarOrLineTerminator}]
